@@ -11,13 +11,15 @@ import ProductSpecification from '@/components/products/ProductSpecification'
 import RelatedProducts from '@/components/products/RelatedProducts'
 import SubstratesSection from '@/components/products/SubstratesSection'
 import { fetchMergedSubProduct } from '@/lib/products-data'
+import { notFound } from 'next/navigation'
 
-export default async function AcoperfPage() {
-  const { product, subProduct } = await fetchMergedSubProduct('wood-acoustic-panel', 'acoperf')
-  
-  if (!product || !subProduct) {
-    return null
-  }
+type Props = { params: Promise<{ category: string; subcategory: string; product: string }> }
+
+export default async function ProductDetailPage({ params }: Props) {
+  const { subcategory, product: productSlug } = await params
+  const { product, subProduct } = await fetchMergedSubProduct(subcategory, productSlug)
+
+  if (!product || !subProduct) notFound()
 
   return (
     <>

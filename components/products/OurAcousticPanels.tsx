@@ -4,6 +4,8 @@ import { fetchMergedProduct } from "@/lib/products-data";
 
 interface OurAcousticPanelsProps {
   productSlug?: string;
+  /** Category slug for links; from route /products/[category]. Default "acoustic". */
+  categorySlug?: string;
 }
 
 const FALLBACK_PANELS = [
@@ -14,7 +16,7 @@ const FALLBACK_PANELS = [
   { title: "Perfomax", desc: "Max Perforated Acoustical Panels", img: "/assets/panels/perfomax.png", slug: "perfomax" },
 ];
 
-export default async function OurAcousticPanels({ productSlug }: OurAcousticPanelsProps = {}) {
+export default async function OurAcousticPanels({ productSlug, categorySlug = "acoustic" }: OurAcousticPanelsProps = {}) {
   let panels: Array<{ title: string; desc: string; img: string; slug?: string }> = [];
 
   if (productSlug) {
@@ -99,7 +101,7 @@ group-hover:rotate-0">
               return (
                 <Link
                   key={index}
-                  href={`/products/acoustic/${productSlug}/${item.slug}`}
+                  href={`/products/${categorySlug}/${productSlug}/${item.slug}`}
                   className="block"
                 >
                   {CardContent}

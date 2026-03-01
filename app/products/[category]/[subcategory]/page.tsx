@@ -7,13 +7,15 @@ import ProductContentSection from '@/components/products/ProductContentSection'
 import ProductHeroSection from '@/components/products/ProductHeroSection'
 import WhyChooseSection from '@/components/products/WhyChooseSection'
 import { fetchMergedProduct } from '@/lib/products-data'
+import { notFound } from 'next/navigation'
 
-export default async function FabricAcousticPanelPage() {
-  const product = await fetchMergedProduct('fabric-acoustic-panel')
+type Props = { params: Promise<{ category: string; subcategory: string }> }
 
-  if (!product) {
-    return null
-  }
+export default async function SubcategoryPage({ params }: Props) {
+  const { category, subcategory } = await params
+  const product = await fetchMergedProduct(subcategory)
+
+  if (!product) notFound()
 
   return (
     <>
@@ -27,7 +29,7 @@ export default async function FabricAcousticPanelPage() {
         title={product.title}
         description={product.description}
       />
-      <OurAcousticPanels productSlug={product.slug} />
+      <OurAcousticPanels productSlug={product.slug} categorySlug={category} />
       <WhyChooseSection
         title={product.title}
         description={product.description}

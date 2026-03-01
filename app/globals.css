@@ -175,18 +175,28 @@ input[type="reset"]:not(:disabled),
   font-display: swap;
 }
 
-
-
-
-@keyframes client-marquee {
+@keyframes marquee-left {
   0% {
-    transform: translateX(0);
+    transform: translateX(0%);
   }
   100% {
     transform: translateX(-50%);
   }
 }
 
-.animate-client-marquee {
-  animation: client-marquee 25s linear infinite;
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-left {
+  animation: marquee-left 35s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 35s linear infinite;
 }

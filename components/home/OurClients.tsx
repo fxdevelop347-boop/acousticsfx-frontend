@@ -89,13 +89,27 @@ export default function OurClients() {
 
         </div>
 
-        {/* ================= MOBILE / TABLET (SLIDER) ================= */}
-        <div className="lg:hidden overflow-hidden">
-          <div className="flex w-max animate-client-marquee gap-6 sm:gap-10">
-            {[...logos, ...logos].map((logo, index) => (
-              <LogoCard key={index} logo={logo} />
-            ))}
+        {/* ================= MOBILE / TABLET (DOUBLE SLIDER) ================= */}
+        <div className="lg:hidden overflow-hidden space-y-6">
+
+          {/* ROW 1 (Left → Right) */}
+          <div className="overflow-hidden">
+            <div className="flex w-max animate-marquee-left gap-6">
+              {[...logos, ...logos].map((logo, index) => (
+                <LogoCard key={index} logo={logo} small />
+              ))}
+            </div>
           </div>
+
+          {/* ROW 2 (Right → Left) */}
+          <div className="overflow-hidden">
+            <div className="flex w-max animate-marquee-right gap-6">
+              {[...logos, ...logos].map((logo, index) => (
+                <LogoCard key={index} logo={logo} small />
+              ))}
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -103,11 +117,15 @@ export default function OurClients() {
   );
 }
 
-function LogoCard({ logo }: { logo: string }) {
+function LogoCard({ logo, small }: { logo: string; small?: boolean }) {
   return (
     <div
-      className="bg-white rounded-lg flex items-center justify-center shadow-sm p-4 shrink-0"
-      style={{ width: "185px", height: "90px" }}
+      className="bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0"
+      style={{
+        width: small ? "120px" : "185px",   // 🔥 aur chhota
+height: small ? "60px" : "90px",
+        padding: "12px",
+      }}
     >
       <div className="relative w-full h-full">
         <Image src={logo} alt="Client Logo" fill className="object-contain" />

@@ -36,16 +36,14 @@ export default function CreativeApproach() {
 
         {/* LEFT CONTENT CARD */}
         <div
-          className="
-            relative z-30 bg-[#FFF3E8]
-            p-6 lg:p-10
-            shadow-lg
-            w-full
-            lg:w-auto
-            lg:[width:clamp(500px,40.9vw,655px)]
-            lg:[height:clamp(550px,44.3vw,709px)]
-          "
-        >
+  className="
+    relative z-30 bg-[#FFF3E8]
+    p-6 lg:p-10
+    shadow-lg
+    w-full
+    max-w-[650px]   /* 🔥 MAX WIDTH FIX */
+  "
+>
           <p className="text-sm mb-2">#FXacoustic solutions</p>
 
           <h2 className="text-2xl font-semibold mb-6">

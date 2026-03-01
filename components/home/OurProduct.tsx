@@ -23,6 +23,7 @@ const DEFAULT_PRODUCTS = [
 export default function ProductsSection() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState<ContentMap>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
@@ -34,12 +35,52 @@ export default function ProductsSection() {
     title: content[`home.ourProduct.product${i + 1}Title`]?.value ?? p.title,
   }));
 
+  // Desktop: free scroll
   const scrollLeft = () => {
     sliderRef.current?.scrollBy({ left: -600, behavior: "smooth" });
   };
 
   const scrollRight = () => {
     sliderRef.current?.scrollBy({ left: 600, behavior: "smooth" });
+  };
+
+  // Mobile: snap to index
+  const scrollToIndex = (index: number) => {
+    const clamped = Math.max(0, Math.min(index, products.length - 1));
+    setCurrentIndex(clamped);
+    const container = sliderRef.current;
+    if (!container) return;
+    const child = container.children[clamped] as HTMLElement;
+    if (child) {
+      container.scrollTo({ left: child.offsetLeft, behavior: "smooth" });
+    }
+  };
+
+  const handleScrollLeft = () => {
+    // On mobile use snap, on desktop use free scroll
+    if (window.innerWidth < 1024) {
+      scrollToIndex(currentIndex - 1);
+    } else {
+      scrollLeft();
+    }
+  };
+
+  const handleScrollRight = () => {
+    if (window.innerWidth < 1024) {
+      scrollToIndex(currentIndex + 1);
+    } else {
+      scrollRight();
+    }
+  };
+
+  // Update currentIndex on scroll (mobile)
+  const handleScroll = () => {
+    const container = sliderRef.current;
+    if (!container || window.innerWidth >= 1024) return;
+    const scrollLeft = container.scrollLeft;
+    const containerWidth = container.offsetWidth;
+    const index = Math.round(scrollLeft / containerWidth);
+    setCurrentIndex(index);
   };
 
   return (
@@ -91,12 +132,20 @@ export default function ProductsSection() {
         {/* TRACK */}
         <div
           ref={sliderRef}
-          className="flex gap-6 sm:gap-8 lg:gap-10 overflow-x-auto scroll-smooth no-scrollbar"
+          onScroll={handleScroll}
+          className="flex gap-6 sm:gap-8 lg:gap-10 overflow-x-auto scroll-smooth no-scrollbar
+            lg:snap-none
+            snap-x snap-mandatory"
         >
           {products.map((product) => (
             <div
               key={product.id}
-              className="min-w-[280px] sm:min-w-[420px] lg:min-w-[575px] bg-white"
+              className="
+                snap-start
+                min-w-[calc(100vw-48px)] sm:min-w-[calc(100vw-80px)]
+                lg:min-w-[575px]
+                bg-white
+              "
             >
               {/* IMAGE */}
               <div className="relative w-full h-[220px] sm:h-[300px] lg:w-[575px] lg:h-[392px]">
@@ -144,9 +193,9 @@ export default function ProductsSection() {
           ))}
         </div>
 
-        {/* IMAGE ARROWS */}
+        {/* ARROWS */}
         <div className="flex justify-center gap-8 mt-10">
-          <button onClick={scrollLeft} className="cursor-pointer">
+          <button onClick={handleScrollLeft} className="cursor-pointer">
             <Image
               src="/assets/home/Vector.svg"
               alt="Previous"
@@ -156,7 +205,7 @@ export default function ProductsSection() {
             />
           </button>
 
-          <button onClick={scrollRight} className="cursor-pointer">
+          <button onClick={handleScrollRight} className="cursor-pointer">
             <Image
               src="/assets/home/Vector.svg"
               alt="Next"
@@ -164,6 +213,19 @@ export default function ProductsSection() {
               height={10}
             />
           </button>
+        </div>
+
+        {/* MOBILE DOT INDICATORS */}
+        <div className="flex justify-center gap-2 mt-4 lg:hidden">
+          {products.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToIndex(i)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === currentIndex ? "bg-[#1F6775] w-4" : "bg-gray-300"
+              }`}
+            />
+          ))}
         </div>
 
       </div>

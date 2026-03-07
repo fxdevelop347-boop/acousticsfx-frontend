@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchLatestBlogs, type BlogSummary } from "@/lib/blogs-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.latestBlogs.heading",
@@ -102,7 +103,7 @@ export default function LatestBlogs() {
     <section className="px-6 sm:px-10 lg:px-[100px] py-[80px] lg:py-[100px] bg-white">
 
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-12">
+      <FadeIn direction="up" duration={0.6} className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-12">
         <div>
           <p className="text-[16px] font-bold mb-3 worksans-font">
             {val(content, "home.latestBlogs.heading")}
@@ -116,71 +117,80 @@ export default function LatestBlogs() {
         <Link href="/resources?tab=blogs" className="border px-5 py-2 text-sm h-fit cursor-pointer">
           {val(content, "home.latestBlogs.ctaLabel")}
         </Link>
-      </div>
+      </FadeIn>
 
       {/* ================= CONTENT ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* ACTIVE SLIDE */}
-        <Link
-          href={`/resources/blogs/${activeBlog.slug}`}
-          className="relative rounded-2xl overflow-hidden h-[320px] sm:h-[380px] lg:h-[420px] block"
-        >
-          <Image
-            src={activeBlog.image}
-            alt={activeBlog.title}
-            fill
-            className="object-cover"
-          />
+        <FadeIn direction="up" duration={0.7}>
+          <HoverScale>
+            <Link
+              href={`/resources/blogs/${activeBlog.slug}`}
+              className="relative rounded-2xl overflow-hidden h-[320px] sm:h-[380px] lg:h-[420px] block"
+            >
+              <Image
+                src={activeBlog.image}
+                alt={activeBlog.title}
+                fill
+                className="object-cover"
+              />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
-          <div className="absolute bottom-0 p-4 sm:p-6 text-white max-w-xl">
-            <p className="text-[14px] font-[400] mb-1 inter-font">
-              {activeBlog.date}
-            </p>
-            <h3 className="text-[17px] sm:text-[18px] lg:text-[19px] font-semibold mb-2 inter-font">
-              {activeBlog.title}
-            </h3>
-            <p className="text-[14px] sm:text-[15px] text-white/90 inter-font font-[500]">
-              {activeBlog.desc}
-            </p>
-          </div>
+              <div className="absolute bottom-0 p-4 sm:p-6 text-white max-w-xl">
+                <p className="text-[14px] font-[400] mb-1 inter-font">
+                  {activeBlog.date}
+                </p>
+                <h3 className="text-[17px] sm:text-[18px] lg:text-[19px] font-semibold mb-2 inter-font">
+                  {activeBlog.title}
+                </h3>
+                <p className="text-[14px] sm:text-[15px] text-white/90 inter-font font-[500]">
+                  {activeBlog.desc}
+                </p>
+              </div>
 
-          <span className="absolute top-4 right-4 bg-white text-xs px-3 py-1 rounded-full">
-            {activeBlog.tag}
-          </span>
-        </Link>
+              <span className="absolute top-4 right-4 bg-white text-xs px-3 py-1 rounded-full">
+                {activeBlog.tag}
+              </span>
+            </Link>
+          </HoverScale>
+        </FadeIn>
 
         {/* ================= SIDE BLOGS (DESKTOP ONLY) ================= */}
         <div className="hidden lg:grid grid-cols-2 gap-6">
-          {blogs
-            .filter((_, i) => i !== activeIndex)
-            .map((blog) => (
-              <div
-                key={blog.id}
-                className="cursor-pointer"
-                onClick={() =>
-                  setActiveIndex(blogs.findIndex((b) => b.id === blog.id))
-                }
-              >
-                <div className="relative h-[160px] rounded-xl overflow-hidden mb-3">
-                  <Image
-                    src={blog.image}
-                    alt={blog.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <span className="absolute top-3 right-3 bg-white text-xs px-3 py-1 rounded-full">
-                    {blog.tag}
-                  </span>
-                </div>
+          <StaggerContainer className="grid grid-cols-2 gap-6">
+            {blogs
+              .filter((_, i) => i !== activeIndex)
+              .map((blog) => (
+                <StaggerItem key={blog.id} direction="up">
+                  <div
+                    className="cursor-pointer"
+                    onClick={() =>
+                      setActiveIndex(blogs.findIndex((b) => b.id === blog.id))
+                    }
+                  >
+                    <div className="relative h-[160px] rounded-xl overflow-hidden mb-3">
+                      <Image
+                        src={blog.image}
+                        alt={blog.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <span className="absolute top-3 right-3 bg-white text-xs px-3 py-1 rounded-full">
+                        {blog.tag}
+                      </span>
+                    </div>
 
-                <p className="text-xs text-gray-500 mb-1">{blog.date}</p>
-                <h4 className="font-semibold text-sm mb-1">{blog.title}</h4>
-                <p className="text-sm text-gray-600">{blog.desc}</p>
-              </div>
-            ))}
+                    <p className="text-xs text-gray-500 mb-1">{blog.date}</p>
+                    <h4 className="font-semibold text-sm mb-1">
+                      {blog.title}
+                    </h4>
+                    <p className="text-sm text-gray-600">{blog.desc}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+          </StaggerContainer>
         </div>
       </div>
 

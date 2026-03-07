@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { fetchCategories, fetchCategoryBySlug, fetchProducts, type Product } from "@/lib/products-api";
 import { products as staticProducts } from "@/lib/products-data";
+import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 const FALLBACK_CARDS = staticProducts.map((p) => ({
   slug: p.slug,
@@ -91,31 +92,30 @@ export default async function AcousticSolutions({
         )}
 
         {/* Heading */}
-        <div className="mb-10 sm:mb-12 lg:mb-14">
+        <FadeIn direction="up" delay={0.1} className="mb-10 sm:mb-12 lg:mb-14">
           <p className="text-[16px] sm:text-[18px] manrope font-medium text-[#1F6775] mb-2">
             {categoryName}
           </p>
           <h2 className="text-[32px] sm:text-[38px] lg:text-[45px] font-semibold manrope leading-tight">
             Explore Our {categoryName} <br /> Masterpieces
           </h2>
-        </div>
+        </FadeIn>
 
         {/* Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-16 sm:gap-y-20 lg:gap-x-20 lg:gap-y-20">
-
           {/* LEFT COLUMN */}
-          <div className="flex flex-col gap-y-16 sm:gap-y-20">
+          <StaggerContainer className="flex flex-col gap-y-16 sm:gap-y-20">
             {leftCards.map((card) => (
               <ProductCard key={card.slug} card={card} categorySlug={categorySlug} />
             ))}
-          </div>
+          </StaggerContainer>
 
           {/* RIGHT COLUMN (60px DOWN) */}
-          <div className="flex flex-col gap-y-16 sm:gap-y-20 lg:mt-[60px]">
+          <StaggerContainer className="flex flex-col gap-y-16 sm:gap-y-20 lg:mt-[60px]">
             {rightCards.map((card) => (
               <ProductCard key={card.slug} card={card} categorySlug={categorySlug} />
             ))}
-          </div>
+          </StaggerContainer>
         </div>
 
       </div>

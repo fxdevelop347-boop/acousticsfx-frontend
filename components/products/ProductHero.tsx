@@ -1,20 +1,19 @@
 import Image from "next/image";
 import SocialIcons from "@/components/shared/SocialIcons";
+import { FadeIn } from "@/components/animations";
 
 export default function ProductHero() {
   return (
     <section className="w-full bg-white">
-
       {/* Breadcrumb */}
-      <div className="px-[24px] sm:px-[40px] md:px-[80px] lg:px-[200px] pt-[24px] sm:pt-[32px] lg:pt-[40px] text-sm text-gray-500">
+      <FadeIn direction="up" className="px-[24px] sm:px-[40px] md:px-[80px] lg:px-[200px] pt-[24px] sm:pt-[32px] lg:pt-[40px] text-sm text-gray-500">
         <span className="hover:text-black cursor-pointer">Home</span>
         <span className="mx-2">•</span>
         <span className="text-orange-500">Our Products</span>
-      </div>
+      </FadeIn>
 
       {/* Main Content */}
-      <div className="relative px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[60px] sm:py-[80px] lg:py-[100px] text-center">
-
+      <FadeIn direction="up" delay={0.1} className="relative px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[60px] sm:py-[80px] lg:py-[100px] text-center">
         {/* Social Icons */}
         <SocialIcons
           direction="vertical"
@@ -33,10 +32,10 @@ export default function ProductHero() {
           We design spaces that unite function and beauty, creating interiors and
           architecture that bring your lifestyle and vision to life.
         </p>
-      </div>
+      </FadeIn>
 
       {/* Image */}
-      <div className="px-[0px] pb-[0px]">
+      <FadeIn direction="up" delay={0.2} className="px-[0px] pb-[0px]">
         <Image
           src="/assets/product/product-hero-alt.jpg"
           alt="Interior Design"
@@ -44,7 +43,7 @@ export default function ProductHero() {
           height={900}
           className="w-full h-[280px] sm:h-[380px] lg:h-[500px] object-cover"
         />
-      </div>
+      </FadeIn>
     </section>
   );
 }

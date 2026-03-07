@@ -220,3 +220,5 @@ input[type="reset"]:not(:disabled),
 .animate-marquee-right {
   animation: marquee-right 35s linear infinite;
 }
+
+

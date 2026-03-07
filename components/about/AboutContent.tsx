@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "about.content.storyImage1",
@@ -34,9 +35,8 @@ export default function AboutContent() {
 
       {/* ================= Section 1 ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-20 items-center">
-
         {/* Left Content */}
-        <div>
+        <FadeIn direction="up">
           <p className="text-[15px] text-[#183B56] font-[700] tracking-widest text-gray-500 worksans-font uppercase mb-4">
             Our Story
           </p>
@@ -57,11 +57,10 @@ export default function AboutContent() {
             reputation on craftsmanship, reliability, and customer
             satisfaction.
           </p>
-        </div>
+        </FadeIn>
 
         {/* Right Images */}
-        <div className="relative flex justify-center lg:justify-end">
-
+        <SlideIn direction="right" className="relative flex justify-center lg:justify-end">
           {/* Big Image */}
           <div className="relative z-10 lg:left-[-200px] w-[320px] sm:w-[420px] lg:w-[525px] h-[566px]">
             <Image
@@ -81,15 +80,14 @@ export default function AboutContent() {
               className="object-cover"
             />
           </div>
-        </div>
+        </SlideIn>
       </div>
 
       {/* ================= Section 2 ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-20 items-center mt-24 sm:mt-32 lg:mt-40">
 
         {/* Left Images */}
-        <div className="relative flex justify-center lg:justify-start">
-
+        <SlideIn direction="left" className="relative flex justify-center lg:justify-start">
           {/* Big Image */}
           <div className="relative z-10 w-[300px] sm:w-[420px] lg:w-[505px] h-[466px]">
             <Image
@@ -109,10 +107,10 @@ export default function AboutContent() {
               className="object-cover"
             />
           </div>
-        </div>
+        </SlideIn>
 
         {/* Right Content */}
-        <div>
+        <FadeIn direction="up">
           <p className="text-[15px] text-[#183B56] font-[700] tracking-widest text-gray-500 worksans-font uppercase mb-4">
             Our Craft
           </p>
@@ -133,7 +131,7 @@ export default function AboutContent() {
             complete control over quality &mdash; ensuring every project delivers
             exceptional acoustic performance and lasting elegance.
           </p>
-        </div>
+        </FadeIn>
       </div>
 
     </section>

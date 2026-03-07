@@ -7,6 +7,7 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { fetchCaseStudies, type CaseStudy } from "@/lib/case-studies-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, HoverScale, StaggerContainer, StaggerItem } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.caseStudies.heading",
@@ -51,9 +52,8 @@ export default function CaseStudies() {
     <section className="py-[80px] lg:py-[100px] bg-white overflow-hidden">
 
       {/* TOP CONTENT */}
-      <div className="px-6 sm:px-10 lg:px-[200px] mb-14">
+      <FadeIn direction="up" duration={0.7} className="px-6 sm:px-10 lg:px-[200px] mb-14">
         <div className="flex flex-col lg:flex-row justify-between items-start gap-10 lg:gap-20">
-          
           <h2 className="text-[34px] sm:text-[44px] lg:text-[60px] font-[400] leading-tight axiforma max-w-xl">
             {heading.split("\n").map((line, i, arr) => (
               <span key={i}>
@@ -68,12 +68,15 @@ export default function CaseStudies() {
               {val(content, "home.caseStudies.subheading")}
             </p>
 
-            <Link href="/resources/casestudy" className="border px-4 py-2 text-xs cursor-pointer">
+            <Link
+              href="/resources/casestudy"
+              className="border px-4 py-2 text-xs cursor-pointer"
+            >
               {val(content, "home.caseStudies.ctaLabel")}
             </Link>
           </div>
         </div>
-      </div>
+      </FadeIn>
 
       {/* SLIDER */}
       <div className="relative pl-6 sm:pl-10 lg:pl-[360px]">
@@ -93,28 +96,31 @@ export default function CaseStudies() {
           }}
           ref={splideRef}
         >
-          {studies.map((item) => (
+          {studies.map((item, index) => (
             <SplideSlide key={item.slug}>
-              <div className="max-w-[420px]">
+              <StaggerContainer>
+                <StaggerItem direction="up">
+                  <HoverScale className="max-w-[420px]">
+                    {/* IMAGE */}
+                    <div className="relative h-[220px] sm:h-[240px] lg:h-[260px] w-full mb-4">
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
 
-                {/* IMAGE */}
-                <div className="relative h-[220px] sm:h-[240px] lg:h-[260px] w-full mb-4">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* TEXT */}
-                <h3 className="font-semibold text-lg mb-1">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {item.description}
-                </p>
-              </div>
+                    {/* TEXT */}
+                    <h3 className="font-semibold text-lg mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {item.description}
+                    </p>
+                  </HoverScale>
+                </StaggerItem>
+              </StaggerContainer>
             </SplideSlide>
           ))}
         </Splide>

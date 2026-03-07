@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Phone,
-  Mail,
-  Smartphone,
-  AtSign,
-  Headphones,
-} from "lucide-react";
+import { FadeIn } from "@/components/animations";
 
 export default function ContactHero() {
   return (
@@ -21,7 +15,9 @@ export default function ContactHero() {
       <div className="absolute inset-0 bg-black/50"></div>
 
       {/* Content */}
-      <div
+      <FadeIn
+        direction="up"
+        duration={0.7}
         className="
           relative z-10
           px-[16px] sm:px-[40px] lg:px-[100px]
@@ -45,35 +41,7 @@ export default function ContactHero() {
         <h1 className="text-[36px] sm:text-[44px] lg:text-5xl font-semibold mb-12">
           Contact Us
         </h1>
-      </div>
+      </FadeIn>
     </section>
-  );
-}
-
-/* ================= Reusable Icon ================= */
-function ContactIcon({
-  icon,
-  active = false,
-}: {
-  icon: React.ReactNode;
-  active?: boolean;
-}) {
-  return (
-    <div
-      className={`
-        w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20
-        rounded-full
-        flex items-center justify-center
-        backdrop-blur-md
-        border border-white/30
-        ${
-          active
-            ? "bg-cyan-400/60 shadow-lg shadow-cyan-400/40"
-            : "bg-white/20"
-        }
-      `}
-    >
-      {icon}
-    </div>
   );
 }

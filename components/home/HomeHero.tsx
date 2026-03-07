@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import {
+  FadeIn,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.hero.title",
@@ -88,7 +93,6 @@ export default function HomeHero() {
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
-
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -105,48 +109,59 @@ export default function HomeHero() {
 
       {/* Content Wrapper */}
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[110px] sm:pt-[130px] lg:pt-[143px] text-center text-white">
-
         {/* Main Text */}
-        <h1 className="max-w-7xl leading-[42px] sm:leading-[60px] lg:leading-[85px]
-          text-[28px] sm:text-[40px] md:text-5xl lg:text-[76px] font-bold playfair-display">
-          {val(content, "home.hero.title")}
-        </h1>
+        <FadeIn direction="up" duration={0.7} className="w-full flex flex-col items-center">
+          <h1
+            className="max-w-7xl leading-[42px] sm:leading-[60px] lg:leading-[85px]
+          text-[28px] sm:text-[40px] md:text-5xl lg:text-[76px] font-bold playfair-display"
+          >
+            {val(content, "home.hero.title")}
+          </h1>
 
-        <p className="mt-6 max-w-2xl text-[14px] sm:text-[15px] md:text-base font-[400] text-gray-200 poppins-font">
-          {val(content, "home.hero.subtitle")}
-        </p>
+          <FadeIn direction="up" delay={0.1} duration={0.7} className="w-full flex justify-center">
+            <p className="mt-6 max-w-2xl text-[14px] sm:text-[15px] md:text-base font-[400] text-gray-200 poppins-font">
+              {val(content, "home.hero.subtitle")}
+            </p>
+          </FadeIn>
+        </FadeIn>
 
         {/* Buttons */}
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link
-            href="/contactus"
-            className="border poppins-font font-[400] border-white px-6 py-3 text-[16px] sm:text-[18px] transition hover:bg-white hover:text-black cursor-pointer"
-          >
-            {val(content, "home.hero.button1Label")}
-          </Link>
+        <FadeIn direction="up" delay={0.25} duration={0.7}>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/contactus"
+              className="border poppins-font font-[400] border-white px-6 py-3 text-[16px] sm:text-[18px] transition hover:bg-white hover:text-black cursor-pointer"
+            >
+              {val(content, "home.hero.button1Label")}
+            </Link>
 
-          <Link
-            href="/contactus"
-            className="bg-[#EA8E39] px-6 py-3 text-[16px] sm:text-[18px] poppins-font font-[400] transition hover:bg-orange-600 cursor-pointer"
-          >
-            {val(content, "home.hero.button2Label")}
-          </Link>
-        </div>
+            <Link
+              href="/contactus"
+              className="bg-[#EA8E39] px-6 py-3 text-[16px] sm:text-[18px] poppins-font font-[400] transition hover:bg-orange-600 cursor-pointer"
+            >
+              {val(content, "home.hero.button2Label")}
+            </Link>
+          </div>
+        </FadeIn>
 
         {/* Spacer */}
         <div className="h-[40px] sm:h-[50px] lg:h-[60px]" />
 
         {/* Feature Boxes */}
-        <div className="mb-[80px] sm:mb-[100px] lg:mb-[120px] w-full">
-          <div className="mx-auto flex max-w-[1200px] flex-wrap justify-center gap-6">
+        <FadeIn direction="up" delay={0.3} duration={0.7} className="mb-[80px] sm:mb-[100px] lg:mb-[120px] w-full">
+          <StaggerContainer className="mx-auto flex max-w-[1200px] flex-wrap justify-center gap-6">
             {featureBoxes.map((box) => {
-              const accent = ACCENT_MAP[box.accentColor] ?? ACCENT_MAP["yellow-400"];
+              const accent =
+                ACCENT_MAP[box.accentColor] ?? ACCENT_MAP["yellow-400"];
               return (
-                <div
+                <StaggerItem
                   key={box.title}
+                  direction="up"
                   className="relative h-[230px] sm:h-[250px] w-full sm:w-[360px] bg-black/50 px-6 py-6"
                 >
-                  <span className={`absolute left-0 top-0 h-full w-[3px] ${accent.border}`} />
+                  <span
+                    className={`absolute left-0 top-0 h-full w-[3px] ${accent.border}`}
+                  />
 
                   <Image
                     src={box.image}
@@ -156,19 +171,20 @@ export default function HomeHero() {
                     className="mb-4"
                   />
 
-                  <h3 className={`mb-3 text-[14px] font-[700] poppins-font text-left ${accent.text}`}>
+                  <h3
+                    className={`mb-3 text-[14px] font-[700] poppins-font text-left ${accent.text}`}
+                  >
                     {box.title}
                   </h3>
 
                   <p className="text-[14px] font-[400] poppins-font text-left text-gray-300">
                     {box.description}
                   </p>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
-        </div>
-
+          </StaggerContainer>
+        </FadeIn>
       </div>
     </section>
   );

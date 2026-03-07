@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { subscribeNewsletter } from "@/lib/newsletter-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 export default function NewsletterSubscribe() {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ export default function NewsletterSubscribe() {
         <div className="bg-[#F7F7F7] rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between px-6 sm:px-10 lg:px-14 py-10 sm:py-12 lg:py-16 gap-10">
 
           {/* Left Content */}
-          <div className="max-w-xl text-left">
+          <FadeIn direction="up" className="max-w-xl text-left">
             <p className="text-[12px] tracking-widest text-gray-500 uppercase mb-4 text-left">
               Subscribe our newsletter
             </p>
@@ -59,10 +60,10 @@ export default function NewsletterSubscribe() {
                 {sending ? "Subscribing…" : "Subscribe"}
               </button>
             </form>
-          </div>
+          </FadeIn>
 
           {/* Right Illustration */}
-          <div className="hidden md:block">
+          <SlideIn direction="right" className="hidden md:block">
             <Image
               src="/assets/product/newsletter-img.png (1).svg"
               alt="Newsletter Illustration"
@@ -70,7 +71,7 @@ export default function NewsletterSubscribe() {
               height={260}
               className="object-contain"
             />
-          </div>
+          </SlideIn>
 
         </div>
       </div>

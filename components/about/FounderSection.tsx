@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 const CONTENT_KEYS = ["about.founder.image"];
 
@@ -22,7 +23,7 @@ export default function FounderSection() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-20 items-center">
 
         {/* ================= Left Image ================= */}
-        <div className="relative">
+        <SlideIn direction="left" className="relative">
           <div className="relative w-full h-[360px] sm:h-[440px] lg:h-[520px] rounded-lg overflow-hidden">
             <Image
               src={founderImage}
@@ -78,10 +79,10 @@ export default function FounderSection() {
               </span>
             </div>
           </div>
-        </div>
+        </SlideIn>
 
         {/* ================= Right Content ================= */}
-        <div>
+        <FadeIn direction="up">
           <p className="text-[15px] text-gray-500 worksans-font font-bold mb-4">
             Meet our founder
           </p>
@@ -117,7 +118,7 @@ export default function FounderSection() {
           <p className="text-sm text-[#EA8E39] font-medium lato font-[400] text-[16px] sm:text-[18px] lg:text-[20px] italic">
             &mdash; Rahul, Founder &amp; Creative Lead
           </p>
-        </div>
+        </FadeIn>
       </div>
     </section>
   );

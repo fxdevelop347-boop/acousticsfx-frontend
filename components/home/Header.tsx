@@ -148,8 +148,8 @@ export default function Header() {
                 href="/resources"
                 className={`flex items-center gap-1 transition py-5 cursor-pointer
                   ${pathname?.startsWith("/resources")
-                    ? "text-blue-600"
-                    : "hover:text-blue-500"
+                    ? "text-orange-500"
+                    : "hover:text-orange-500"
                   }`}
               >
                 Resources
@@ -302,7 +302,7 @@ export default function Header() {
                   <button
                     onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
                     className={`w-full flex items-center justify-between px-4 py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-500 transition rounded-lg font-medium cursor-pointer
-                      ${pathname?.startsWith("/resources") ? "text-blue-600 bg-blue-50" : ""}
+                      ${pathname?.startsWith("/resources") ? "text-orange-500 bg-orange-50" : ""}
                     `}
                   >
                     <span>Resources</span>
@@ -323,7 +323,7 @@ export default function Header() {
                           <Link
                             href={item.link}
                             onClick={handleLinkClick}
-                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-lg cursor-pointer"
+                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition rounded-lg cursor-pointer"
                           >
                             {item.name}
                           </Link>

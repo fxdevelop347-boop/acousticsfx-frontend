@@ -4,6 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import {
+  FadeIn,
+  StaggerContainer,
+  StaggerItem,
+  HoverScale,
+} from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.ourProduct.product1Image",
@@ -85,11 +91,9 @@ export default function ProductsSection() {
 
   return (
     <section className="py-[80px] lg:py-[100px] bg-[#F5F5F5] overflow-hidden">
-
       {/* TOP CONTENT */}
-      <div className="px-6 sm:px-10 lg:px-[200px] mb-12">
+      <FadeIn direction="up" duration={0.7} className="px-6 sm:px-10 lg:px-[200px] mb-12">
         <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
-
           <div className="max-w-3xl">
             <p className="text-[16px] mb-3 worksans-font font=[700]">
               Our Products
@@ -108,27 +112,38 @@ export default function ProductsSection() {
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <Link href="/products/acoustic" className="bg-[#1F6775] axiforma font-bold text-white px-4 py-2 text-[10px] cursor-pointer no-underline">
+              <Link
+                href="/products/acoustic"
+                className="bg-[#1F6775] axiforma font-bold text-white px-4 py-2 text-[10px] cursor-pointer no-underline"
+              >
                 ACOUSTIC SOLUTION
               </Link>
-              <Link href="/products" className="bg-[#fff] px-4 py-2 text-[10px] axiforma font-bold cursor-pointer no-underline text-black">
+              <Link
+                href="/products"
+                className="bg-[#fff] px-4 py-2 text-[10px] axiforma font-bold cursor-pointer no-underline text-black"
+              >
                 FLOORING SOLUTION
               </Link>
-              <Link href="/products" className="bg-[#fff] px-4 py-2 text-[10px] axiforma font-bold cursor-pointer no-underline text-black">
+              <Link
+                href="/products"
+                className="bg-[#fff] px-4 py-2 text-[10px] axiforma font-bold cursor-pointer no-underline text-black"
+              >
                 SOUND PROOFING SOLUTION
               </Link>
             </div>
           </div>
 
-          <Link href="/products" className="border px-5 py-2 text-xs h-fit cursor-pointer no-underline text-black hover:bg-gray-100 transition">
+          <Link
+            href="/products"
+            className="border px-5 py-2 text-xs h-fit cursor-pointer no-underline text-black hover:bg-gray-100 transition"
+          >
             VIEW ALL PRODUCTS →
           </Link>
         </div>
-      </div>
+      </FadeIn>
 
       {/* SLIDER */}
       <div className="relative pl-6 sm:pl-10 lg:pl-[200px]">
-
         {/* TRACK */}
         <div
           ref={sliderRef}
@@ -138,8 +153,9 @@ export default function ProductsSection() {
             snap-x snap-mandatory"
         >
           {products.map((product) => (
-            <div
+            <StaggerItem
               key={product.id}
+              direction="up"
               className="
                 snap-start
                 min-w-[calc(100vw-48px)] sm:min-w-[calc(100vw-80px)]
@@ -147,49 +163,55 @@ export default function ProductsSection() {
                 bg-white
               "
             >
-              {/* IMAGE */}
-              <div className="relative w-full h-[220px] sm:h-[300px] lg:w-[575px] lg:h-[392px]">
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-
-              {/* CONTENT */}
-              <div className="pt-6 text-center px-6">
-                <h3 className="text-[20px] lg:text-[24px] axiforma font-bold mb-3 text-left">
-                  {product.title}
-                </h3>
-
-                <p className="text-sm text-gray-600 mb-6 max-w-[520px] text-left">
-                  Acoustic wall panels made of wood stops reverberation and spreading
-                  sound waves better than panels made of steel and glass or concrete.
-                </p>
-
-                <div className="flex justify-center gap-6 sm:gap-10 mb-6 text-xs text-gray-600">
-                  <div>
-                    <p className="uppercase text-[10px] mb-1">Category</p>
-                    <p className="font-medium">Slats</p>
-                  </div>
-
-                  <div>
-                    <p className="uppercase text-[10px] mb-1">Fire Rating</p>
-                    <p className="font-medium">Group 1, 2 or 3</p>
-                  </div>
-
-                  <div>
-                    <p className="uppercase text-[10px] mb-1">Sound Profile</p>
-                    <p className="font-medium">NRC – 0.75</p>
-                  </div>
+              <HoverScale className="h-full">
+                {/* IMAGE */}
+                <div className="relative w-full h-[220px] sm:h-[300px] lg:w-[575px] lg:h-[392px]">
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
-                <Link href="/products/acoustic" className="inline-block border border-orange-500 text-orange-500 px-6 py-2 text-sm mb-4 cursor-pointer hover:bg-orange-50 transition no-underline">
-                  View Details
-                </Link>
-              </div>
-            </div>
+                {/* CONTENT */}
+                <div className="pt-6 text-center px-6">
+                  <h3 className="text-[20px] lg:text-[24px] axiforma font-bold mb-3 text-left">
+                    {product.title}
+                  </h3>
+
+                  <p className="text-sm text-gray-600 mb-6 max-w-[520px] text-left">
+                    Acoustic wall panels made of wood stops reverberation and
+                    spreading sound waves better than panels made of steel and
+                    glass or concrete.
+                  </p>
+
+                  <div className="flex justify-center gap-6 sm:gap-10 mb-6 text-xs text-gray-600">
+                    <div>
+                      <p className="uppercase text-[10px] mb-1">Category</p>
+                      <p className="font-medium">Slats</p>
+                    </div>
+
+                    <div>
+                      <p className="uppercase text-[10px] mb-1">Fire Rating</p>
+                      <p className="font-medium">Group 1, 2 or 3</p>
+                    </div>
+
+                    <div>
+                      <p className="uppercase text-[10px] mb-1">Sound Profile</p>
+                      <p className="font-medium">NRC – 0.75</p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/products/acoustic"
+                    className="inline-block border border-orange-500 text-orange-500 px-6 py-2 text-sm mb-4 cursor-pointer hover:bg-orange-50 transition no-underline"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </HoverScale>
+            </StaggerItem>
           ))}
         </div>
 

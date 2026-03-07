@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getFaqs, type FaqItem } from "@/lib/api/faqs-api";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 
 const FALLBACK_FAQS: FaqItem[] = [
   {
@@ -79,7 +80,7 @@ export default function FAQSection() {
     <section className="px-6 sm:px-10 lg:px-[100px] py-[80px] lg:py-[100px] bg-white">
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
         {/* LEFT CONTENT */}
-        <div className="w-full lg:w-1/2">
+        <FadeIn direction="left" className="w-full lg:w-1/2">
           <p className="text-[16px] mb-3 inter-font font-[500]">FAQs</p>
 
           <h2 className="text-[34px] sm:text-[44px] lg:text-[54px] font-bold mb-4 inter-font font-[500]">
@@ -107,35 +108,37 @@ export default function FAQSection() {
               priority
             />
           </div>
-        </div>
+        </FadeIn>
 
         {/* RIGHT ACCORDION */}
         <div className="w-full lg:w-1/2">
-          <div className="space-y-4">
+          <StaggerContainer className="space-y-4">
             {faqs.map((item, index) => (
-              <div key={item._id} className="border rounded-xl overflow-hidden">
-                <button
-                  onClick={() =>
-                    setOpenIndex(openIndex === index ? null : index)
-                  }
-                  className="w-full flex justify-between items-center p-4 sm:p-5 text-left cursor-pointer"
-                >
-                  <span className="font-medium inter-font text-[16px] sm:text-[18px] lg:text-[20px]">
-                    {index + 1}. {item.question}
-                  </span>
-                  <span className="text-xl">
-                    {openIndex === index ? "—" : "+"}
-                  </span>
-                </button>
+              <StaggerItem key={item._id} direction="up">
+                <div className="border rounded-xl overflow-hidden">
+                  <button
+                    onClick={() =>
+                      setOpenIndex(openIndex === index ? null : index)
+                    }
+                    className="w-full flex justify-between items-center p-4 sm:p-5 text-left cursor-pointer"
+                  >
+                    <span className="font-medium inter-font text-[16px] sm:text-[18px] lg:text-[20px]">
+                      {index + 1}. {item.question}
+                    </span>
+                    <span className="text-xl">
+                      {openIndex === index ? "—" : "+"}
+                    </span>
+                  </button>
 
-                {openIndex === index && (
-                  <div className="px-5 pb-5 text-[16px] sm:text-[17px] lg:text-[18px] axiforma text-gray-600">
-                    {item.answer}
-                  </div>
-                )}
-              </div>
+                  {openIndex === index && (
+                    <div className="px-5 pb-5 text-[16px] sm:text-[17px] lg:text-[18px] axiforma text-gray-600">
+                      {item.answer}
+                    </div>
+                  )}
+                </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </div>
     </section>

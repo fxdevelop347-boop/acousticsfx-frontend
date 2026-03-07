@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 interface ResourceTabsProps {
     activeTab?: string;
@@ -10,21 +11,14 @@ interface ResourceTabsProps {
 const PLACEHOLDER_IMAGE =
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e5e7eb' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
 
-export default function ResourceTabs({ activeTab: propActiveTab }: ResourceTabsProps) {
+export default function ResourceTabs({}: ResourceTabsProps) {
     const [imgError, setImgError] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const urlTab = searchParams.get("tab") || "blogs";
-    const [activeTabState, setActiveTabState] = useState(urlTab);
-
-    useEffect(() => {
-        const tab = searchParams.get("tab") || "blogs";
-        setActiveTabState(tab);
-    }, [searchParams]);
+    const activeTabState = searchParams.get("tab") || "blogs";
 
     const handleTabClick = (tab: string) => {
-        setActiveTabState(tab);
         const params = new URLSearchParams(searchParams.toString());
         params.set("tab", tab);
         router.push(`/resources?${params.toString()}`, { scroll: false });
@@ -36,7 +30,8 @@ export default function ResourceTabs({ activeTab: propActiveTab }: ResourceTabsP
             <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 h-full relative">
 
                 {/* TEXT CONTENT */}
-                <div
+                <FadeIn
+                    direction="up"
                     className="
                         relative md:absolute
                         left-0 md:left-6
@@ -49,26 +44,23 @@ export default function ResourceTabs({ activeTab: propActiveTab }: ResourceTabsP
                 >
                     <p
                         className="text-blue-600 font-bold text-[14px] md:text-[16px] mb-2"
-                        data-aos="fade-up"
-                        data-aos-delay="100"
                     >
                         Home • Resources
                     </p>
 
                     <h1
                         className="font-manrope text-[22px] sm:text-[26px] md:text-[44px] text-[#1C1C1C] leading-snug"
-                        data-aos="fade-up"
-                        data-aos-delay="200"
                     >
                         <span className="font-light">Shaping Spaces: </span>
                         <span className="font-bold">
                             Insights & Innovations in Acoustic Design
                         </span>
                     </h1>
-                </div>
+                </FadeIn>
 
                 {/* IMAGE */}
-                <div
+                <SlideIn
+                    direction="right"
                     className="
                         relative md:absolute
                         right-0
@@ -77,8 +69,6 @@ export default function ResourceTabs({ activeTab: propActiveTab }: ResourceTabsP
                         flex justify-center md:justify-end
                         mt-6 md:mt-0
                     "
-                    data-aos="fade-left"
-                    data-aos-delay="300"
                 >
                     <div className="relative w-[260px] h-[210px] sm:w-[340px] sm:h-[270px] md:w-[900px] md:h-[700px]">
                         <Image
@@ -90,7 +80,7 @@ export default function ResourceTabs({ activeTab: propActiveTab }: ResourceTabsP
                             onError={() => setImgError(true)}
                         />
                     </div>
-                </div>
+                </SlideIn>
             </div>
 
             {/* TAB NAVIGATION */}

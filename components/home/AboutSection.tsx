@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.about.label",
@@ -61,9 +62,10 @@ export default function AboutSection() {
 
       {/* ================= Content ================= */}
       <div className="relative z-10 flex flex-col lg:flex-row lg:min-h-screen">
-
         {/* LEFT CONTENT */}
-        <div
+        <FadeIn
+          direction="up"
+          duration={0.7}
           className="w-full lg:w-1/2 flex items-center 
           px-6 sm:px-10 lg:pl-[50px] lg:pr-16 
           text-left text-white"
@@ -94,10 +96,11 @@ export default function AboutSection() {
               {val(content, "home.about.ctaLabel")}
             </a>
           </div>
-        </div>
+        </FadeIn>
 
         {/* RIGHT IMAGE */}
-        <div
+        <SlideIn
+          direction="right"
           className="w-full lg:w-1/2 flex items-center 
           px-6 sm:px-10 lg:px-0 mt-12 lg:mt-0"
         >
@@ -111,8 +114,7 @@ export default function AboutSection() {
               priority
             />
           </div>
-        </div>
-
+        </SlideIn>
       </div>
     </section>
   );

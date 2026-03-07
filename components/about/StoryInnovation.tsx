@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, ScaleOnScroll } from "@/components/animations";
 
 const CONTENT_KEYS = ["about.innovation.image"];
 const DEFAULT_IMAGE = "/innovation-video.jpg";
@@ -18,10 +19,11 @@ export default function StoryInnovation() {
 
   return (
     <section className="px-[16px] sm:px-[40px] lg:px-[100px] pt-[60px] sm:pt-[80px] lg:pt-[100px] bg-[#F5F5F5]">
-
       {/* ================= Top Content ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-start mb-12 sm:mb-14 lg:mb-16">
-
+      <FadeIn
+        direction="up"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-start mb-12 sm:mb-14 lg:mb-16"
+      >
         {/* Left Heading */}
         <div>
           <h2 className="text-[32px] sm:text-[44px] lg:text-[60px] lato font-bold leading-[40px]">
@@ -38,10 +40,10 @@ export default function StoryInnovation() {
           pioneered acoustic solutions that blend craftsmanship with cutting-edge
           technology &mdash; transforming how spaces sound and feel.
         </p>
-      </div>
+      </FadeIn>
 
       {/* ================= Image / Video Section ================= */}
-      <div className="relative w-full overflow-hidden rounded-lg">
+      <ScaleOnScroll className="relative w-full overflow-hidden rounded-lg mt-6">
         <div className="relative w-full h-[280px] sm:h-[400px] lg:h-[520px]">
           <Image
             src={innovationImage}
@@ -77,7 +79,7 @@ export default function StoryInnovation() {
             </svg>
           </div>
         </button>
-      </div>
+      </ScaleOnScroll>
     </section>
   );
 }

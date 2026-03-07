@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 type CaseStudyProps = {
   reverse?: boolean;
@@ -19,7 +20,7 @@ export default function CaseStudySection({
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* HEADER CONTENT */}
-        <div className="max-w-3xl mb-10 sm:mb-12">
+        <FadeIn direction="up" className="max-w-3xl mb-10 sm:mb-12">
           <h2 className="text-[28px] sm:text-[34px] lg:text-[40px] axiforma font-bold mb-4 text-gray-900">
             Acoustic Transformations in Action
           </h2>
@@ -40,7 +41,7 @@ export default function CaseStudySection({
           >
             Get the Full Rundown →
           </Link>
-        </div>
+        </FadeIn>
 
         {/* CARD */}
         <div
@@ -48,7 +49,7 @@ export default function CaseStudySection({
             } gap-8 lg:gap-10 items-center bg-[#F4F6FF] rounded-2xl p-6 sm:p-8`}
         >
           {/* IMAGE */}
-          <div className="w-full lg:w-1/2">
+          <SlideIn direction={reverse ? "right" : "left"} className="w-full lg:w-1/2">
             <div className="relative w-full h-[220px] sm:h-[260px] rounded-xl overflow-hidden">
               <Image
                 src={image}
@@ -57,10 +58,10 @@ export default function CaseStudySection({
                 className="object-cover"
               />
             </div>
-          </div>
+          </SlideIn>
 
           {/* CONTENT */}
-          <div className="w-full lg:w-1/2">
+          <FadeIn direction="up" className="w-full lg:w-1/2">
             <h3 className="text-[20px] sm:text-[22px] lg:text-[24px] axiforma font-bold mb-3 text-gray-900">
               Corporate Office Acoustic Retrofit
             </h3>
@@ -77,7 +78,7 @@ export default function CaseStudySection({
             >
               Explore Case Study →
             </Link>
-          </div>
+          </FadeIn>
         </div>
 
       </div>

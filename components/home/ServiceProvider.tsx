@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.services.image",
@@ -44,9 +45,8 @@ export default function ServiceProvider() {
   return (
     <section className="px-6 sm:px-10 lg:px-[100px] py-[80px] lg:py-[100px]">
       <div className="flex flex-col lg:flex-row items-center gap-10">
-
         {/* Left Image */}
-        <div className="w-full lg:w-1/2">
+        <SlideIn direction="left" className="w-full lg:w-1/2">
           <Image
             src={image}
             alt="Library"
@@ -55,10 +55,10 @@ export default function ServiceProvider() {
             className="w-full h-auto object-cover"
             priority
           />
-        </div>
+        </SlideIn>
 
         {/* Right Content */}
-        <div className="w-full lg:w-[60%] text-center lg:text-left">
+        <FadeIn direction="right" delay={0.1} className="w-full lg:w-[60%] text-center lg:text-left">
           <p className="text-[15px] uppercase mb-2 worksans-font text-black font-bold">
             {subtitle}
           </p>
@@ -76,11 +76,13 @@ export default function ServiceProvider() {
             {description}
           </p>
 
-          <a href={ctaLink} className="inline-block bg-[#EA8E39] text-white px-6 py-3 worksans-font font-semibold text-[19px] cursor-pointer no-underline hover:opacity-90 transition">
+          <a
+            href={ctaLink}
+            className="inline-block bg-[#EA8E39] text-white px-6 py-3 worksans-font font-semibold text-[19px] cursor-pointer no-underline hover:opacity-90 transition"
+          >
             {ctaText}
           </a>
-        </div>
-
+        </FadeIn>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperType } from "swiper";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -13,22 +14,13 @@ interface BlogArticlesHeroProps {
 
 export default function BlogArticlesHero({ blogTitle, isDetailPage = false, heroImage }: BlogArticlesHeroProps = {}) {
     const [activeTabState, setActiveTabState] = useState('blogs');
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [swiper, setSwiper] = useState<any>(null);
+    const [swiper, setSwiper] = useState<SwiperType | null>(null);
 
     const slides = [
         { bg: "/resources/rebg.png" },
         { bg: "/resources/rebg.png" },
         { bg: "/resources/rebg.png" }
     ];
-
-    useEffect(() => {
-        if (swiper) {
-            swiper.on('slideChange', () => {
-                setCurrentSlide(swiper.realIndex);
-            });
-        }
-    }, [swiper]);
 
     // If it's a detail page with hero image, show single image without heading
     if (isDetailPage && heroImage) {
@@ -51,7 +43,6 @@ export default function BlogArticlesHero({ blogTitle, isDetailPage = false, hero
                 pagination={{ clickable: true }}
                 loop={true}
                 onSwiper={setSwiper}
-                onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
                 className="w-full h-full"
             >
                 {slides.map((slide, index) => (

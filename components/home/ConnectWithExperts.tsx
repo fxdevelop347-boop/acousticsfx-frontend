@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { subscribeNewsletter } from "@/lib/newsletter-api";
 import { submitContactForm } from "@/lib/contact-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 const CMS_KEYS = ["home.connectExperts.image"];
 const DEFAULT_EXPERT_IMAGE = "/assets/about/glassimg.jpg";
@@ -74,12 +75,14 @@ export default function ConnectWithExperts() {
 
   return (
     <section className="relative bg-[#1f2528] py-10 text-white overflow-hidden">
-
       {/* ================= TOP AREA ================= */}
       <div className="relative flex min-h-[300px] flex-col lg:flex-row">
-
         {/* LEFT CONTENT */}
-        <div className="pl-6 sm:pl-10 lg:pl-[100px] pr-6 lg:pr-12 flex flex-col justify-center max-w-[720px] z-10 text-left">
+        <FadeIn
+          direction="left"
+          duration={0.7}
+          className="pl-6 sm:pl-10 lg:pl-[100px] pr-6 lg:pr-12 flex flex-col justify-center max-w-[720px] z-10 text-left"
+        >
           <h2 className="text-[32px] sm:text-[38px] lg:text-[45px] inter-font font-[600] mb-4 text-left">
             Connect with experts
           </h2>
@@ -99,8 +102,11 @@ export default function ConnectWithExperts() {
           <button
             type="button"
             onClick={() => {
-              const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-              const target = isDesktop ? nameInputDesktopRef.current : nameInputMobileRef.current;
+              const isDesktop =
+                window.matchMedia("(min-width: 1024px)").matches;
+              const target = isDesktop
+                ? nameInputDesktopRef.current
+                : nameInputMobileRef.current;
               target?.scrollIntoView({ behavior: "smooth", block: "center" });
               setTimeout(() => target?.focus(), 400);
             }}
@@ -108,10 +114,13 @@ export default function ConnectWithExperts() {
           >
             Get in touch →
           </button>
-        </div>
+        </FadeIn>
 
         {/* RIGHT IMAGE */}
-        <div className="relative lg:absolute right-0 top-1/2 lg:-translate-y-1/2 mt-10 lg:mt-0">
+        <SlideIn
+          direction="right"
+          className="relative lg:absolute right-0 top-1/2 lg:-translate-y-1/2 mt-10 lg:mt-0"
+        >
           <div className="relative w-full lg:w-[600px] h-[220px] sm:h-[260px] lg:h-[300px] overflow-hidden">
             <Image
               src={expertImage}
@@ -130,10 +139,14 @@ export default function ConnectWithExperts() {
               }}
             />
           </div>
-        </div>
+        </SlideIn>
 
         {/* FORM CARD — DESKTOP ONLY */}
-        <div className="absolute right-[200px] top-1/2 -translate-y-1/2 z-20 hidden lg:block">
+        <FadeIn
+          direction="up"
+          delay={0.15}
+          className="absolute right-[200px] top-1/2 -translate-y-1/2 z-20 hidden lg:block"
+        >
           <form
             onSubmit={handleContactSubmit}
             className="bg-white/40 backdrop-blur-[0px] text-black rounded-2xl p-8 w-[550px] shadow-xl"
@@ -190,7 +203,7 @@ export default function ConnectWithExperts() {
               {contactSending ? "Sending…" : "Submit →"}
             </button>
           </form>
-        </div>
+        </FadeIn>
       </div>
 
       {/* ================= MOBILE CONTACT FORM ================= */}

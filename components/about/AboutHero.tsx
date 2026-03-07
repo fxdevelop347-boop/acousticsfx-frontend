@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "about.hero.heading",
@@ -49,7 +50,9 @@ export default function AboutHero() {
       <div className="absolute inset-0 bg-black/50"></div>
 
       {/* Content */}
-      <div
+      <FadeIn
+        direction="up"
+        duration={0.7}
         className="
           relative z-10
           px-[16px] sm:px-[40px] lg:px-[100px]
@@ -71,15 +74,21 @@ export default function AboutHero() {
 
         {/* Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/contactus" className="border border-white px-6 py-3 text-[16px] sm:text-[18px] poppins-font font-[400] hover:bg-white hover:text-black transition cursor-pointer">
+          <Link
+            href="/contactus"
+            className="border border-white px-6 py-3 text-[16px] sm:text-[18px] poppins-font font-[400] hover:bg-white hover:text-black transition cursor-pointer"
+          >
             Get Quote &rarr;
           </Link>
 
-          <Link href="/contactus" className="bg-orange-500 px-6 py-3 text-[16px] sm:text-[18px] poppins-font font-[400] hover:bg-orange-600 transition cursor-pointer inline-block">
+          <Link
+            href="/contactus"
+            className="bg-orange-500 px-6 py-3 text-[16px] sm:text-[18px] poppins-font font-[400] hover:bg-orange-600 transition cursor-pointer inline-block"
+          >
             Connect With Us &rarr;
           </Link>
         </div>
-      </div>
+      </FadeIn>
     </section>
   );
 }

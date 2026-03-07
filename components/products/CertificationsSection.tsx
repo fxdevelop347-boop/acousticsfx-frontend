@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { SubProductCertification } from "@/lib/products-api";
 
 const certifications = [
   {
@@ -19,7 +20,15 @@ const certifications = [
   },
 ];
 
-export default function CertificationsSection() {
+export default function CertificationsSection({
+  certifications: apiCerts,
+}: {
+  certifications?: SubProductCertification[] | null;
+}) {
+  const list =
+    apiCerts && apiCerts.length > 0
+      ? apiCerts.map((c) => ({ img: c.image, title: c.name.toUpperCase() }))
+      : certifications;
   return (
     <section className="w-full bg-white px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[48px] sm:py-[64px] lg:py-[80px]">
       
@@ -37,7 +46,7 @@ export default function CertificationsSection() {
 
       {/* Certifications Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-        {certifications.map((item, index) => (
+        {list.map((item, index) => (
           <div key={index} className="flex flex-col items-center">
             
             {/* Card */}

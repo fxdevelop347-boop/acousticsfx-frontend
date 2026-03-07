@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchTrustedPartners, type TrustedPartner } from "@/lib/trusted-partners-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 const CONTENT_KEYS = ["contact.trustedBy.title", "contact.trustedBy.description"];
 
@@ -43,19 +44,25 @@ export default function TrustedBySection() {
   return (
     <section className="px-[16px] sm:px-[40px] lg:px-[100px] py-[60px] sm:py-[80px] lg:py-[100px] bg-white text-center">
 
-      <h2 className="text-[28px] sm:text-[34px] lg:text-[40px] font-bold text-[#111] mb-4 poppins">
-        {val(content, "contact.trustedBy.title")}
-      </h2>
+      <FadeIn direction="up">
+        <h2 className="text-[28px] sm:text-[34px] lg:text-[40px] font-bold text-[#111] mb-4 poppins">
+          {val(content, "contact.trustedBy.title")}
+        </h2>
 
-      <p className="text-gray-500 max-w-2xl worksans-font font-[400] text-[16px] sm:text-[18px] lg:text-[20px] mx-auto mb-10 sm:mb-12 lg:mb-14 leading-relaxed">
-        {val(content, "contact.trustedBy.description")}
-      </p>
+        <p className="text-gray-500 max-w-2xl worksans-font font-[400] text-[16px] sm:text-[18px] lg:text-[20px] mx-auto mb-10 sm:mb-12 lg:mb-14 leading-relaxed">
+          {val(content, "contact.trustedBy.description")}
+        </p>
+      </FadeIn>
 
-      <div className="flex flex-wrap lg:flex-nowrap items-center justify-center lg:justify-between gap-8 sm:gap-10 lg:gap-12">
+      <StaggerContainer className="flex flex-wrap lg:flex-nowrap items-center justify-center lg:justify-between gap-8 sm:gap-10 lg:gap-12">
         {partners.map((p, i) => (
-          <LogoItem key={i} src={p.logo} alt={p.name} />
+          <StaggerItem key={i} direction="up">
+            <HoverScale>
+              <LogoItem src={p.logo} alt={p.name} />
+            </HoverScale>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
 import { fetchLocations, type LocationData } from "@/lib/locations-api";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 
 const CONTENT_KEYS = ["contact.locations.title", "contact.locations.description"];
 
@@ -55,20 +56,22 @@ export default function LocationsSection() {
 
   return (
     <section className="px-[16px] sm:px-[40px] lg:px-[100px] py-[60px] sm:py-[80px] lg:py-[100px] bg-[#F5F5F5]">
-      <div className="mb-10 sm:mb-12 lg:mb-14">
+      <FadeIn direction="up" className="mb-10 sm:mb-12 lg:mb-14">
         <h2 className="text-[28px] sm:text-[36px] lg:text-[44px] poppins-font font-bold text-[#111] mb-2">
           {val(content, "contact.locations.title")}
         </h2>
         <p className="text-gray-500 poppins-font font-[500] text-[16px] sm:text-[18px] lg:text-[20px]">
           {val(content, "contact.locations.description")}
         </p>
-      </div>
+      </FadeIn>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
+      <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
         {locations.map((loc) => (
-          <LocationCard key={loc._id} title={loc.title} items={loc.items} highlight={loc.highlight} />
+          <StaggerItem key={loc._id} direction="up">
+            <LocationCard title={loc.title} items={loc.items} highlight={loc.highlight} />
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
     </section>
   );
 }

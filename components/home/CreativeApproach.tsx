@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, BlurIn, ScaleOnScroll } from "@/components/animations";
 
 const CONTENT_KEYS = [
   "home.creative.mainImage",
@@ -35,7 +36,9 @@ export default function CreativeApproach() {
       <div className="relative flex flex-col lg:flex-row items-center max-w-[1600px] xl:max-w-none mx-auto">
 
         {/* LEFT CONTENT CARD */}
-        <div
+        <FadeIn
+          direction="left"
+          duration={0.7}
   className="
     relative z-30 bg-[#FFF3E8]
     p-6 lg:p-10
@@ -43,7 +46,7 @@ export default function CreativeApproach() {
     w-full
     max-w-[650px]   /* 🔥 MAX WIDTH FIX */
   "
->
+        >
           <p className="text-sm mb-2">#FXacoustic solutions</p>
 
           <h2 className="text-2xl font-semibold mb-6">
@@ -105,10 +108,13 @@ export default function CreativeApproach() {
             )}
           </div>
 
-          <a href="/about" className="inline-block mt-6 bg-orange-500 text-white px-6 py-3 text-sm cursor-pointer no-underline hover:opacity-90 transition">
+          <a
+            href="/about"
+            className="inline-block mt-6 bg-orange-500 text-white px-6 py-3 text-sm cursor-pointer no-underline hover:opacity-90 transition"
+          >
             Learn More
           </a>
-        </div>
+        </FadeIn>
 
         {/* IMAGES WRAPPER */}
         <div
@@ -120,7 +126,7 @@ export default function CreativeApproach() {
           "
         >
           {/* SMALL IMAGE */}
-          <div
+          <BlurIn
             className="
               relative lg:absolute
               right-0 lg:top-1/2 lg:-translate-y-1/2
@@ -136,10 +142,10 @@ export default function CreativeApproach() {
               fill
               className="object-cover grayscale"
             />
-          </div>
+          </BlurIn>
 
           {/* BIG IMAGE */}
-          <div
+          <ScaleOnScroll
             className="
               relative lg:absolute z-10
               lg:top-1/2 lg:-translate-y-1/2
@@ -155,7 +161,7 @@ export default function CreativeApproach() {
               fill
               className="object-cover"
             />
-          </div>
+          </ScaleOnScroll>
         </div>
 
       </div>

@@ -4,6 +4,8 @@ import { fetchMergedProduct } from "@/lib/products-data";
 
 interface OurAcousticPanelsProps {
   productSlug?: string;
+  /** Master category slug for links (e.g. acoustic). */
+  categorySlug?: string;
 }
 
 const FALLBACK_PANELS = [
@@ -14,8 +16,11 @@ const FALLBACK_PANELS = [
   { title: "Perfomax", desc: "Max Perforated Acoustical Panels", img: "/assets/panels/perfomax.png", slug: "perfomax" },
 ];
 
-export default async function OurAcousticPanels({ productSlug }: OurAcousticPanelsProps = {}) {
+export default async function OurAcousticPanels({ productSlug, categorySlug = "acoustic" }: OurAcousticPanelsProps = {}) {
   let panels: Array<{ title: string; desc: string; img: string; slug?: string }> = [];
+  let panelsTitle = "OUR ACOUSTIC PANELS";
+  let panelsDescription =
+    "A premium workspace faced disruptive noise and poor sound clarity. We designed and installed bespoke acoustic panels tailored to their architecture. The result: enhanced productivity, elegant aesthetics, and a healthier environment. Proof that purposeful design delivers measurable impact.";
 
   if (productSlug) {
     const product = await fetchMergedProduct(productSlug);
@@ -27,6 +32,8 @@ export default async function OurAcousticPanels({ productSlug }: OurAcousticPane
         slug: sub.slug,
       }));
     }
+    if (product?.panelsSectionTitle) panelsTitle = product.panelsSectionTitle;
+    if (product?.panelsSectionDescription) panelsDescription = product.panelsSectionDescription;
   }
 
   if (panels.length === 0) {
@@ -40,14 +47,10 @@ export default async function OurAcousticPanels({ productSlug }: OurAcousticPane
         {/* HEADER */}
         <div className="text-center max-w-5xl mx-auto mb-10 sm:mb-12 lg:mb-16">
           <h2 className="text-[32px] sm:text-[42px] lg:text-[55px] axiforma font-[500] tracking-wide mb-4">
-            OUR ACOUSTIC PANELS
+            {panelsTitle}
           </h2>
           <p className="text-gray-600 text-[16px] sm:text-[18px] lg:text-[20px] jakarta font-[500] leading-[26px] sm:leading-[28px] lg:leading-[30px]">
-            A premium workspace faced disruptive noise and poor sound clarity.
-            We designed and installed bespoke acoustic panels tailored to their
-            architecture. The result: enhanced productivity, elegant aesthetics,
-            and a healthier environment. Proof that purposeful design delivers
-            measurable impact.
+            {panelsDescription}
           </p>
         </div>
 
@@ -94,12 +97,12 @@ group-hover:rotate-0">
               </div>
             );
 
-            // Wrap in Link if productSlug and slug are available
-            if (productSlug && item.slug) {
+            // Wrap in Link if productSlug, categorySlug and slug are available
+            if (productSlug && categorySlug && item.slug) {
               return (
                 <Link
                   key={index}
-                  href={`/products/acoustic/${productSlug}/${item.slug}`}
+                  href={`/products/${categorySlug}/${productSlug}/${item.slug}`}
                   className="block"
                 >
                   {CardContent}

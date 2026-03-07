@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import type { SubProductSubstratesSection } from "@/lib/products-api";
 
 const substrates = [
   {
@@ -31,15 +32,31 @@ const substrates = [
   },
 ];
 
-export default function SubstratesSection() {
+export default function SubstratesSection({
+  substratesSection,
+}: {
+  substratesSection?: SubProductSubstratesSection | null;
+}) {
   const [index, setIndex] = useState(0);
+  const items =
+    substratesSection?.items?.length
+      ? substratesSection.items.map((i) => ({
+          img: i.image || "/assets/product/substrate-1.png",
+          size: (i.thickness || "").toUpperCase(),
+          title: i.name.toUpperCase(),
+        }))
+      : substrates;
+  const title = substratesSection?.title ?? "Substrates";
+  const description =
+    substratesSection?.description ??
+    "Our inspired solutions have helped shape modern acoustic design. Alluring spaces, internationally recognised for their architectural elegance and exceptional sound management live here.";
 
   const prev = () => {
     setIndex((prev) => Math.max(prev - 1, 0));
   };
 
   const next = () => {
-    setIndex((prev) => Math.min(prev + 1, substrates.length - 3));
+    setIndex((prev) => Math.min(prev + 1, items.length - 3));
   };
 
   return (
@@ -48,12 +65,10 @@ export default function SubstratesSection() {
       {/* Header */}
       <div className="max-w-2xl mb-8 sm:mb-10">
         <h2 className="text-[28px] sm:text-[32px] lg:text-[38px] font-bold axiforma mb-3">
-          Substrates
+          {title}
         </h2>
         <p className="text-[14px] sm:text-[15px] inter-font font-[400] text-gray-600">
-          Our inspired solutions have helped shape modern acoustic design.
-          Alluring spaces, internationally recognised for their architectural
-          elegance and exceptional sound management live here.
+          {description}
         </p>
       </div>
 
@@ -65,7 +80,7 @@ export default function SubstratesSection() {
             transform: `translateX(-${index * 360}px)`,
           }}
         >
-          {substrates.map((item, idx) => (
+          {items.map((item, idx) => (
             <div key={idx} className="min-w-[260px] sm:min-w-[300px] lg:min-w-[350px]">
 
               {/* Image */}
@@ -107,7 +122,7 @@ export default function SubstratesSection() {
         </button>
         <button
           onClick={next}
-          disabled={index >= substrates.length - 3}
+          disabled={index >= items.length - 3}
           className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <Image

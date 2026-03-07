@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+"use client";
+
 import HomeHero from "@/components/home/HomeHero";
 import ServiceProvider from "@/components/home/ServiceProvider";
 import AboutSection from "@/components/home/AboutSection";
@@ -12,15 +13,10 @@ import LatestBlogs from "@/components/home/LatestBlogs";
 import Testimonials from "@/components/home/Testimonials";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
 
-export const metadata: Metadata = {
-  title: "FX Acoustics — Premium Acoustic Solutions & Panels",
-  description:
-    "Explore premium wood acoustic panels, fabric panels, baffles & clouds from FX Acoustics. NRC-certified, Made in India, trusted globally.",
-};
-
 export default function Home() {
   return (
-    <>
+    <div className="overflow-x-hidden">
+
       <HomeHero />
       <ServiceProvider />
       <AboutSection />
@@ -33,6 +29,7 @@ export default function Home() {
       <LatestBlogs />
       <Testimonials />
       <ConnectWithExperts />
-    </>
+
+    </div>
   );
 }

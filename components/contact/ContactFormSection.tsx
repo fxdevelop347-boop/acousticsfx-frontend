@@ -8,6 +8,7 @@ import {
   CONTACT_SUBJECTS,
   type ContactSubject,
 } from "@/lib/contact-api";
+import { FadeIn, SlideIn } from "@/components/animations";
 
 export default function ContactFormSection() {
   const [name, setName] = useState("");
@@ -38,9 +39,8 @@ export default function ContactFormSection() {
   return (
     <section className="px-[16px] sm:px-[40px] lg:px-[100px] py-[30px] sm:py-[40px] lg:py-[50px] bg-white">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-24 items-center">
-
         {/* ================= Left Illustration ================= */}
-        <div className="flex justify-center">
+        <SlideIn direction="left" className="flex justify-center">
           <Image
             src="/assets/contacts/8690678_3969584 1.svg"
             alt="Contact us illustration — person sending messages"
@@ -48,10 +48,10 @@ export default function ContactFormSection() {
             height={400}
             className="max-w-xs sm:max-w-sm md:max-w-md w-full h-auto"
           />
-        </div>
+        </SlideIn>
 
         {/* ================= Right Form ================= */}
-        <div>
+        <FadeIn direction="up">
           <h2 className="text-[28px] sm:text-[36px] lg:text-[44px] font-bold text-[#111] mb-2 poppins-font">
             Contact Us
           </h2>
@@ -153,9 +153,8 @@ export default function ContactFormSection() {
                 {sending ? "Sending…" : "Send Message"}
               </button>
             </div>
-
           </form>
-        </div>
+        </FadeIn>
       </div>
     </section>
   );

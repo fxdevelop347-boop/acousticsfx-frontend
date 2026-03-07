@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { fetchCaseStudies, type CaseStudy } from "@/lib/case-studies-api";
+import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 const FALLBACK = [
   { slug: "1", image: "/assets/product/case-study-1.jpg", title: "The Power of Symmetry in Architectural Design" },
@@ -23,7 +24,10 @@ export default async function CaseStudies() {
       <div className="px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[60px] sm:py-[80px] lg:py-[100px]">
 
         {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start mb-10 sm:mb-12 lg:mb-16 gap-6 lg:gap-0">
+        <FadeIn
+          direction="up"
+          className="flex flex-col lg:flex-row justify-between items-start mb-10 sm:mb-12 lg:mb-16 gap-6 lg:gap-0"
+        >
           <div>
             <p className="text-[18px] sm:text-[21px] manrope text-[#EA8E39] font-medium mb-3">
               Case Studies
@@ -42,29 +46,33 @@ export default async function CaseStudies() {
               &nearr;
             </span>
           </Link>
-        </div>
+        </FadeIn>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-14">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-14">
           {studies.map((item) => (
-            <div key={item.slug}>
-              <Image
-                src={item.image}
-                alt={item.title}
-                width={500}
-                height={400}
-                className="w-full h-[260px] sm:h-[300px] lg:h-[320px] object-cover"
-              />
-              <h3 className="mt-6 text-[22px] sm:text-[23px] lg:text-[25px] font-semibold text-gray-900">
-                {item.title}
-              </h3>
-              <div className="mt-4 flex items-center gap-2 text-[#EA8E39] text-[18px] sm:text-[20px] font-medium manrope cursor-pointer">
-                <span>Read More</span>
-                <span>&nearr;</span>
-              </div>
-            </div>
+            <StaggerItem key={item.slug} direction="up">
+              <HoverScale>
+                <div>
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={500}
+                    height={400}
+                    className="w-full h-[260px] sm:h-[300px] lg:h-[320px] object-cover"
+                  />
+                  <h3 className="mt-6 text-[22px] sm:text-[23px] lg:text-[25px] font-semibold text-gray-900">
+                    {item.title}
+                  </h3>
+                  <div className="mt-4 flex items-center gap-2 text-[#EA8E39] text-[18px] sm:text-[20px] font-medium manrope cursor-pointer">
+                    <span>Read More</span>
+                    <span>&nearr;</span>
+                  </div>
+                </div>
+              </HoverScale>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

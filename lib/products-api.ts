@@ -3,11 +3,101 @@
  * Base URL: NEXT_PUBLIC_API_URL or VITE_API_URL or http://localhost:8080
  */
 
+export interface SubProductGridIntro {
+  title?: string;
+  subtitle?: string;
+  body?: string;
+}
+
+export interface SubProductGridImage {
+  url: string;
+  alt?: string;
+}
+
+export interface SubProductSpec {
+  label: string;
+  value: string;
+}
+
+export interface SubProductGallerySlide {
+  large: string;
+  small: string;
+}
+
+export interface SubProductGalleryImage {
+  url: string;
+  alt?: string;
+}
+
+export interface SubProductProfile {
+  id?: string;
+  name: string;
+  size?: string;
+  description?: string;
+  image?: string;
+}
+
+export interface SubProductProfilesSection {
+  title?: string;
+  description?: string;
+  profiles?: SubProductProfile[];
+}
+
+export interface SubProductSubstrateItem {
+  name: string;
+  thickness?: string;
+  description?: string;
+  image?: string;
+}
+
+export interface SubProductSubstratesSection {
+  title?: string;
+  description?: string;
+  items?: SubProductSubstrateItem[];
+}
+
+export interface SubProductAboutTab {
+  key: string;
+  title: string;
+  rows: string[];
+}
+
+export interface SubProductCertification {
+  name: string;
+  image: string;
+  description?: string;
+}
+
+export interface SubProductFinishShade {
+  name: string;
+  description?: string;
+  image: string;
+}
+
+export interface SubProductFinishesSection {
+  title?: string;
+  description?: string;
+  items?: SubProductFinishShade[];
+}
+
 export interface SubProduct {
   slug: string;
   title: string;
   description: string;
   image: string;
+  gridIntro?: SubProductGridIntro;
+  gridImages?: SubProductGridImage[];
+  specDescription?: string;
+  specs?: SubProductSpec[];
+  /** Deprecated: old shape. Still optional for compatibility. */
+  gallerySlides?: SubProductGallerySlide[];
+  /** Preferred */
+  galleryImages?: SubProductGalleryImage[];
+  profilesSection?: SubProductProfilesSection;
+  substratesSection?: SubProductSubstratesSection;
+  aboutTabs?: SubProductAboutTab[];
+  certifications?: SubProductCertification[];
+  finishesSection?: SubProductFinishesSection;
 }
 
 export interface Product {
@@ -18,6 +108,11 @@ export interface Product {
   heroImage?: string;
   subProducts: SubProduct[];
   categorySlug?: string;
+  panelsSectionTitle?: string;
+  panelsSectionDescription?: string;
+  shortDescription?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface ProductCategory {
@@ -26,6 +121,9 @@ export interface ProductCategory {
   description?: string;
   image?: string;
   order?: number;
+  tagline?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 const getBaseUrl = (): string => {

@@ -16,7 +16,27 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
+
+/* Prevent internal scrolling - ensure only body scrolls */
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Remove any internal scrollbars from main containers */
+main {
+  overflow: visible;
+}
+
+/* Ensure no nested scroll containers */
+* {
+  box-sizing: border-box;
+}
+
 
 /* Cursor pointer for all buttons, links, icons, and CTAs */
 button:not(:disabled),
@@ -200,3 +220,5 @@ input[type="reset"]:not(:disabled),
 .animate-marquee-right {
   animation: marquee-right 35s linear infinite;
 }
+
+

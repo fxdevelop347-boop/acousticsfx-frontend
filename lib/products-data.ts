@@ -1,11 +1,14 @@
+import type { SubProduct as ApiSubProduct } from "./products-api";
 import {
   fetchProductBySlug as apiFetchProduct,
   fetchSubProduct as apiFetchSubProduct,
 } from "./products-api";
 
-// Product and Sub-Product Data Structure
-// Maps slugs to product/sub-product information
+// Re-export extended SubProduct from API for detail pages (gridIntro, specs, gallerySlides)
+export type { ApiSubProduct as SubProductDetail };
+export type { SubProductGridIntro, SubProductGridImage, SubProductSpec, SubProductGallerySlide } from "./products-api";
 
+// Product and Sub-Product Data Structure (basic for lists; detail from API)
 export interface SubProduct {
   slug: string;
   title: string;
@@ -20,6 +23,12 @@ export interface Product {
   image: string;
   heroImage?: string;
   subProducts: SubProduct[];
+  categorySlug?: string;
+  panelsSectionTitle?: string;
+  panelsSectionDescription?: string;
+  shortDescription?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 // Main Products Data
@@ -94,13 +103,19 @@ export function getProductBySlug(slug: string): Product | undefined {
   return products.find((product) => product.slug === slug);
 }
 
+/** Normalize sub-product slug (e.g. linerlux → linearlux) */
+function normalizeSubProductSlug(slug: string): string {
+  return slug === "linerlux" ? "linearlux" : slug;
+}
+
 export function getSubProductBySlug(
   productSlug: string,
   subProductSlug: string
 ): SubProduct | undefined {
+  const normalized = normalizeSubProductSlug(subProductSlug);
   const product = getProductBySlug(productSlug);
   if (!product) return undefined;
-  return product.subProducts.find((sub) => sub.slug === subProductSlug);
+  return product.subProducts.find((sub) => sub.slug === normalized);
 }
 
 export function getAllProductSlugs(): string[] {
@@ -155,15 +170,13 @@ export function getSubProductData(
   productSlug: string,
   subProductSlug: string
 ): SubProduct | undefined {
+  const normalized = normalizeSubProductSlug(subProductSlug);
   const product = getProductBySlug(productSlug);
   if (!product) return undefined;
-  
-  // First try to get from product's subProducts
-  const subProduct = product.subProducts.find((sub) => sub.slug === subProductSlug);
+
+  const subProduct = product.subProducts.find((sub) => sub.slug === normalized);
   if (subProduct) return subProduct;
-  
-  // Fallback to default sub-products
-  return defaultSubProducts.find((sub) => sub.slug === subProductSlug);
+  return defaultSubProducts.find((sub) => sub.slug === normalized);
 }
 
 // ---------------------------------------------------------------------------
@@ -188,28 +201,72 @@ export async function fetchMergedProduct(
         apiProduct.subProducts?.length > 0
           ? apiProduct.subProducts
           : staticProduct?.subProducts ?? [],
+      categorySlug: apiProduct.categorySlug ?? staticProduct?.categorySlug,
+      panelsSectionTitle: apiProduct.panelsSectionTitle ?? staticProduct?.panelsSectionTitle,
+      panelsSectionDescription: apiProduct.panelsSectionDescription ?? staticProduct?.panelsSectionDescription,
+      shortDescription: apiProduct.shortDescription ?? staticProduct?.shortDescription,
+      metaTitle: apiProduct.metaTitle ?? staticProduct?.metaTitle,
+      metaDescription: apiProduct.metaDescription ?? staticProduct?.metaDescription,
     };
   } catch {
     return staticProduct;
   }
 }
 
+/** Full sub-product for detail page (includes gridIntro, specs, gallerySlides from API) */
+export interface SubProductMerged extends SubProduct {
+  gridIntro?: ApiSubProduct["gridIntro"];
+  gridImages?: ApiSubProduct["gridImages"];
+  specDescription?: string;
+  specs?: ApiSubProduct["specs"];
+  galleryImages?: ApiSubProduct["galleryImages"];
+  profilesSection?: ApiSubProduct["profilesSection"];
+  substratesSection?: ApiSubProduct["substratesSection"];
+  aboutTabs?: ApiSubProduct["aboutTabs"];
+  certifications?: ApiSubProduct["certifications"];
+  finishesSection?: ApiSubProduct["finishesSection"];
+}
+
 export async function fetchMergedSubProduct(
   productSlug: string,
   subProductSlug: string
-): Promise<{ product: Product | undefined; subProduct: SubProduct | undefined }> {
+): Promise<{ product: Product | undefined; subProduct: SubProductMerged | undefined }> {
+  const normalizedSubSlug = normalizeSubProductSlug(subProductSlug);
   const staticProduct = getProductBySlug(productSlug);
   const staticSub = getSubProductData(productSlug, subProductSlug);
   try {
-    const apiResult = await apiFetchSubProduct(productSlug, subProductSlug);
-    const mergedSub: SubProduct = {
+    const apiResult = await apiFetchSubProduct(productSlug, normalizedSubSlug);
+    const mergedSub: SubProductMerged = {
       slug: apiResult.subProduct.slug,
       title: apiResult.subProduct.title || staticSub?.title || "",
       description: apiResult.subProduct.description || staticSub?.description || "",
       image: apiResult.subProduct.image || staticSub?.image || "",
+      gridIntro: apiResult.subProduct.gridIntro,
+      gridImages: apiResult.subProduct.gridImages,
+      specDescription: apiResult.subProduct.specDescription,
+      specs: apiResult.subProduct.specs,
+      galleryImages: apiResult.subProduct.galleryImages,
+      profilesSection: apiResult.subProduct.profilesSection,
+      substratesSection: apiResult.subProduct.substratesSection,
+      aboutTabs: apiResult.subProduct.aboutTabs,
+      certifications: apiResult.subProduct.certifications,
+      finishesSection: apiResult.subProduct.finishesSection,
     };
-    return { product: staticProduct, subProduct: mergedSub };
+    const product = staticProduct
+      ? { ...staticProduct, categorySlug: apiResult.product?.categorySlug ?? staticProduct.categorySlug }
+      : {
+          slug: apiResult.product.slug,
+          title: apiResult.product.title,
+          description: "",
+          image: "",
+          subProducts: [],
+          categorySlug: apiResult.product.categorySlug,
+        };
+    return { product, subProduct: mergedSub };
   } catch {
-    return { product: staticProduct, subProduct: staticSub };
+    const sub = staticSub
+      ? ({ ...staticSub } as SubProductMerged)
+      : undefined;
+    return { product: staticProduct, subProduct: sub };
   }
 }

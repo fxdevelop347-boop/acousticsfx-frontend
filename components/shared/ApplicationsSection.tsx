@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 const applications = [
   {
@@ -58,7 +59,10 @@ export default function ApplicationsSection() {
       </div>
 
       {/* Heading */}
-      <div className="flex flex-col lg:flex-row justify-between items-start mb-8 gap-6">
+      <FadeIn
+        direction="up"
+        className="flex flex-col lg:flex-row justify-between items-start mb-8 gap-6"
+      >
         <h2 className="text-[30px] sm:text-[38px] lg:text-[45px] worksans-font font-bold text-[#111]">
           Our Applications
         </h2>
@@ -69,30 +73,33 @@ export default function ApplicationsSection() {
           From clarity in boardrooms to comfort at home, we craft acoustic
           experiences people truly love.
         </p>
-      </div>
+      </FadeIn>
 
       {/* Cards + Arrows */}
       <div className="relative mt-6 px-0 sm:px-10 lg:px-20">
         <div className="relative overflow-hidden">
-          <div
+          <StaggerContainer
             className="flex gap-6 transition-transform duration-500"
             style={{
               transform: `translateX(-${index * (100 / 3)}%)`,
             }}
           >
             {applications.map((app, i) => (
-              <div
+              <StaggerItem
                 key={i}
+                direction="up"
                 className="min-w-[100%] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] flex-shrink-0"
               >
-                <ApplicationCard
-                  title={app.title}
-                  subtitle={app.subtitle}
-                  image={app.image}
-                />
-              </div>
+                <HoverScale>
+                  <ApplicationCard
+                    title={app.title}
+                    subtitle={app.subtitle}
+                    image={app.image}
+                  />
+                </HoverScale>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
 
         {/* Navigation Arrows */}

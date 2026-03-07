@@ -3,39 +3,34 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import type { SubProductGalleryImage } from "@/lib/products-api";
 
-const galleryImages = [
-  {
-    large: "/assets/product/gallery-image-2.png",
-    small: "/assets/product/gallery-image-1.jpg",
-  },
-  {
-    large: "/assets/product/gallery-image-1.jpg",
-    small: "/assets/product/gallery-image-2.png",
-  },
-  {
-    large: "/assets/product/gallery-image-2.png",
-    small: "/assets/product/gallery-image-1.jpg",
-  },
-  {
-    large: "/assets/product/gallery-image-1.jpg",
-    small: "/assets/product/gallery-image-2.png",
-  },
+const DEFAULT_GALLERY: SubProductGalleryImage[] = [
+  { url: "/assets/product/gallery-image-2.png", alt: "Gallery image" },
+  { url: "/assets/product/gallery-image-1.jpg", alt: "Gallery image" },
+  { url: "/assets/product/gallery-image-2.png", alt: "Gallery image" },
+  { url: "/assets/product/gallery-image-1.jpg", alt: "Gallery image" },
 ];
 
-export default function GallerySection() {
+interface GallerySectionProps {
+  galleryImages?: SubProductGalleryImage[] | null;
+}
+
+export default function GallerySection({ galleryImages }: GallerySectionProps = {}) {
+  const images = (galleryImages && galleryImages.length > 0) ? galleryImages : DEFAULT_GALLERY;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const totalSlides = galleryImages.length;
+  const total = images.length;
 
   const prev = () => {
-    setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
   };
 
   const next = () => {
-    setCurrentIndex((prev) => (prev + 1) % totalSlides);
+    setCurrentIndex((prev) => (prev + 1) % total);
   };
 
-  const currentSlide = galleryImages[currentIndex];
+  const large = images[currentIndex];
+  const small = images[(currentIndex + 1) % total] ?? large;
 
   return (
     <section className="w-full bg-white px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[48px] sm:py-[64px] lg:py-[80px]">
@@ -63,8 +58,8 @@ export default function GallerySection() {
         {/* Big Image (Left) */}
         <div className="col-span-1 sm:col-span-2 h-[280px] sm:h-[380px] lg:h-[480px] rounded-2xl overflow-hidden relative">
           <Image
-            src={currentSlide.large}
-            alt="Gallery Large"
+            src={large?.url ?? ""}
+            alt={large?.alt ?? "Gallery"}
             fill
             className="object-cover"
           />
@@ -73,8 +68,8 @@ export default function GallerySection() {
         {/* Right Tall Image */}
         <div className="h-[280px] sm:h-[380px] lg:h-[480px] rounded-2xl overflow-hidden relative">
           <Image
-            src={currentSlide.small}
-            alt="Gallery Tall"
+            src={small?.url ?? ""}
+            alt={small?.alt ?? "Gallery"}
             fill
             className="object-cover"
           />
@@ -95,7 +90,7 @@ export default function GallerySection() {
             className="rotate-180"
           />
         </button>
-        <span>{currentIndex + 1} / {totalSlides}</span>
+        <span>{currentIndex + 1} / {total}</span>
         <button
           onClick={next}
           className="hover:opacity-70 transition cursor-pointer"

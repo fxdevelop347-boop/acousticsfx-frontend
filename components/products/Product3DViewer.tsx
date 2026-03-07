@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import type { SubProductProfile, SubProductProfilesSection } from "@/lib/products-api";
 
 // Scene Component (3D Canvas)
 function Scene({ scale, color }: { scale: number; color: string }) {
@@ -24,8 +25,17 @@ function Scene({ scale, color }: { scale: number; color: string }) {
 }
 
 // UI Component (Slider and Controls)
-function UI({ setColor }: { setColor: (color: string) => void }) {
-  const [active, setActive] = useState(0);
+function UI({
+  setColor,
+  profiles,
+  active,
+  setActive,
+}: {
+  setColor: (color: string) => void;
+  profiles: Array<Pick<SubProductProfile, "name">>;
+  active: number;
+  setActive: (i: number) => void;
+}) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -49,14 +59,16 @@ function UI({ setColor }: { setColor: (color: string) => void }) {
           className="flex gap-3 overflow-x-auto no-scrollbar"
           style={{ maxWidth: "280px" }}
         >
-          {[1, 2, 3, 4, 5, 6].map((_, i) => (
+          {profiles.map((p, i) => (
             <div
               key={i}
               onClick={() => setActive(i)}
               className={`min-w-[56px] h-14 border ${active === i ? "border-orange-500" : "border-gray-600"
                 } flex items-center justify-center cursor-pointer`}
             >
-              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-[11px] text-gray-300 px-1 text-center leading-tight">
+                {p.name}
+              </span>
             </div>
           ))}
         </div>
@@ -115,9 +127,36 @@ function UI({ setColor }: { setColor: (color: string) => void }) {
 }
 
 // Main Component
-export default function Product3DViewer() {
+export default function Product3DViewer({
+  profilesSection,
+}: {
+  profilesSection?: SubProductProfilesSection | null;
+}) {
   const [scale, setScale] = useState(1);
   const [color, setColor] = useState("#c19a6b");
+  const [activeProfile, setActiveProfile] = useState(0);
+
+  const profiles: Array<Pick<SubProductProfile, "name" | "size" | "description">> =
+    profilesSection?.profiles?.length
+      ? profilesSection.profiles.map((p) => ({
+          name: p.name,
+          size: p.size,
+          description: p.description,
+        }))
+      : [
+          { name: "1.5/8x8", size: "30 x 30 cm" },
+          { name: "3/8x8", size: "30 x 30 cm" },
+          { name: "3/16x16", size: "30 x 30 cm" },
+          { name: "6/16x16", size: "30 x 30 cm" },
+          { name: "8/16", size: "30 x 30 cm" },
+          { name: "10/16", size: "30 x 30 cm" },
+        ];
+
+  const title = profilesSection?.title ?? "Product Profiles";
+  const description =
+    profilesSection?.description ??
+    "A linear grooved acoustic panel is one of the most commonly used multi-groove panels. Suitable for auditoriums, lecture halls, conference rooms, and public buildings.";
+  const selected = profiles[Math.min(activeProfile, profiles.length - 1)];
 
   return (
     <section className="w-full bg-[#3D3D3D] px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[48px] sm:py-[64px] lg:py-[80px]">
@@ -125,16 +164,21 @@ export default function Product3DViewer() {
         {/* Header */}
         <div className="mb-8 sm:mb-10">
           <h2 className="text-[28px] sm:text-[32px] lg:text-[35px] axiforma font-bold mb-3 text-white">
-            Product Profiles
+            {title}
           </h2>
           <p className="text-[14px] sm:text-[15px] inter-font font-[400] text-gray-300 leading-relaxed max-w-md">
-            A linear grooved acoustic panel is one of the most commonly used
-            multi-groove panels. Suitable for auditoriums, lecture halls,
-            conference rooms, and public buildings.
+            {description}
           </p>
-          <div className="mt-4 text-[14px] sm:text-[15px] inter-font font-[400] text-gray-400">
-            📏 30 x 30 cm
-          </div>
+          {selected?.size && (
+            <div className="mt-4 text-[14px] sm:text-[15px] inter-font font-[400] text-gray-400">
+              📏 {selected.size}
+            </div>
+          )}
+          {selected?.description && (
+            <p className="mt-2 text-[13px] sm:text-[14px] inter-font font-[400] text-gray-300 max-w-xl">
+              {selected.description}
+            </p>
+          )}
         </div>
 
         {/* Main Content Grid */}
@@ -163,7 +207,12 @@ export default function Product3DViewer() {
 
           {/* RIGHT SIDE - UI Controls */}
           <div className="w-full">
-            <UI setColor={setColor} />
+            <UI
+              setColor={setColor}
+              profiles={profiles}
+              active={activeProfile}
+              setActive={setActiveProfile}
+            />
           </div>
         </div>
       </div>

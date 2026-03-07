@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import type { SubProductFinishesSection } from "@/lib/products-api";
 
 const finishes = [
   {
@@ -35,16 +36,32 @@ const finishes = [
     desc: "Warm, elegant finish for sophisticated spaces.",
   },
 ];
-
-export default function FinishesShades() {
+export default function FinishesShades({
+  finishesSection,
+}: {
+  finishesSection?: SubProductFinishesSection | null;
+}) {
   const [index, setIndex] = useState(0);
+  const items =
+    finishesSection?.items?.length
+      ? finishesSection.items.map((f) => ({
+          img: f.image,
+          code: "",
+          name: f.name,
+          desc: f.description ?? "",
+        }))
+      : finishes;
+  const title = finishesSection?.title ?? "Finishes & Shades";
+  const description =
+    finishesSection?.description ??
+    "Our inspired solutions have helped shape modern acoustic design. Alluring spaces, internationally recognised for their architectural elegance and exceptional sound management live here.";
 
   const prev = () => {
     setIndex((prev) => Math.max(prev - 1, 0));
   };
 
   const next = () => {
-    setIndex((prev) => Math.min(prev + 1, finishes.length - 4));
+    setIndex((prev) => Math.min(prev + 1, items.length - 4));
   };
 
   return (
@@ -55,12 +72,10 @@ export default function FinishesShades() {
         {/* Left Content */}
         <div className="max-w-xs">
           <h2 className="text-[28px] sm:text-[30px] lg:text-[34px] inter-font font-medium mb-4">
-            Finishes & Shades
+            {title}
           </h2>
           <p className="text-[15px] sm:text-[16px] inter-font font-[500] text-gray-600 mb-8">
-            Our inspired solutions have helped shape modern acoustic design.
-            Alluring spaces, internationally recognised for their architectural
-            elegance and exceptional sound management live here.
+            {description}
           </p>
         </div>
 
@@ -72,7 +87,7 @@ export default function FinishesShades() {
               transform: `translateX(-${index * 208}px)`,
             }}
           >
-            {finishes.map((item, idx) => (
+            {items.map((item, idx) => (
               <div key={idx} className="min-w-[200px]">
                 
                 {/* Slide Image */}
@@ -86,9 +101,11 @@ export default function FinishesShades() {
                 </div>
 
                 {/* Text */}
-                <p className="text-[22px] sm:text-[24px] inter-font font-[400] text-gray-400 mb-1">
-                  {item.code}
-                </p>
+                {item.code ? (
+                  <p className="text-[22px] sm:text-[24px] inter-font font-[400] text-gray-400 mb-1">
+                    {item.code}
+                  </p>
+                ) : null}
                 <p className="text-[22px] sm:text-[24px] inter-font font-[400] mb-1">
                   {item.name}
                 </p>
@@ -116,7 +133,7 @@ export default function FinishesShades() {
             </button>
             <button
               onClick={next}
-              disabled={index >= finishes.length - 4}
+              disabled={index >= items.length - 4}
               className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Image

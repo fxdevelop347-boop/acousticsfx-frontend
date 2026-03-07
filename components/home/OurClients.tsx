@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { fetchClients, type ClientLogo } from "@/lib/clients-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 
 const CONTENT_KEYS = ["home.clients.title", "home.clients.backgroundImage"];
 
@@ -48,7 +49,6 @@ export default function OurClients() {
 
   return (
     <section className="relative h-[420px] sm:h-[500px] lg:h-[580px] overflow-hidden">
-
       {/* BACKGROUND */}
       <div className="absolute inset-0">
         <Image
@@ -67,31 +67,33 @@ export default function OurClients() {
 
       {/* CONTENT */}
       <div className="relative z-10 h-full px-6 sm:px-10 lg:px-[340px] flex flex-col justify-center">
-
-        <h2 className="text-center text-white text-2xl font-semibold mb-10 sm:mb-14 lg:mb-16">
-          {title}
-        </h2>
+        <FadeIn direction="up">
+          <h2 className="text-center text-white text-2xl font-semibold mb-10 sm:mb-14 lg:mb-16">
+            {title}
+          </h2>
+        </FadeIn>
 
         {/* ================= DESKTOP (STATIC) ================= */}
         <div className="hidden lg:flex flex-col items-center gap-[91px]">
-
-          <div className="flex justify-center gap-[91px]">
+          <StaggerContainer className="flex justify-center gap-[91px]">
             {logos.slice(0, Math.ceil(logos.length / 2)).map((logo, index) => (
-              <LogoCard key={index} logo={logo} />
+              <StaggerItem key={index} direction="up">
+                <LogoCard logo={logo} />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
 
-          <div className="flex justify-center gap-[91px]">
+          <StaggerContainer className="flex justify-center gap-[91px]">
             {logos.slice(Math.ceil(logos.length / 2)).map((logo, index) => (
-              <LogoCard key={index} logo={logo} />
+              <StaggerItem key={index} direction="up">
+                <LogoCard logo={logo} />
+              </StaggerItem>
             ))}
-          </div>
-
+          </StaggerContainer>
         </div>
 
         {/* ================= MOBILE / TABLET (DOUBLE SLIDER) ================= */}
         <div className="lg:hidden overflow-hidden space-y-6">
-
           {/* ROW 1 (Left → Right) */}
           <div className="overflow-hidden">
             <div className="flex w-max animate-marquee-left gap-6">
@@ -109,9 +111,7 @@ export default function OurClients() {
               ))}
             </div>
           </div>
-
         </div>
-
       </div>
     </section>
   );

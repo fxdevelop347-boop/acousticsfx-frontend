@@ -222,3 +222,15 @@ input[type="reset"]:not(:disabled),
 }
 
 
+@keyframes awardScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-award-scroll {
+  animation: awardScroll 2s linear infinite;
+}

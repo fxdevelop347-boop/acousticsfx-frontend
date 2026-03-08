@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 const API_BASE =
   typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL
     ? process.env.NEXT_PUBLIC_API_URL
-    : "http://localhost:8080";
+    : "https://api.themoonlit.in";
 
 type NavCategory = { slug: string; name: string };
 

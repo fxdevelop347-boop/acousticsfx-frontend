@@ -1,6 +1,6 @@
 /**
  * Products API client – fetches categories and products from the backend.
- * Base URL: NEXT_PUBLIC_API_URL or VITE_API_URL or http://localhost:8080
+ * Base URL: NEXT_PUBLIC_API_URL or VITE_API_URL or https://api.themoonlit.in
  */
 
 export interface SubProductGridIntro {
@@ -127,7 +127,7 @@ export interface ProductCategory {
 }
 
 const getBaseUrl = (): string => {
-  return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) || 'http://localhost:8080';
+  return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) || 'https://api.themoonlit.in';
 };
 
 async function request<T>(path: string): Promise<T> {

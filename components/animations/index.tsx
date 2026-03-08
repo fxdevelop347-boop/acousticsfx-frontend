@@ -62,6 +62,7 @@ interface StaggerContainerProps {
   className?: string;
   staggerDelay?: number;
   once?: boolean;
+  style?: React.CSSProperties;
 }
 
 export function StaggerContainer({
@@ -69,6 +70,7 @@ export function StaggerContainer({
   className = "",
   staggerDelay = 0.1,
   once = true,
+  style,
 }: StaggerContainerProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once, margin: "-50px" });
@@ -87,6 +89,7 @@ export function StaggerContainer({
         },
       }}
       className={className}
+      style={style}
     >
       {children}
     </motion.div>

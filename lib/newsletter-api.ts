@@ -4,7 +4,7 @@
 
 const getBaseUrl = () =>
   (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) ||
-  'http://localhost:8080';
+  'https://api.themoonlit.in';
 
 export async function subscribeNewsletter(email: string): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/newsletter`, {

@@ -58,31 +58,31 @@ export default function ServiceProvider() {
         </SlideIn>
 
         {/* Right Content */}
-        <FadeIn direction="right" delay={0.1} className="w-full lg:w-[60%] text-center lg:text-left">
-          <p className="text-[15px] uppercase mb-2 worksans-font text-black font-bold">
-            {subtitle}
-          </p>
+        <FadeIn direction="right" delay={0.1} className="w-full lg:w-[60%] text-left">
+  <p className="text-[15px] uppercase mb-2 worksans-font text-black font-bold">
+    {subtitle}
+  </p>
 
-          <h2 className="text-[28px] sm:text-[34px] lg:text-[40px] worksans-font text-black font-bold mb-4 leading-[38px] sm:leading-[46px] lg:leading-[55px]">
-            {title.split("\n").map((line, i, arr) => (
-              <span key={i}>
-                {line}
-                {i < arr.length - 1 && <br />}
-              </span>
-            ))}
-          </h2>
+  <h2 className="text-[19px] sm:text-[34px] lg:text-[40px] worksans-font text-black font-bold mb-4 leading-[28px] sm:leading-[46px] lg:leading-[55px]">
+    {title.split("\n").map((line, i, arr) => (
+      <span key={i}>
+        {line}
+        {i < arr.length - 1 && <br />}
+      </span>
+    ))}
+  </h2>
 
-          <p className="text-[15px] font-[400] worksans-font leading-[25px] mb-6 text-[#4F4F4F]">
-            {description}
-          </p>
+  <p className="text-[15px] font-[400] worksans-font leading-[25px] mb-6 text-[#4F4F4F]">
+    {description}
+  </p>
 
-          <a
-            href={ctaLink}
-            className="inline-block bg-[#EA8E39] text-white px-6 py-3 worksans-font font-semibold text-[19px] cursor-pointer no-underline hover:opacity-90 transition"
-          >
-            {ctaText}
-          </a>
-        </FadeIn>
+  <a
+    href={ctaLink}
+    className="inline-block bg-[#EA8E39] text-white px-4 py-2 worksans-font font-semibold text-[16px] cursor-pointer no-underline hover:opacity-90 transition"
+  >
+    {ctaText}
+  </a>
+</FadeIn>
       </div>
     </section>
   );

@@ -108,7 +108,7 @@ export default function HomeHero() {
       <div className="absolute inset-0 bg-black/60" />
 
       {/* Content Wrapper */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[110px] sm:pt-[130px] lg:pt-[143px] text-center text-white">
+      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[50px] sm:pt-[130px] lg:pt-[143px] text-center text-white">
         {/* Main Text */}
         <FadeIn direction="up" duration={0.7} className="w-full flex flex-col items-center">
           <h1

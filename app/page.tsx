@@ -12,12 +12,14 @@ import OurClients from "@/components/home/OurClients";
 import LatestBlogs from "@/components/home/LatestBlogs";
 import Testimonials from "@/components/home/Testimonials";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
+import VoicePlug from "@/components/home/VoicePlug";
 
 export default function Home() {
   return (
     <div className="overflow-x-hidden">
 
       <HomeHero />
+      <VoicePlug />
       <ServiceProvider />
       <AboutSection />
       <WhyChooseUs />

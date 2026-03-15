@@ -99,9 +99,9 @@ export default function ProductsSection() {
               Our Products
             </p>
 
-            <h2 className="text-[28px] sm:text-[34px] lg:text-[38px] axiforma font-bold leading-tight mb-4">
+            <h2 className="text-[24px] sm:text-[34px] lg:text-[38px] axiforma font-bold leading-tight mb-4">
               We Cut Through Noise to create architects
-              <br />
+        
               that are thoughtful, timeless & Impactful.
             </h2>
 
@@ -215,27 +215,27 @@ export default function ProductsSection() {
           ))}
         </div>
 
-        {/* ARROWS */}
-        <div className="flex justify-center gap-8 mt-10">
-          <button onClick={handleScrollLeft} className="cursor-pointer">
-            <Image
-              src="/assets/home/Vector.svg"
-              alt="Previous"
-              width={10}
-              height={10}
-              className="rotate-180"
-            />
-          </button>
+{/* ARROWS */}
+<div className="hidden lg:flex justify-center gap-8 mt-10">
+  <button onClick={handleScrollLeft} className="cursor-pointer">
+    <Image
+      src="/assets/home/Vector.svg"
+      alt="Previous"
+      width={10}
+      height={10}
+      className="rotate-180"
+    />
+  </button>
 
-          <button onClick={handleScrollRight} className="cursor-pointer">
-            <Image
-              src="/assets/home/Vector.svg"
-              alt="Next"
-              width={10}
-              height={10}
-            />
-          </button>
-        </div>
+  <button onClick={handleScrollRight} className="cursor-pointer">
+    <Image
+      src="/assets/home/Vector.svg"
+      alt="Next"
+      width={10}
+      height={10}
+    />
+  </button>
+</div>
 
         {/* MOBILE DOT INDICATORS */}
         <div className="flex justify-center gap-2 mt-4 lg:hidden">

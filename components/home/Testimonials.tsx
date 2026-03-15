@@ -39,11 +39,11 @@ export default function Testimonials() {
   if (items.length === 0) return null;
 
   return (
-    <section className="px-6 sm:px-10 lg:px-[100px] py-[80px] lg:py-[100px] bg-white">
+    <section className="px-6 sm:px-10 lg:px-[100px] py-[50px] lg:py-[100px] bg-white">
 
       {/* HEADING */}
       <FadeIn direction="up">
-        <h2 className="text-left lg:text-center text-[32px] sm:text-[44px] lg:text-[60px] font-bold mb-12 lg:mb-16">
+        <h2 className="text-left lg:text-center text-[27px] sm:text-[44px] lg:text-[60px] font-bold mb-12 lg:mb-16">
           Loved by the world&apos;s best teams
         </h2>
       </FadeIn>
@@ -127,8 +127,9 @@ export default function Testimonials() {
 
         {/* LEFT BUTTON */}
         <button
-  className="
+          className="
   testimonial-prev
+  hidden lg:flex
   absolute
   left-0
   top-1/2
@@ -138,7 +139,6 @@ export default function Testimonials() {
   bg-gray-300
   hover:bg-black
   rounded-md
-  flex
   items-center
   justify-center
   transition
@@ -146,20 +146,21 @@ export default function Testimonials() {
   group
   z-10
   "
->
-  <Image
-    src="/assets/home/universalvector.svg"
-    alt="prev"
-    width={30}
-    height={10}
-    className="rotate-180 group-hover:invert"
-  />
-</button>
+        >
+          <Image
+            src="/assets/home/universalvector.svg"
+            alt="prev"
+            width={30}
+            height={10}
+            className="rotate-180 group-hover:invert"
+          />
+        </button>
 
         {/* RIGHT BUTTON */}
         <button
-  className="
+          className="
   testimonial-next
+  hidden lg:flex
   absolute
   right-0
   top-1/2
@@ -169,7 +170,6 @@ export default function Testimonials() {
   bg-gray-300
   hover:bg-black
   rounded-md
-  flex
   items-center
   justify-center
   transition
@@ -177,15 +177,15 @@ export default function Testimonials() {
   group
   z-10
   "
->
-  <Image
-    src="/assets/home/universalvector.svg"
-    alt="next"
-    width={30}
-    height={10}
-    className="group-hover:invert"
-  />
-</button>
+        >
+          <Image
+            src="/assets/home/universalvector.svg"
+            alt="next"
+            width={30}
+            height={10}
+            className="group-hover:invert"
+          />
+        </button>
 
       </div>
     </section>

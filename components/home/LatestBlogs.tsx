@@ -119,26 +119,26 @@ export default function LatestBlogs() {
     );
 
   return (
-    <section className="px-6 lg:px-[100px] py-[100px] bg-white">
+    <section className="px-6 lg:px-[100px] sm:py-[100px] py-[50px] bg-white">
 
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-12 gap-6">
 
-<div>
-  <p className="text-[16px] font-bold mb-3 worksans-font">
-    {val(content, "home.latestBlogs.heading")}
-  </p>
+        <div>
+          <p className="text-[16px] font-bold mb-3 worksans-font">
+            {val(content, "home.latestBlogs.heading")}
+          </p>
 
-  <h2 className="text-[28px] lg:text-[35px] axiforma font-bold max-w-2xl leading-tight">
-    {val(content, "home.latestBlogs.subheading")}
-  </h2>
-</div>
+          <h2 className="text-[28px] lg:text-[35px] axiforma font-bold max-w-2xl leading-tight">
+            {val(content, "home.latestBlogs.subheading")}
+          </h2>
+        </div>
 
-<button className="border px-5 py-2 text-sm h-fit w-fit">
-  {val(content, "home.latestBlogs.ctaLabel")}
-</button>
+        <button className="border px-5 py-2 text-sm h-fit w-fit">
+          {val(content, "home.latestBlogs.ctaLabel")}
+        </button>
 
-</div>
+      </div>
 
       {/* MOBILE CAROUSEL */}
       <div className="lg:hidden">

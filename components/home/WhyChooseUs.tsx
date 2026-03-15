@@ -54,10 +54,8 @@ export default function WhyChooseUs() {
           Why Choose Us
         </p>
 
-        <h2 className="text-[28px] sm:text-[34px] lg:text-[38px] font-bold leading-tight text-gray-900 axiforma">
-          We Cut Through Noise to create architects
-          <br />
-          that are thoughtful, timeless & Impactful.
+        <h2 className="text-[18px] sm:text-[34px] lg:text-[40px] font-bold sm:leading-tight text-gray-900 axiforma">
+          We Cut Through Noise to create architects that are thoughtful, timeless & Impactful.
         </h2>
       </FadeIn>
 

@@ -4,9 +4,9 @@ import {
   fetchSubProduct as apiFetchSubProduct,
 } from "./products-api";
 
-// Re-export extended SubProduct from API for detail pages (gridIntro, specs, gallerySlides)
+// Re-export extended SubProduct from API for detail pages (specs, gallerySlides, etc.)
 export type { ApiSubProduct as SubProductDetail };
-export type { SubProductGridIntro, SubProductGridImage, SubProductSpec, SubProductGallerySlide } from "./products-api";
+export type { SubProductSpec, SubProductGallerySlide } from "./products-api";
 
 // Product and Sub-Product data structure (from API only)
 export interface SubProduct {
@@ -63,10 +63,8 @@ export async function fetchMergedProduct(slug: string): Promise<Product | undefi
   }
 }
 
-/** Full sub-product for detail page (includes gridIntro, specs, gallerySlides from API) */
+/** Full sub-product for detail page (includes specs, gallerySlides, etc. from API) */
 export interface SubProductMerged extends SubProduct {
-  gridIntro?: ApiSubProduct["gridIntro"];
-  gridImages?: ApiSubProduct["gridImages"];
   specDescription?: string;
   specs?: ApiSubProduct["specs"];
   galleryImages?: ApiSubProduct["galleryImages"];
@@ -89,8 +87,6 @@ export async function fetchMergedSubProduct(
       title: apiResult.subProduct.title,
       description: apiResult.subProduct.description ?? "",
       image: apiResult.subProduct.image ?? "",
-      gridIntro: apiResult.subProduct.gridIntro,
-      gridImages: apiResult.subProduct.gridImages,
       specDescription: apiResult.subProduct.specDescription,
       specs: apiResult.subProduct.specs,
       galleryImages: apiResult.subProduct.galleryImages,

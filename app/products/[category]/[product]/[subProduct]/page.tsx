@@ -6,7 +6,6 @@ import AboutProduct from "@/components/products/AboutProduct";
 import CertificationsSection from "@/components/products/CertificationsSection";
 import FinishesShades from "@/components/products/FinishesShades";
 import GallerySection from "@/components/products/GallerySection";
-import LinearluxGrid from "@/components/products/LinearluxGrid";
 import LinearluxHero from "@/components/products/LinearluxHero";
 import ProductSpecification from "@/components/products/ProductSpecification";
 import Product3DViewer from "@/components/products/Product3DViewer";
@@ -64,10 +63,6 @@ export default async function SubProductDetailPage({ params }: Props) {
         productTitle={product.title}
         subProductTitle={subProduct.title}
         description={subProduct.description}
-      />
-      <LinearluxGrid
-        gridIntro={subProduct.gridIntro}
-        gridImages={subProduct.gridImages}
       />
       <ProductSpecification
         specDescription={subProduct.specDescription}

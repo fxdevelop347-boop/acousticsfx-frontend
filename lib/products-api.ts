@@ -3,17 +3,6 @@
  * Base URL: NEXT_PUBLIC_API_URL or VITE_API_URL or https://api.themoonlit.in
  */
 
-export interface SubProductGridIntro {
-  title?: string;
-  subtitle?: string;
-  body?: string;
-}
-
-export interface SubProductGridImage {
-  url: string;
-  alt?: string;
-}
-
 export interface SubProductSpec {
   label: string;
   value: string;
@@ -85,8 +74,6 @@ export interface SubProduct {
   title: string;
   description: string;
   image: string;
-  gridIntro?: SubProductGridIntro;
-  gridImages?: SubProductGridImage[];
   specDescription?: string;
   specs?: SubProductSpec[];
   /** Deprecated: old shape. Still optional for compatibility. */

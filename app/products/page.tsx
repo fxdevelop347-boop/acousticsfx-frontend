@@ -18,22 +18,27 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  let firstCategorySlug = "acoustic";
+  let categories: Array<{ slug: string; name: string; order?: number }> = [];
   try {
-    const { categories } = await fetchCategories();
-    if (categories?.length > 0) {
-      const sorted = [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      firstCategorySlug = sorted[0].slug;
-    }
+    const res = await fetchCategories();
+    categories = res.categories ?? [];
   } catch {
-    // keep default
+    // leave empty
   }
+  const sorted = [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const firstCategorySlug = sorted.length > 0 ? sorted[0].slug : null;
 
   return (
     <>
       <ProductHero />
       <AwardsSection />
-      <AcousticSolutions categorySlug={firstCategorySlug} showMasterCategoryTabs />
+      {firstCategorySlug ? (
+        <AcousticSolutions categorySlug={firstCategorySlug} showMasterCategoryTabs />
+      ) : (
+        <section className="w-full bg-white px-6 py-16 sm:py-24 text-center">
+          <p className="text-gray-500 text-lg">No product categories yet. Check back later.</p>
+        </section>
+      )}
       <CaseStudies />
       <OurPromise />
       <ApplicationsSection />

@@ -1,15 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { fetchCategories, fetchCategoryBySlug, fetchProducts, type Product } from "@/lib/products-api";
-import { products as staticProducts } from "@/lib/products-data";
-import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
-
-const FALLBACK_CARDS = staticProducts.map((p) => ({
-  slug: p.slug,
-  title: p.title,
-  description: p.description,
-  image: p.image,
-}));
+import { FadeIn, StaggerContainer } from "@/components/animations";
 
 interface AcousticSolutionsProps {
   /** Master category slug (e.g. acoustic, flooring). From route /products/[category] or first category on /products. */
@@ -43,7 +35,7 @@ export default async function AcousticSolutions({
               description: p.shortDescription || p.description,
               image: p.image,
             }))
-          : FALLBACK_CARDS;
+          : [];
     } else {
       const { products } = await fetchProducts(categorySlug).catch(() => ({ products: [] }));
       cards =
@@ -54,10 +46,10 @@ export default async function AcousticSolutions({
               description: p.shortDescription || p.description,
               image: p.image,
             }))
-          : FALLBACK_CARDS;
+          : [];
     }
   } catch {
-    cards = FALLBACK_CARDS;
+    cards = [];
   }
 
   const leftCards = cards.filter((_, i) => i % 2 === 0);
@@ -101,22 +93,28 @@ export default async function AcousticSolutions({
           </h2>
         </FadeIn>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-16 sm:gap-y-20 lg:gap-x-20 lg:gap-y-20">
-          {/* LEFT COLUMN */}
-          <StaggerContainer className="flex flex-col gap-y-16 sm:gap-y-20">
-            {leftCards.map((card) => (
-              <ProductCard key={card.slug} card={card} categorySlug={categorySlug} />
-            ))}
-          </StaggerContainer>
+        {/* Grid or empty state */}
+        {cards.length === 0 ? (
+          <p className="text-gray-500 text-center py-12">
+            No products in this category yet.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-16 sm:gap-y-20 lg:gap-x-20 lg:gap-y-20">
+            {/* LEFT COLUMN */}
+            <StaggerContainer className="flex flex-col gap-y-16 sm:gap-y-20">
+              {leftCards.map((card) => (
+                <ProductCard key={card.slug} card={card} categorySlug={categorySlug} />
+              ))}
+            </StaggerContainer>
 
-          {/* RIGHT COLUMN (60px DOWN) */}
-          <StaggerContainer className="flex flex-col gap-y-16 sm:gap-y-20 lg:mt-[60px]">
-            {rightCards.map((card) => (
-              <ProductCard key={card.slug} card={card} categorySlug={categorySlug} />
-            ))}
-          </StaggerContainer>
-        </div>
+            {/* RIGHT COLUMN (60px DOWN) */}
+            <StaggerContainer className="flex flex-col gap-y-16 sm:gap-y-20 lg:mt-[60px]">
+              {rightCards.map((card) => (
+                <ProductCard key={card.slug} card={card} categorySlug={categorySlug} />
+              ))}
+            </StaggerContainer>
+          </div>
+        )}
 
       </div>
     </section>

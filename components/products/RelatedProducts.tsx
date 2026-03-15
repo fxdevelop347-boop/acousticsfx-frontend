@@ -4,36 +4,22 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-const products = [
-  {
-    img: "/assets/product/related-product-2.jpg",
-    title: "Slat",
-    desc: "Acoustic wall panels made of wood slats reverberation and spreading sound waves better than plain surfaces and can create warm acoustic spaces.",
-  },
-  {
-    img: "/assets/product/related-product-1.jpg",
-    title: "Slat",
-    desc: "Acoustic wall panels made of wood slats reverberation and spreading sound waves better than plain surfaces and can create warm acoustic spaces.",
-  },
-  {
-    img: "/assets/product/related-product-3.png",
-    title: "Slat",
-    desc: "Acoustic wall panels made of wood slats reverberation and spreading sound waves better than plain surfaces and can create warm acoustic spaces.",
-  },
-  {
-    img: "/assets/product/related-product-1.jpg",
-    title: "Slat",
-    desc: "Acoustic wall panels made of wood slats reverberation and spreading sound waves better than plain surfaces and can create warm acoustic spaces.",
-  },
-  {
-    img: "/assets/product/related-product-2.jpg",
-    title: "Wave Panel",
-    desc: "Elegant wave-patterned acoustic panels that combine functionality with stunning visual appeal.",
-  },
-];
+export interface RelatedProductItem {
+  slug: string;
+  title: string;
+  description: string;
+  image: string;
+}
 
-export default function RelatedProducts() {
+interface RelatedProductsProps {
+  products: RelatedProductItem[];
+  categorySlug: string;
+}
+
+export default function RelatedProducts({ products, categorySlug }: RelatedProductsProps) {
   const [index, setIndex] = useState(0);
+
+  if (!products.length) return null;
 
   const prev = () => {
     setIndex((prev) => Math.max(prev - 1, 0));
@@ -63,7 +49,7 @@ export default function RelatedProducts() {
           </p>
         </div>
 
-        <Link href="/products/acoustic" className="border border-gray-300 px-5 py-2 rounded-full text-sm hover:bg-gray-100 transition cursor-pointer no-underline text-black">
+        <Link href={`/products/${categorySlug}`} className="border border-gray-300 px-5 py-2 rounded-full text-sm hover:bg-gray-100 transition cursor-pointer no-underline text-black">
           VIEW ALL PRODUCTS →
         </Link>
       </div>
@@ -76,15 +62,16 @@ export default function RelatedProducts() {
             transform: `translateX(-${index * 416}px)`,
           }}
         >
-          {products.map((item, idx) => (
-            <div
-              key={idx}
-              className="min-w-[320px] sm:min-w-[360px] lg:min-w-[400px] h-[480px] sm:h-[520px] lg:h-[550px] bg-white rounded-2xl overflow-hidden flex flex-col"
+          {products.map((item) => (
+            <Link
+              key={item.slug}
+              href={`/products/${categorySlug}/${item.slug}`}
+              className="min-w-[320px] sm:min-w-[360px] lg:min-w-[400px] h-[480px] sm:h-[520px] lg:h-[550px] bg-white rounded-2xl overflow-hidden flex flex-col no-underline text-inherit"
             >
               {/* Image */}
               <div className="h-[240px] sm:h-[280px] lg:h-[320px] relative">
                 <Image
-                  src={item.img}
+                  src={item.image}
                   alt={item.title}
                   fill
                   className="object-cover"
@@ -97,41 +84,43 @@ export default function RelatedProducts() {
                   {item.title}
                 </h3>
                 <p className="text-[14px] sm:text-[15px] lg:text-[16px] manrope font-[400] text-gray-600 leading-relaxed">
-                  {item.desc}
+                  {item.description}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
         {/* Navigation Arrows */}
-        <div className="flex justify-center gap-8 mt-6 sm:mt-8">
-          <button
-            onClick={prev}
-            disabled={index === 0}
-            className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <Image
-              src="/assets/home/universalvector.svg"
-              alt="Previous"
-              width={34}
-              height={14}
-              className="rotate-180"
-            />
-          </button>
-          <button
-            onClick={next}
-            disabled={index >= products.length - 3}
-            className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <Image
-              src="/assets/home/universalvector.svg"
-              alt="Next"
-              width={34}
-              height={14}
-            />
-          </button>
-        </div>
+        {products.length > 3 && (
+          <div className="flex justify-center gap-8 mt-6 sm:mt-8">
+            <button
+              onClick={prev}
+              disabled={index === 0}
+              className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Image
+                src="/assets/home/universalvector.svg"
+                alt="Previous"
+                width={34}
+                height={14}
+                className="rotate-180"
+              />
+            </button>
+            <button
+              onClick={next}
+              disabled={index >= products.length - 3}
+              className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Image
+                src="/assets/home/universalvector.svg"
+                alt="Next"
+                width={34}
+                height={14}
+              />
+            </button>
+          </div>
+        )}
       </div>
 
     </section>

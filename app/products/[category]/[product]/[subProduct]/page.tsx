@@ -13,6 +13,7 @@ import Product3DViewer from "@/components/products/Product3DViewer";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import SubstratesSection from "@/components/products/SubstratesSection";
 import { fetchMergedSubProduct } from "@/lib/products-data";
+import { fetchProducts } from "@/lib/products-api";
 
 type Props = {
   params: Promise<{ category: string; product: string; subProduct: string }>;
@@ -32,13 +33,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SubProductDetailPage({ params }: Props) {
-  const { product: productSlug, subProduct: subProductSlug } = await params;
+  const { category, product: productSlug, subProduct: subProductSlug } = await params;
   const { product, subProduct } = await fetchMergedSubProduct(
     productSlug,
     subProductSlug
   );
 
   if (!product || !subProduct) notFound();
+
+  // Fetch related products from API (same category, exclude current product); limit 5
+  let relatedProducts: Array<{ slug: string; title: string; description: string; image: string }> = [];
+  try {
+    const { products } = await fetchProducts(product.categorySlug ?? undefined);
+    relatedProducts = (products ?? [])
+      .filter((p) => p.slug !== productSlug)
+      .slice(0, 5)
+      .map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        description: p.shortDescription ?? p.description ?? "",
+        image: p.image,
+      }));
+  } catch {
+    // leave empty
+  }
 
   return (
     <>
@@ -62,7 +80,10 @@ export default async function SubProductDetailPage({ params }: Props) {
       <CertificationsSection certifications={subProduct.certifications} />
       <FinishesShades finishesSection={subProduct.finishesSection} />
       <Testimonials />
-      <RelatedProducts />
+      <RelatedProducts
+        products={relatedProducts}
+        categorySlug={category}
+      />
       <ConnectWithExperts />
     </>
   );

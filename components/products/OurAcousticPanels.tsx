@@ -8,14 +8,6 @@ interface OurAcousticPanelsProps {
   categorySlug?: string;
 }
 
-const FALLBACK_PANELS = [
-  { title: "Linerlux", desc: "Grooved Acoustical Panels", img: "/assets/panels/linerlux.png", slug: "linearlux" },
-  { title: "Acoperf", desc: "Perforated Acoustical Panels", img: "/assets/panels/acoperf.png", slug: "acoperf" },
-  { title: "Microatlas", desc: "Micro Perforated Acoustical Panels", img: "/assets/panels/microatlas.png", slug: "microatlas" },
-  { title: "Acoslots", desc: "Slotted Acoustical Panels", img: "/assets/panels/acoslots.png", slug: "acoslots" },
-  { title: "Perfomax", desc: "Max Perforated Acoustical Panels", img: "/assets/panels/perfomax.png", slug: "perfomax" },
-];
-
 export default async function OurAcousticPanels({ productSlug, categorySlug = "acoustic" }: OurAcousticPanelsProps = {}) {
   let panels: Array<{ title: string; desc: string; img: string; slug?: string }> = [];
   let panelsTitle = "OUR ACOUSTIC PANELS";
@@ -37,7 +29,7 @@ export default async function OurAcousticPanels({ productSlug, categorySlug = "a
   }
 
   if (panels.length === 0) {
-    panels = FALLBACK_PANELS;
+    return null;
   }
 
   return (
@@ -97,21 +89,15 @@ group-hover:rotate-0">
               </div>
             );
 
-            // Wrap in Link if productSlug, categorySlug and slug are available
-            if (productSlug && categorySlug && item.slug) {
-              return (
-                <Link
-                  key={index}
-                  href={`/products/${categorySlug}/${productSlug}/${item.slug}`}
-                  className="block"
-                >
-                  {CardContent}
-                </Link>
-              );
-            }
-
-            // For static fallback, wrap in div
-            return <div key={index}>{CardContent}</div>;
+            return (
+              <Link
+                key={index}
+                href={`/products/${categorySlug}/${productSlug}/${item.slug}`}
+                className="block"
+              >
+                {CardContent}
+              </Link>
+            );
           })}
         </div>
 

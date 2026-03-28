@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
 import Testimonials from "@/components/home/Testimonials";
 import AboutProduct from "@/components/products/AboutProduct";
@@ -32,8 +32,13 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) notFound();
 
+  const canonicalCategory = product.categorySlug;
+  if (canonicalCategory && canonicalCategory !== category) {
+    permanentRedirect(`/products/${canonicalCategory}/${product.slug}`);
+  }
+
   const relatedProducts = await fetchRelatedProductsForCategory(
-    category,
+    canonicalCategory ?? category,
     product.slug
   );
 
@@ -60,7 +65,7 @@ export default async function ProductDetailPage({ params }: Props) {
       />
       <FinishesShades finishesSection={product.finishesSection} />
       <Testimonials />
-      <RelatedProducts products={relatedProducts} categorySlug={category} />
+      <RelatedProducts products={relatedProducts} categorySlug={canonicalCategory ?? category} />
       <ConnectWithExperts />
     </>
   );

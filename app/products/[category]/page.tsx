@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import ProductHero from "@/components/products/ProductHero";
 import AwardsSection from "@/components/products/AwardsSection";
 import AcousticSolutions from "@/components/products/AcousticSolutions";
@@ -31,20 +31,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryPage({ params }: Props) {
   const { category } = await params;
-  let exists = false;
+  let data: Awaited<ReturnType<typeof fetchCategoryBySlug>>;
   try {
-    await fetchCategoryBySlug(category);
-    exists = true;
+    data = await fetchCategoryBySlug(category);
   } catch {
-    exists = false;
+    notFound();
   }
-  if (!exists) notFound();
+
+  if (data.category.slug !== category) {
+    permanentRedirect(`/products/${data.category.slug}`);
+  }
 
   return (
     <>
       <ProductHero />
       <AwardsSection />
-      <AcousticSolutions categorySlug={category} showMasterCategoryTabs={false} />
+      <AcousticSolutions categorySlug={data.category.slug} showMasterCategoryTabs={false} />
       <StoryInnovation />
       <AcousticWhyChooseUs />
       <TrustedBySection />

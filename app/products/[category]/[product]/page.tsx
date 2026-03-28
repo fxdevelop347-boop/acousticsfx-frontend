@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import StoryInnovation from "@/components/about/StoryInnovation";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
-import LatestBlogs from "@/components/home/LatestBlogs";
 import Testimonials from "@/components/home/Testimonials";
-import OurAcousticPanels from "@/components/products/OurAcousticPanels";
-import ProductContentSection from "@/components/products/ProductContentSection";
-import ProductHeroSection from "@/components/products/ProductHeroSection";
-import WhyChooseSection from "@/components/products/WhyChooseSection";
-import { fetchMergedProduct } from "@/lib/products-data";
+import AboutProduct from "@/components/products/AboutProduct";
+import CertificationsSection from "@/components/products/CertificationsSection";
+import FinishesShades from "@/components/products/FinishesShades";
+import GallerySection from "@/components/products/GallerySection";
+import LinearluxHero from "@/components/products/LinearluxHero";
+import ProductSpecification from "@/components/products/ProductSpecification";
+import Product3DViewer from "@/components/products/Product3DViewer";
+import RelatedProducts from "@/components/products/RelatedProducts";
+import SubstratesSection from "@/components/products/SubstratesSection";
+import { fetchMergedProduct, fetchRelatedProductsForCategory } from "@/lib/products-data";
 
 type Props = { params: Promise<{ category: string; product: string }> };
 
@@ -18,42 +21,46 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: productSlug, description: "" };
   return {
     title: product.metaTitle || product.title,
-    description: (product.metaDescription || product.description)?.slice(0, 160) ?? "",
+    description:
+      (product.metaDescription || product.description)?.slice(0, 160) ?? "",
   };
 }
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductDetailPage({ params }: Props) {
   const { category, product: productSlug } = await params;
   const product = await fetchMergedProduct(productSlug);
 
   if (!product) notFound();
 
+  const relatedProducts = await fetchRelatedProductsForCategory(
+    category,
+    product.slug
+  );
+
   return (
     <>
-      <ProductHeroSection
-        title={product.title}
-        showTrademark={product.showTrademark === true}
-        description={product.description}
-        heroImage={product.heroImage}
-        breadcrumbText={product.title}
-      />
-      <ProductContentSection
+      <LinearluxHero
         title={product.title}
         showTrademark={product.showTrademark === true}
         description={product.description}
       />
-      <OurAcousticPanels
-        productSlug={product.slug}
-        categorySlug={category}
+      <ProductSpecification
+        sectionTitle={product.specSectionTitle}
+        specDescription={product.specDescription}
+        specs={product.specs}
       />
-      <WhyChooseSection
-        title={product.title}
-        showTrademark={product.showTrademark === true}
-        description={product.description}
+      <GallerySection galleryImages={product.galleryImages} />
+      <Product3DViewer profilesSection={product.profilesSection} />
+      <SubstratesSection substratesSection={product.substratesSection} />
+      <AboutProduct aboutTabs={product.aboutTabs} />
+      <CertificationsSection
+        certifications={product.certifications}
+        sectionTitle={product.certificationsSectionTitle}
+        sectionDescription={product.certificationsSectionDescription}
       />
-      <StoryInnovation />
-      <LatestBlogs />
+      <FinishesShades finishesSection={product.finishesSection} />
       <Testimonials />
+      <RelatedProducts products={relatedProducts} categorySlug={category} />
       <ConnectWithExperts />
     </>
   );

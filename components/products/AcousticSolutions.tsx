@@ -9,6 +9,7 @@ const FALLBACK_CARDS = staticProducts.map((p) => ({
   title: p.title,
   description: p.description,
   image: p.image,
+  showTrademark: p.showTrademark === true,
 }));
 
 interface AcousticSolutionsProps {
@@ -22,7 +23,13 @@ export default async function AcousticSolutions({
   categorySlug,
   showMasterCategoryTabs = false,
 }: AcousticSolutionsProps) {
-  let cards: Array<{ slug: string; title: string; description: string; image: string; showTrademark?: boolean }>;
+  let cards: Array<{
+    slug: string;
+    title: string;
+    description: string;
+    image: string;
+    showTrademark?: boolean;
+  }>;
   let categoryName = "Solutions";
   let categories: Array<{ slug: string; name: string }> = [];
 
@@ -129,7 +136,13 @@ function ProductCard({
   card,
   categorySlug,
 }: {
-  card: { slug: string; title: string; description: string; image: string; showTrademark?: boolean };
+  card: {
+    slug: string;
+    title: string;
+    description: string;
+    image: string;
+    showTrademark?: boolean;
+  };
   categorySlug: string;
 }) {
   return (

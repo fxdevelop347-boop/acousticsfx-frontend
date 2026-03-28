@@ -69,18 +69,22 @@ export interface SubProductFinishesSection {
   items?: SubProductFinishShade[];
 }
 
-export interface SubProduct {
+/** Flat product: listing + full detail page (no nested sub-products). */
+export interface Product {
   slug: string;
   title: string;
   description: string;
   image: string;
+  heroImage?: string;
+  categorySlug?: string;
   showTrademark?: boolean;
+  shortDescription?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   specSectionTitle?: string;
   specDescription?: string;
   specs?: SubProductSpec[];
-  /** Deprecated: old shape. Still optional for compatibility. */
   gallerySlides?: SubProductGallerySlide[];
-  /** Preferred */
   galleryImages?: SubProductGalleryImage[];
   profilesSection?: SubProductProfilesSection;
   substratesSection?: SubProductSubstratesSection;
@@ -89,22 +93,6 @@ export interface SubProduct {
   certificationsSectionDescription?: string;
   certifications?: SubProductCertification[];
   finishesSection?: SubProductFinishesSection;
-}
-
-export interface Product {
-  slug: string;
-  title: string;
-  description: string;
-  image: string;
-  heroImage?: string;
-  subProducts: SubProduct[];
-  categorySlug?: string;
-  showTrademark?: boolean;
-  panelsSectionTitle?: string;
-  panelsSectionDescription?: string;
-  shortDescription?: string;
-  metaTitle?: string;
-  metaDescription?: string;
 }
 
 export interface ProductCategory {
@@ -151,20 +139,7 @@ export function fetchProducts(categorySlug?: string): Promise<{ products: Produc
   return request<{ products: Product[] }>(`/api/products${qs}`);
 }
 
-/** GET /api/products/slug/:productSlug */
+/** GET /api/products/slug/:productSlug — full product detail */
 export function fetchProductBySlug(productSlug: string): Promise<Product> {
   return request<Product>(`/api/products/slug/${encodeURIComponent(productSlug)}`);
-}
-
-/** GET /api/products/slug/:productSlug/sub-products/:subProductSlug */
-export function fetchSubProduct(
-  productSlug: string,
-  subProductSlug: string
-): Promise<{
-  product: { slug: string; title: string; categorySlug?: string; showTrademark?: boolean };
-  subProduct: SubProduct;
-}> {
-  return request(
-    `/api/products/slug/${encodeURIComponent(productSlug)}/sub-products/${encodeURIComponent(subProductSlug)}`
-  );
 }

@@ -2,18 +2,14 @@ import SocialIcons from "@/components/shared/SocialIcons";
 import TrademarkTitle from "@/components/shared/TrademarkTitle";
 
 interface LinearluxHeroProps {
-  productTitle: string;
-  productShowTrademark?: boolean;
-  subProductTitle: string;
-  subProductShowTrademark?: boolean;
+  title: string;
+  showTrademark?: boolean;
   description: string;
 }
 
 export default function LinearluxHero({
-  productTitle,
-  productShowTrademark,
-  subProductTitle,
-  subProductShowTrademark,
+  title,
+  showTrademark,
   description,
 }: LinearluxHeroProps) {
   return (
@@ -39,15 +35,13 @@ export default function LinearluxHero({
         <div className="flex flex-col justify-center max-w-2xl">
           <p className="text-sm text-gray-300 mb-6">
             Our Products &nbsp;•&nbsp;{" "}
-            <TrademarkTitle title={productTitle} showTrademark={productShowTrademark} /> &nbsp;•&nbsp;
             <span className="text-[#f59e0b]">
-              {" "}
-              <TrademarkTitle title={subProductTitle} showTrademark={subProductShowTrademark} />
+              <TrademarkTitle title={title} showTrademark={showTrademark} />
             </span>
           </p>
 
           <h1 className="text-[42px] sm:text-[64px] lg:text-[94px] playfair-display font-serif mb-6">
-            <TrademarkTitle title={subProductTitle} showTrademark={subProductShowTrademark} />
+            <TrademarkTitle title={title} showTrademark={showTrademark} />
           </h1>
 
           <p className="product-body-text inter-font font-[400] text-gray-300">{description}</p>

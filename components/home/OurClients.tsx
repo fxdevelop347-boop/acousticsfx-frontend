@@ -66,7 +66,7 @@ export default function OurClients() {
       <div className="absolute inset-0 bg-white/10" />
 
       {/* CONTENT */}
-      <div className="relative z-10 h-full px-6 sm:px-10 lg:px-[340px] flex flex-col justify-center">
+      <div className="relative z-10 h-full px-6 sm:px-10 lg:px-16 xl:px-24 flex flex-col justify-center">
         <FadeIn direction="up">
           <h2 className="text-center text-white text-2xl font-semibold mb-10 sm:mb-14 lg:mb-16">
             {title}
@@ -74,23 +74,28 @@ export default function OurClients() {
         </FadeIn>
 
         {/* ================= DESKTOP (STATIC) ================= */}
-        <div className="hidden lg:flex flex-col items-center gap-[91px]">
-          <StaggerContainer className="flex justify-center gap-[91px]">
-            {logos.slice(0, Math.ceil(logos.length / 2)).map((logo, index) => (
-              <StaggerItem key={index} direction="up">
-                <LogoCard logo={logo} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+{/* ================= DESKTOP (ANIMATED) ================= */}
+<div className="hidden lg:flex flex-col items-center gap-[91px] overflow-hidden">
+  
+  {/* ROW 1 (Left → Right) */}
+  <div className="overflow-hidden w-full">
+    <div className="flex w-max animate-marquee-left gap-[91px]">
+      {[...logos.slice(0, Math.ceil(logos.length / 2)), ...logos.slice(0, Math.ceil(logos.length / 2))].map((logo, index) => (
+        <LogoCard key={index} logo={logo} />
+      ))}
+    </div>
+  </div>
 
-          <StaggerContainer className="flex justify-center gap-[91px]">
-            {logos.slice(Math.ceil(logos.length / 2)).map((logo, index) => (
-              <StaggerItem key={index} direction="up">
-                <LogoCard logo={logo} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
+  {/* ROW 2 (Right → Left) */}
+  <div className="overflow-hidden w-full">
+    <div className="flex w-max animate-marquee-right gap-[91px]">
+      {[...logos.slice(Math.ceil(logos.length / 2)), ...logos.slice(Math.ceil(logos.length / 2))].map((logo, index) => (
+        <LogoCard key={index} logo={logo} />
+      ))}
+    </div>
+  </div>
+
+</div>
 
         {/* ================= MOBILE / TABLET (DOUBLE SLIDER) ================= */}
         <div className="lg:hidden overflow-hidden space-y-6">

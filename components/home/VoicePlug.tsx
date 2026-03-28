@@ -54,7 +54,12 @@ export default function VoicePlug() {
       <div className="w-full max-w-xl p-4">
 
         <p className="text-center text-gray-600 text-[30px] font-medium leading-tight font-sans mb-6">
-          Experience the difference between normal and acoustic enhanced sound
+          Where Sound, Space &amp; Structure Meet Luxury
+          <br />
+          Precision-Engineered Acoustical Panels, Architectural Interiors, and
+          Exterior Facade Systems.
+          <br />
+          Crafted in India. Trusted Worldwide
         </p>
 
         <div className="flex items-center gap-5">
@@ -106,10 +111,6 @@ export default function VoicePlug() {
             </span>
 
           </div>
-
-          <p className="text-xs text-gray-500 mt-3 cursor-pointer hover:text-gray-700">
-            Show Transcript
-          </p>
 
         </div>
 

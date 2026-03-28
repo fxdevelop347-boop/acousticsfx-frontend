@@ -59,18 +59,20 @@ const FALLBACK_FAQS: FaqItem[] = [
 ];
 
 export default function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [faqs, setFaqs] = useState<FaqItem[]>(FALLBACK_FAQS);
 
   useEffect(() => {
     let cancelled = false;
+
     getFaqs()
       .then((data) => {
-        if (!cancelled && data.length > 0) setFaqs(data);
+        if (!cancelled && data.length > 0) {
+          setFaqs(data);
+        }
       })
-      .catch(() => {
-        /* keep fallback */
-      });
+      .catch(() => {});
+
     return () => {
       cancelled = true;
     };
@@ -79,17 +81,19 @@ export default function FAQSection() {
   return (
     <section className="px-6 sm:px-10 lg:px-[100px] py-[80px] lg:py-[100px] bg-white">
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
+
         {/* LEFT CONTENT */}
         <FadeIn direction="left" className="w-full lg:w-1/2">
-          <p className="text-[16px] mb-3 inter-font font-[500]">FAQs</p>
+          <p className="text-[16px] mb-3 inter-font font-[500]">
+            FAQs
+          </p>
 
           <h2 className="text-[34px] sm:text-[44px] lg:text-[54px] font-bold mb-4 inter-font font-[500]">
             Wondering How We Work?
           </h2>
 
           <p className="text-[16px] text-gray-600 mb-6 max-w-md inter-font font-[500]">
-            Answers to common questions about our process, services, and how we
-            work.
+            Answers to common questions about our process, services, and how we work.
           </p>
 
           <Link href="/contactus">
@@ -110,12 +114,16 @@ export default function FAQSection() {
           </div>
         </FadeIn>
 
+
         {/* RIGHT ACCORDION */}
         <div className="w-full lg:w-1/2">
           <StaggerContainer className="space-y-4">
+
             {faqs.map((item, index) => (
               <StaggerItem key={item._id} direction="up">
+
                 <div className="border rounded-xl overflow-hidden">
+
                   <button
                     onClick={() =>
                       setOpenIndex(openIndex === index ? null : index)
@@ -125,9 +133,11 @@ export default function FAQSection() {
                     <span className="font-medium inter-font text-[16px] sm:text-[18px] lg:text-[20px]">
                       {index + 1}. {item.question}
                     </span>
+
                     <span className="text-xl">
                       {openIndex === index ? "—" : "+"}
                     </span>
+
                   </button>
 
                   {openIndex === index && (
@@ -135,11 +145,15 @@ export default function FAQSection() {
                       {item.answer}
                     </div>
                   )}
+
                 </div>
+
               </StaggerItem>
             ))}
+
           </StaggerContainer>
         </div>
+
       </div>
     </section>
   );

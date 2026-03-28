@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchTrustedPartners, type TrustedPartner } from "@/lib/trusted-partners-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
-import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
+import { FadeIn, HoverScale } from "@/components/animations";
 
 const CONTENT_KEYS = ["contact.trustedBy.title", "contact.trustedBy.description"];
 
@@ -54,22 +54,24 @@ export default function TrustedBySection() {
         </p>
       </FadeIn>
 
-      <StaggerContainer className="flex flex-wrap lg:flex-nowrap items-center justify-center lg:justify-between gap-8 sm:gap-10 lg:gap-12">
-        {partners.map((p, i) => (
-          <StaggerItem key={i} direction="up">
-            <HoverScale>
+      {/* Animated Logos */}
+      <div className="overflow-hidden w-full">
+        <div className="flex w-max animate-marquee-left items-center gap-8 sm:gap-10 lg:gap-12">
+          {[...partners, ...partners].map((p, i) => (
+            <HoverScale key={i}>
               <LogoItem src={p.logo} alt={p.name} />
             </HoverScale>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
+          ))}
+        </div>
+      </div>
+
     </section>
   );
 }
 
 function LogoItem({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="flex items-center justify-center transition relative h-12 sm:h-14 lg:h-15 w-[120px] sm:w-[140px]">
+    <div className="flex items-center justify-center transition relative h-12 sm:h-14 lg:h-16 w-[120px] sm:w-[140px] lg:w-[160px] shrink-0">
       <Image
         src={src}
         alt={alt}

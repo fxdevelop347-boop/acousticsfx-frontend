@@ -39,13 +39,13 @@ export default function CreativeApproach() {
         <FadeIn
           direction="left"
           duration={0.7}
-  className="
-    relative z-30 bg-[#FFF3E8]
-    p-6 lg:p-10
-    shadow-lg
-    w-full
-    max-w-[650px]   /* 🔥 MAX WIDTH FIX */
-  "
+          className="
+            relative z-30 bg-[#FFF3E8]
+            p-6 lg:p-10
+            shadow-lg
+            w-full
+            max-w-[650px]
+          "
         >
           <p className="text-sm mb-2">#FXacoustic solutions</p>
 
@@ -64,10 +64,8 @@ export default function CreativeApproach() {
             </button>
 
             {openIndex === 0 && (
-              <p className="text-sm text-gray-600 mt-3">
-                Read on how we make awesome projects from scratch, through
-                several series of testing and refining to make our awesome
-                masterclass.
+              <p className="text-sm text-gray-600 mt-3 leading-relaxed">
+                Every project at FX Acoustics Inc. begins with a deep understanding of space, purpose, and emotion. We craft each concept from the ground up—shaping acoustical ideas, architectural intent, and material character into a cohesive vision. This foundation allows us to design solutions that not only perform exceptionally but also enhance the aesthetic harmony of any interior or façade.
               </p>
             )}
           </div>
@@ -83,9 +81,8 @@ export default function CreativeApproach() {
             </button>
 
             {openIndex === 1 && (
-              <p className="text-sm text-gray-600 mt-3">
-                We test and validate every design to ensure optimal
-                performance and acoustic accuracy.
+              <p className="text-sm text-gray-600 mt-3 leading-relaxed">
+                Our design philosophy blends engineering precision with artistic craftsmanship. Each panel and system undergoes rigorous acoustic modeling, structural testing, and material refinement. Through advanced CNC manufacturing and international-standard acoustic evaluations, we ensure every detail meets the highest level of performance and durability.
               </p>
             )}
           </div>
@@ -101,9 +98,8 @@ export default function CreativeApproach() {
             </button>
 
             {openIndex === 2 && (
-              <p className="text-sm text-gray-600 mt-3">
-                Final revisions and high-quality rendering for
-                presentation-ready outputs.
+              <p className="text-sm text-gray-600 mt-3 leading-relaxed">
+                Before production begins, we perfect every design through meticulous revisions and lifelike renderings. This process allows architects, designers, and clients to visualize textures, finishes, lighting interactions, and acoustic outcomes—ensuring absolute clarity and alignment before execution.
               </p>
             )}
           </div>

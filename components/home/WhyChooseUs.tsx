@@ -26,12 +26,42 @@ const CONTENT_KEYS = [
 ];
 
 const DEFAULT_CARDS: CardData[] = [
-  { icon: "/assets/home/quaone.svg", title: "Quality", description: "Uncompromising craftsmanship meets lasting performance. Every detail is engineered for excellence and trust." },
-  { icon: "/assets/home/quatwo.svg", title: "Service", description: "We deliver end-to-end acoustic, flooring, and soundproofing solutions reliable, precise, and built to last." },
-  { icon: "/assets/home/quathr.svg", title: "Innovation", description: "Made from the finest raw materials, our panels enhance your space with elegance while promoting healthy living." },
-  { icon: "/assets/home/quafour.svg", title: "Commitment", description: "We stand by every project with unwavering dedication, ensuring excellence, reliability, and lasting impact." },
-  { icon: "/assets/home/quafive.svg", title: "Trustability", description: "We deliver on every promise with transparency and consistency, earning confidence that lasts a lifetime." },
-  { icon: "/assets/home/quasix.svg", title: "Bespoke", description: "Tailored acoustic solutions designed to fit your unique space, vision, and lifestyle with precision." },
+  {
+    icon: "/assets/home/quaone.svg",
+    title: "Quality",
+    description:
+      "Every FX Acoustics creation begins with a pursuit of perfection. Our acoustical panels, soundproofing systems, and architectural façades are crafted with meticulous precision, using premium materials that promise enduring performance and timeless elegance. Quality isn’t an aspect—it is our identity.",
+  },
+  {
+    icon: "/assets/home/quatwo.svg",
+    title: "Service",
+    description:
+      "We believe exceptional spaces are built on exceptional support. From acoustic consultation to manufacturing and installation, our service experience is seamless, attentive, and deeply personalized. We guide you at every step, ensuring your project unfolds effortlessly with absolute precision.",
+  },
+  {
+    icon: "/assets/home/quathr.svg",
+    title: "Innovation",
+    description:
+      "Innovation fuels our artistry. Through advanced acoustic engineering, state-of-the-art manufacturing, and globally inspired design, we create solutions that elevate environments—enhancing clarity, comfort, and visual harmony. Each product is a fusion of technology and refined craftsmanship.",
+  },
+  {
+    icon: "/assets/home/quafour.svg",
+    title: "Commitment",
+    description:
+      "Our commitment extends beyond delivery—it lives in every detail we stand behind. We honor every project with integrity, consistency, and an unwavering dedication to excellence, ensuring that each space benefits from long-lasting acoustic and architectural value.",
+  },
+  {
+    icon: "/assets/home/quafive.svg",
+    title: "Trustability",
+    description:
+      "Trust is earned through honesty and flawless execution. Over the years, architects, designers, corporates, and institutions have chosen us for our transparency, reliability, and manufacturing consistency. With FX Acoustics, what you envision is exactly what you receive—crafted with care and delivered with certainty.",
+  },
+  {
+    icon: "/assets/home/quasix.svg",
+    title: "Bespoke",
+    description:
+      "Luxury lies in customization. Our bespoke acoustical panels and tailor-made façade systems are designed to reflect your individual vision, architecture, and sensory experience. From texture to tone, every element is shaped with intention—creating spaces that sound exquisite and look extraordinary.",
+  },
 ];
 
 export default function WhyChooseUs() {

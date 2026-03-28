@@ -1,92 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import type { SubProductProfile, SubProductProfilesSection } from "@/lib/products-api";
 
-const TATTOO_CANVAS_SIZE = 256;
-
-/** 1×1 PNG — placeholder so `useTexture` never receives empty URLs during SSR. */
-const PLACEHOLDER_PNG =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
-
-/** Procedural “tattoo” artwork (exported as PNG data URLs for thumbnails; same art on CanvasTexture for the mesh). */
-const TATTOO_DRAWERS: Array<(ctx: CanvasRenderingContext2D, size: number) => void> = [
-  (ctx, s) => {
-    const cx = s * 0.5;
-    const cy = s * 0.45;
-    ctx.strokeStyle = "rgba(40, 30, 20, 0.92)";
-    ctx.lineWidth = s * 0.035;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.arc(cx, cy, s * 0.22, Math.PI * 0.15, Math.PI * 1.85);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cx - s * 0.18, cy + s * 0.12);
-    ctx.quadraticCurveTo(cx, cy + s * 0.32, cx + s * 0.2, cy + s * 0.1);
-    ctx.stroke();
-    ctx.fillStyle = "rgba(180, 120, 60, 0.35)";
-    ctx.beginPath();
-    ctx.arc(cx - s * 0.08, cy - s * 0.05, s * 0.04, 0, Math.PI * 2);
-    ctx.arc(cx + s * 0.1, cy - s * 0.02, s * 0.035, 0, Math.PI * 2);
-    ctx.fill();
-  },
-  (ctx, s) => {
-    ctx.strokeStyle = "rgba(25, 45, 55, 0.9)";
-    ctx.lineWidth = s * 0.028;
-    const g = s / 5;
-    for (let i = 1; i < 5; i++) {
-      ctx.beginPath();
-      ctx.moveTo(g * i, g * 0.8);
-      ctx.lineTo(g * i, s - g * 0.8);
-      ctx.stroke();
-    }
-    for (let j = 1; j < 5; j++) {
-      ctx.beginPath();
-      ctx.moveTo(g * 0.8, g * j);
-      ctx.lineTo(s - g * 0.8, g * j);
-      ctx.stroke();
-    }
-    ctx.fillStyle = "rgba(234, 142, 57, 0.45)";
-    ctx.fillRect(s * 0.35, s * 0.35, s * 0.3, s * 0.3);
-  },
-  (ctx, s) => {
-    ctx.strokeStyle = "rgba(90, 62, 43, 0.88)";
-    ctx.lineWidth = s * 0.022;
-    const cx = s * 0.5;
-    const cy = s * 0.5;
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * s * 0.42, cy + Math.sin(a) * s * 0.42);
-      ctx.stroke();
-    }
-    ctx.fillStyle = "rgba(31, 103, 117, 0.4)";
-    ctx.beginPath();
-    ctx.arc(cx, cy, s * 0.12, 0, Math.PI * 2);
-    ctx.fill();
-  },
-];
-
-function buildTattooThumbDataUrls(size = 48): string[] {
-  if (typeof document === "undefined") {
-    return [PLACEHOLDER_PNG, PLACEHOLDER_PNG, PLACEHOLDER_PNG];
-  }
-  return TATTOO_DRAWERS.map((draw) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return PLACEHOLDER_PNG;
-    ctx.clearRect(0, 0, size, size);
-    draw(ctx, size);
-    return canvas.toDataURL("image/png");
-  });
-}
+/** PNG tattoos served from `public/3dviewer/` (same URLs for thumbnails + `useTexture`). */
+const VIEWER_TATTOO_URLS = [
+  "/3dviewer/tattoo1.png",
+  "/3dviewer/tattoo2.png",
+  "/3dviewer/tattoo3.png",
+] as const;
 
 function AcousticPanelMeshes({
   scale,
@@ -97,11 +23,8 @@ function AcousticPanelMeshes({
   color: string;
   tattooIndex: number | null;
 }) {
-  const tattooUrls = useMemo(
-    () => buildTattooThumbDataUrls(TATTOO_CANVAS_SIZE),
-    [],
-  );
-  const tattooTextures = useTexture(tattooUrls) as THREE.Texture[];
+  const loaded = useTexture([...VIEWER_TATTOO_URLS]);
+  const tattooTextures = (Array.isArray(loaded) ? loaded : [loaded]) as THREE.Texture[];
 
   useEffect(() => {
     tattooTextures.forEach((t) => {
@@ -199,7 +122,7 @@ function UI({
   setActive: (i: number) => void;
   activeTattoo: number | null;
   setActiveTattoo: (i: number | null) => void;
-  tattooThumbs: string[] | null;
+  tattooThumbs: readonly string[];
 }) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -290,26 +213,22 @@ function UI({
 
       {/* TATTOO TEXTURES — same row rhythm as colors (flex gap-4) */}
       <div className="flex gap-4 mt-4" aria-label="Tattoo textures">
-        {[0, 1, 2].map((i) => (
+        {tattooThumbs.map((url, i) => (
           <button
-            key={i}
+            key={url}
             type="button"
             onClick={() => setActiveTattoo(activeTattoo === i ? null : i)}
             className={`w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 cursor-pointer transition-[border-color,box-shadow] duration-200 ease-out ${activeTattoo === i ? "border-orange-500 shadow-[0_0_0_1px_rgba(234,142,57,0.35)]" : "border-gray-600"
               }`}
           >
-            {tattooThumbs?.[i] ? (
-              <Image
-                src={tattooThumbs[i]}
-                alt=""
-                width={48}
-                height={48}
-                unoptimized
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="block w-full h-full bg-gray-700" />
-            )}
+            <Image
+              src={url}
+              alt=""
+              width={48}
+              height={48}
+              unoptimized
+              className="w-full h-full object-cover"
+            />
           </button>
         ))}
       </div>
@@ -327,11 +246,6 @@ export default function Product3DViewer({
   const [color, setColor] = useState("#c19a6b");
   const [activeProfile, setActiveProfile] = useState(0);
   const [activeTattoo, setActiveTattoo] = useState<number | null>(null);
-  const [tattooThumbs, setTattooThumbs] = useState<string[] | null>(null);
-
-  useEffect(() => {
-    setTattooThumbs(buildTattooThumbDataUrls(48));
-  }, []);
 
   const profiles: Array<Pick<SubProductProfile, "name" | "size" | "description">> =
     profilesSection?.profiles?.length
@@ -411,7 +325,7 @@ export default function Product3DViewer({
               setActive={setActiveProfile}
               activeTattoo={activeTattoo}
               setActiveTattoo={setActiveTattoo}
-              tattooThumbs={tattooThumbs}
+              tattooThumbs={VIEWER_TATTOO_URLS}
             />
           </div>
         </div>

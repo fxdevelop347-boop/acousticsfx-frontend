@@ -7,7 +7,10 @@ import { FadeIn, SlideIn } from "@/components/animations";
 import gsap from "gsap";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 
-gsap.registerPlugin(ScrambleTextPlugin);
+// Register the plugin
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrambleTextPlugin);
+}
 
 const CONTENT_KEYS = [
   "home.services.image",
@@ -42,32 +45,45 @@ export default function ServiceProvider() {
     "Project Managers",
   ];
 
+  // Fetch CMS Content
   useEffect(() => {
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
   }, []);
 
+  // Animation Logic
   useEffect(() => {
     let index = 0;
+    let animationTimer: gsap.core.Tween | null = null;
 
     const animate = () => {
       if (!textRef.current) return;
 
       gsap.to(textRef.current, {
-        duration: 1,
+        duration: 1.2, // Consistent duration for all words
         scrambleText: {
           text: words[index],
           chars: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-          revealDelay: 0.2,
-          speed: 0.3,
+          revealDelay: 0.1,
+          speed: 0.5,       // Uniform shuffle speed
+          tweenLength: true, // Crucial: maintains visual flow during length changes
         },
+        ease: "power2.out",
         onComplete: () => {
           index = (index + 1) % words.length;
-          setTimeout(animate, 1500);
+          // Use delayedCall instead of setTimeout for better React/GSAP sync
+          animationTimer = gsap.delayedCall(1.5, animate);
         },
       });
     };
 
+    // Start the loop
     animate();
+
+    // Cleanup to prevent "doubling up" or ghost animations
+    return () => {
+      if (textRef.current) gsap.killTweensOf(textRef.current);
+      if (animationTimer) animationTimer.kill();
+    };
   }, []);
 
   const image = val(content, "home.services.image");
@@ -78,9 +94,9 @@ export default function ServiceProvider() {
 
   return (
     <section className="px-6 sm:px-10 lg:px-[100px] py-[80px] lg:py-[100px]">
-
       <div className="flex flex-col lg:flex-row items-center gap-10">
-
+        
+        {/* Left Side: Image */}
         <SlideIn direction="left" className="w-full lg:w-1/2">
           <Image
             src={image}
@@ -92,13 +108,12 @@ export default function ServiceProvider() {
           />
         </SlideIn>
 
+        {/* Right Side: Content */}
         <FadeIn direction="right" delay={0.1} className="w-full lg:w-[60%] text-left">
-
           <p className="text-[15px] uppercase mb-2 worksans-font text-black font-bold">
             {subtitle}
           </p>
 
-          {/* Scramble Text */}
           <h2 className="text-[19px] sm:text-[34px] lg:text-[40px] worksans-font text-black font-bold mb-4 leading-[28px] sm:leading-[46px] lg:leading-[55px]">
             We are{" "}
             <span ref={textRef} className="text-[#EA8E39]">
@@ -116,11 +131,9 @@ export default function ServiceProvider() {
           >
             {ctaText}
           </a>
-
         </FadeIn>
 
       </div>
-
     </section>
   );
 }

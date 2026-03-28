@@ -32,7 +32,20 @@ export default function ProductsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
+    const interval = setInterval(() => {
+      if (!sliderRef.current) return;
+  
+      const container = sliderRef.current;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+  
+      if (container.scrollLeft >= maxScroll) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: 600, behavior: "smooth" });
+      }
+    }, 2000);
+  
+    return () => clearInterval(interval);
   }, []);
 
   const products = DEFAULT_PRODUCTS.map((p, i) => ({

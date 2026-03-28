@@ -51,47 +51,51 @@ export default function VoicePlug() {
 
     <div className="w-full flex justify-center items-center pt-10">
 
-      <div className="w-full max-w-xl p-4">
+      <div className="w-full max-w-6xl p-4">
 
-        <p className="text-center text-gray-600 text-[30px] font-medium leading-tight font-sans mb-6">
+        <p className="text-center text-gray-600 text-[25px] worksans-font font-[400] leading-tight font-sans mb-6">
           Where Sound, Space &amp; Structure Meet Luxury
-          <br />
+          
           Precision-Engineered Acoustical Panels, Architectural Interiors, and
           Exterior Facade Systems.
-          <br />
+        
           Crafted in India. Trusted Worldwide
         </p>
 
-        <div className="flex items-center gap-5">
+        <div className="flex justify-center">
 
-          <button
-            onClick={togglePlay}
-            className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-200 text-black text-lg"
-          >
-            {isPlaying ? "❚❚" : "▶"}
-          </button>
+<div className="flex items-center gap-5 w-[50%]">
 
-          <div className="flex-1">
-            <WavesurferPlayer
-              height={70}
-              waveColor="#cbd5e1"
-              progressColor="#6b7280"
-              barWidth={3}
-              barGap={2}
-              url="/audio/echo.mp3"   // default echo
-              onReady={onReady}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-            />
-          </div>
+  <button
+    onClick={togglePlay}
+    className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-200 text-black text-lg"
+  >
+    {isPlaying ? "❚❚" : "▶"}
+  </button>
 
-        </div>
+  <div className="flex-1">
+    <WavesurferPlayer
+      height={70}
+      waveColor="#cbd5e1"
+      progressColor="#6b7280"
+      barWidth={3}
+      barGap={2}
+      url="/audio/echo.mp3"
+      onReady={onReady}
+      onPlay={() => setIsPlaying(true)}
+      onPause={() => setIsPlaying(false)}
+    />
+  </div>
+
+</div>
+
+</div>
 
         <div className="flex flex-col items-center mt-6">
 
           <div className="flex items-center gap-3">
 
-            <span className="text-sm text-gray-500">Without</span>
+            <span className="text-sm text-gray-500">Without Acoustic</span>
 
             <button
               onClick={toggleAcoustic}

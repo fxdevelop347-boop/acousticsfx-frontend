@@ -38,24 +38,24 @@ export default async function AcousticSolutions({
       cards =
         products.length > 0
           ? products.map((p: Product) => ({
-              slug: p.slug,
-              title: p.title,
-              description: p.shortDescription || p.description,
-              image: p.image,
-              showTrademark: p.showTrademark === true,
-            }))
+            slug: p.slug,
+            title: p.title,
+            description: p.shortDescription || p.description,
+            image: p.image,
+            showTrademark: p.showTrademark === true,
+          }))
           : FALLBACK_CARDS;
     } else {
       const { products } = await fetchProducts(categorySlug).catch(() => ({ products: [] }));
       cards =
         products.length > 0
           ? products.map((p: Product) => ({
-              slug: p.slug,
-              title: p.title,
-              description: p.shortDescription || p.description,
-              image: p.image,
-              showTrademark: p.showTrademark === true,
-            }))
+            slug: p.slug,
+            title: p.title,
+            description: p.shortDescription || p.description,
+            image: p.image,
+            showTrademark: p.showTrademark === true,
+          }))
           : FALLBACK_CARDS;
     }
   } catch {
@@ -79,11 +79,10 @@ export default async function AcousticSolutions({
                 <Link key={cat.slug} href={`/products/${cat.slug}`} className="cursor-pointer">
                   <button
                     type="button"
-                    className={`px-5 sm:px-6 py-2 text-[10px] axiforma border cursor-pointer ${
-                      isActive
-                        ? "border-[#1F6775] bg-[#1F6775] text-white"
-                        : "border-gray-300 text-gray-600"
-                    }`}
+                    className={`px-5 sm:px-6 py-2 text-[10px] axiforma border cursor-pointer ${isActive
+                      ? "border-[#1F6775] bg-[#1F6775] text-white"
+                      : "border-gray-300 text-gray-600"
+                      }`}
                   >
                     {cat.name.toUpperCase()}
                   </button>

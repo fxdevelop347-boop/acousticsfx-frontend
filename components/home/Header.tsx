@@ -5,11 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
 
-const API_BASE =
-  typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL
-    ? process.env.NEXT_PUBLIC_API_URL
-    : "http://localhost:8080";
+const API_BASE = getPublicApiBaseUrl();
 
 type NavCategory = { slug: string; name: string };
 

@@ -18,22 +18,24 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  let firstCategorySlug = "acoustic";
+  let firstCategorySlug = "";
   try {
     const { categories } = await fetchCategories();
-    if (categories?.length > 0) {
+    if (categories?.length) {
       const sorted = [...categories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       firstCategorySlug = sorted[0].slug;
     }
   } catch {
-    // keep default
+    firstCategorySlug = "";
   }
 
   return (
     <>
       <ProductHero />
       <AwardsSection />
-      <AcousticSolutions categorySlug={firstCategorySlug} showMasterCategoryTabs />
+      {firstCategorySlug ? (
+        <AcousticSolutions categorySlug={firstCategorySlug} showMasterCategoryTabs />
+      ) : null}
       <CaseStudies />
       <OurPromise />
       <ApplicationsSection />

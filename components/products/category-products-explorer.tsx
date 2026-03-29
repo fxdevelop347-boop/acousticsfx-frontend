@@ -18,14 +18,7 @@ import {
   type Product,
   type ProductCategory,
 } from "@/lib/products-api";
-import { products as staticProducts } from "@/lib/products-data";
 import { ProductListingCard } from "@/components/products/ProductListingCard";
-
-const FALLBACK_CATEGORIES: { slug: string; name: string }[] = [
-  { slug: "acoustic", name: "Acoustic Solution" },
-  { slug: "flooring", name: "Flooring Solution" },
-  { slug: "sound-proofing", name: "Sound Proofing Solution" },
-];
 
 function normalizeCategories(list: ProductCategory[]): { slug: string; name: string }[] {
   return [...list]
@@ -35,6 +28,7 @@ function normalizeCategories(list: ProductCategory[]): { slug: string; name: str
 
 type ExplorerContextValue = {
   categories: { slug: string; name: string }[];
+  categoriesLoading: boolean;
   activeSlug: string;
   setActiveSlug: (slug: string) => void;
   products: Product[];
@@ -50,6 +44,11 @@ function useExplorer(): ExplorerContextValue {
   return ctx;
 }
 
+/** For client sections that need loading / empty category state (e.g. home Our Products). */
+export function useCategoryProductsExplorer(): ExplorerContextValue {
+  return useExplorer();
+}
+
 export function CategoryProductsProvider({
   initialCategorySlug,
   children,
@@ -58,6 +57,7 @@ export function CategoryProductsProvider({
   children: ReactNode;
 }) {
   const [categories, setCategories] = useState<{ slug: string; name: string }[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [activeSlug, setActiveSlugState] = useState(initialCategorySlug);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,13 +65,15 @@ export function CategoryProductsProvider({
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setCategoriesLoading(true);
       try {
         const { categories: apiCats } = await fetchCategories();
         if (cancelled) return;
-        const normalized = normalizeCategories(apiCats ?? []);
-        setCategories(normalized.length > 0 ? normalized : FALLBACK_CATEGORIES);
+        setCategories(normalizeCategories(apiCats ?? []));
       } catch {
-        if (!cancelled) setCategories(FALLBACK_CATEGORIES);
+        if (!cancelled) setCategories([]);
+      } finally {
+        if (!cancelled) setCategoriesLoading(false);
       }
     })();
     return () => {
@@ -89,39 +91,36 @@ export function CategoryProductsProvider({
 
   useEffect(() => {
     if (categories.length === 0) return;
-    const exists = categories.some(
-      (c) => c.slug.toLowerCase() === activeSlug.toLowerCase()
-    );
-    if (!exists) setActiveSlugState(categories[0].slug);
-  }, [categories, activeSlug]);
+    setActiveSlugState((prev) => {
+      const exists =
+        prev &&
+        categories.some((c) => c.slug.toLowerCase() === prev.toLowerCase());
+      if (exists) return prev;
+      return categories[0].slug;
+    });
+  }, [categories]);
 
   useEffect(() => {
-    if (!activeSlug) return;
+    if (!activeSlug) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
+    setProducts([]);
     (async () => {
       try {
         const res = await fetchCategoryBySlug(activeSlug);
         if (cancelled) return;
-        const list = res.products ?? [];
-        setProducts(
-          list.length > 0
-            ? list
-            : staticProducts.filter((p) => p.categorySlug === activeSlug)
-        );
+        setProducts(res.products ?? []);
       } catch {
         try {
           const { products: plist } = await fetchProducts(activeSlug);
           if (cancelled) return;
-          setProducts(
-            plist.length > 0
-              ? plist
-              : staticProducts.filter((p) => p.categorySlug === activeSlug)
-          );
+          setProducts(plist ?? []);
         } catch {
-          if (!cancelled) {
-            setProducts(staticProducts.filter((p) => p.categorySlug === activeSlug));
-          }
+          if (!cancelled) setProducts([]);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -140,16 +139,36 @@ export function CategoryProductsProvider({
   const value = useMemo(
     () => ({
       categories,
+      categoriesLoading,
       activeSlug,
       setActiveSlug,
       products,
       loading,
       activeCategoryName,
     }),
-    [categories, activeSlug, setActiveSlug, products, loading, activeCategoryName]
+    [categories, categoriesLoading, activeSlug, setActiveSlug, products, loading, activeCategoryName]
   );
 
   return <ExplorerContext.Provider value={value}>{children}</ExplorerContext.Provider>;
+}
+
+/** `/products` tabbed block: only render when categories exist (API). */
+export function TabbedProductsMaybeSection() {
+  const { categories, categoriesLoading, products, loading } = useExplorer();
+  if (categoriesLoading) return null;
+  if (categories.length === 0) return null;
+  return (
+    <section className="w-full bg-white">
+      <div className="px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[60px] sm:py-[80px] lg:py-[100px]">
+        <CategoryTabs
+          variant="center"
+          className="gap-3 sm:gap-4 mb-10 sm:mb-12 lg:mb-16"
+        />
+        {!loading && products.length > 0 ? <CategoryExploreHeading /> : null}
+        <CategoryProductCarousel layout="products" />
+      </div>
+    </section>
+  );
 }
 
 export function CategoryTabs({
@@ -162,8 +181,7 @@ export function CategoryTabs({
   const { categories, activeSlug, setActiveSlug } = useExplorer();
   if (categories.length === 0) return null;
 
-  const align =
-    variant === "center" ? "justify-center" : "justify-start";
+  const align = variant === "center" ? "justify-center" : "justify-start";
 
   return (
     <div className={`flex flex-wrap gap-3 ${align} ${className}`}>
@@ -278,20 +296,8 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
     setCurrentIndex(index);
   };
 
-  if (loading && products.length === 0) {
-    return (
-      <div className={`relative ${paddingClass} py-12 text-gray-500 text-sm`}>
-        Loading products…
-      </div>
-    );
-  }
-
-  if (products.length === 0) {
-    return (
-      <div className={`relative ${paddingClass} py-12 text-gray-500 text-sm`}>
-        No products in this category yet.
-      </div>
-    );
+  if (!activeSlug || loading || products.length === 0) {
+    return null;
   }
 
   const slideLgClasses =

@@ -2,9 +2,9 @@
  * Contact form API. Submits to POST /api/contact
  */
 
-const getBaseUrl = () =>
-  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) ||
-  'https://api.themoonlit.in';
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
+
+const getBaseUrl = () => getPublicApiBaseUrl();
 
 export const CONTACT_SUBJECTS = [
   'General Inquiry',

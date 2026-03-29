@@ -4,7 +4,9 @@
  * You can extend this with React Query hooks in the api folder
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.themoonlit.in";
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
+
+const API_BASE_URL = getPublicApiBaseUrl();
 
 export interface ApiError {
   message: string;

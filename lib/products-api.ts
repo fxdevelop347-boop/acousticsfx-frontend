@@ -1,7 +1,9 @@
 /**
  * Products API client – fetches categories and products from the backend.
- * Base URL: NEXT_PUBLIC_API_URL or VITE_API_URL or http://localhost:8080
+ * Base URL: {@link getPublicApiBaseUrl}
  */
+
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
 
 export interface SubProductSpec {
   label: string;
@@ -106,9 +108,7 @@ export interface ProductCategory {
   metaDescription?: string;
 }
 
-const getBaseUrl = (): string => {
-  return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) || 'http://localhost:8080';
-};
+const getBaseUrl = (): string => getPublicApiBaseUrl();
 
 async function request<T>(path: string): Promise<T> {
   const url = path.startsWith('http') ? path : `${getBaseUrl()}${path}`;

@@ -3,9 +3,9 @@
  * Fetches from GET /api/testimonials
  */
 
-const getBaseUrl = () =>
-  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) ||
-  'https://api.themoonlit.in';
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
+
+const getBaseUrl = () => getPublicApiBaseUrl();
 
 export interface Testimonial {
   _id: string;

@@ -2,9 +2,9 @@
  * Newsletter signup API. Submits to POST /api/newsletter
  */
 
-const getBaseUrl = () =>
-  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) ||
-  'https://api.themoonlit.in';
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
+
+const getBaseUrl = () => getPublicApiBaseUrl();
 
 export async function subscribeNewsletter(email: string): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/newsletter`, {

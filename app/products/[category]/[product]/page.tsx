@@ -55,7 +55,10 @@ export default async function ProductDetailPage({ params }: Props) {
         specs={product.specs}
       />
       <GallerySection galleryImages={product.galleryImages} />
-      <Product3DViewer profilesSection={product.profilesSection} />
+      <Product3DViewer 
+        visualizerTextures={product.visualizerTextures} 
+        visualizerDimensions={product.visualizerDimensions} 
+      />
       <SubstratesSection substratesSection={product.substratesSection} />
       <AboutProduct aboutTabs={product.aboutTabs} />
       <CertificationsSection

@@ -2,14 +2,13 @@ import { api } from "./api/client";
 
 export interface FooterLink {
   _id: string;
-  section: "services" | "resources";
+  section: "resources";
   label: string;
   href?: string;
   order?: number;
 }
 
 interface FooterLinksResponse {
-  services: FooterLink[];
   resources: FooterLink[];
 }
 

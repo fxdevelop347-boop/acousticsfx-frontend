@@ -10,6 +10,17 @@ export interface SubProductSpec {
   value: string;
 }
 
+export interface VisualizerTexture {
+  name: string;
+  image: string;
+}
+
+export interface VisualizerDimensions {
+  width: number;
+  height: number;
+  depth: number;
+}
+
 export interface SubProductGallerySlide {
   large: string;
   small: string;
@@ -95,6 +106,8 @@ export interface Product {
   certificationsSectionDescription?: string;
   certifications?: SubProductCertification[];
   finishesSection?: SubProductFinishesSection;
+  visualizerTextures?: VisualizerTexture[];
+  visualizerDimensions?: VisualizerDimensions;
 }
 
 export interface ProductCategory {

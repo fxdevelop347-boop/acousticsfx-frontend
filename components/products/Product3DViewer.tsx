@@ -1,333 +1,350 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
-import type { SubProductProfile, SubProductProfilesSection } from "@/lib/products-api";
+import type { VisualizerTexture, VisualizerDimensions } from "@/lib/products-api";
 
-/** PNG tattoos served from `public/3dviewer/` (same URLs for thumbnails + `useTexture`). */
-const VIEWER_TATTOO_URLS = [
-  "/3dviewer/tattoo1.png",
-  "/3dviewer/tattoo2.png",
-  "/3dviewer/tattoo3.png",
-] as const;
 
-function AcousticPanelMeshes({
-  scale,
-  color,
-  tattooIndex,
-}: {
-  scale: number;
-  color: string;
-  tattooIndex: number | null;
-}) {
-  const loaded = useTexture([...VIEWER_TATTOO_URLS]);
-  const tattooTextures = (Array.isArray(loaded) ? loaded : [loaded]) as THREE.Texture[];
+// ─── Build Three.js texture from image URL ────────────────────────────────────
+function buildThreeTexture(src: string): Promise<THREE.Texture> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const tex = new THREE.Texture(img);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true;
+      resolve(tex);
+    };
+    img.src = src;
+  });
+}
 
-  useEffect(() => {
-    tattooTextures.forEach((t) => {
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.wrapS = THREE.ClampToEdgeWrapping;
-      t.wrapT = THREE.ClampToEdgeWrapping;
-      t.needsUpdate = true;
-    });
-  }, [tattooTextures]);
+interface Product3DViewerProps {
+  visualizerTextures?: VisualizerTexture[];
+  visualizerDimensions?: VisualizerDimensions;
+}
 
-  const overlayMatRef = useRef<THREE.MeshStandardMaterial>(null);
+// ─── Main Component ───────────────────────────────────────────────────────────
+export default function Product3DViewer({ 
+  visualizerTextures, 
+  visualizerDimensions 
+}: Product3DViewerProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const threeRef  = useRef<{
+    renderer?: THREE.WebGLRenderer;
+    scene?: THREE.Scene;
+    camera?: THREE.PerspectiveCamera;
+    mesh?: THREE.Mesh;
+    geo?: THREE.BoxGeometry;
+    animId?: number;
+  }>({});
 
-  useEffect(() => {
-    const m = overlayMatRef.current;
-    if (!m) return;
-    if (tattooIndex === null) {
-      m.map = null;
-    } else {
-      const tex = tattooTextures[tattooIndex];
-      if (tex) m.map = tex;
-    }
-    m.needsUpdate = true;
-  }, [tattooIndex, tattooTextures]);
+  const [isMounted, setIsMounted] = useState(false);
+  const [slots, setSlots] = useState<any[]>([]);
+  const textureCache = useRef<Record<string, THREE.Texture>>({});
 
-  useFrame((_, delta) => {
-    const m = overlayMatRef.current;
-    if (!m) return;
-    const target = tattooIndex === null ? 0 : 1;
-    m.opacity = THREE.MathUtils.damp(m.opacity, target, 10, delta);
+  const [activeSlot, setActiveSlot] = useState(0);
+  const [dims, setDims] = useState({
+    w: visualizerDimensions?.width || 120,
+    h: visualizerDimensions?.height || 60,
+    d: visualizerDimensions?.depth || 4
   });
 
-  return (
-    <group scale={[scale, 1, scale]}>
-      <mesh>
-        <boxGeometry args={[3, 0.2, 3]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh>
-        <boxGeometry args={[3, 0.2, 3]} />
-        <meshStandardMaterial
-          ref={overlayMatRef}
-          color="#ffffff"
-          transparent
-          opacity={0}
-          alphaTest={0.04}
-          depthWrite={false}
-          metalness={0}
-          roughness={0.82}
-          polygonOffset
-          polygonOffsetFactor={-1}
-          polygonOffsetUnits={-1}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-// Scene Component (3D Canvas)
-function Scene({
-  scale,
-  color,
-  tattooIndex,
-}: {
-  scale: number;
-  color: string;
-  tattooIndex: number | null;
-}) {
-  return (
-    <div className="w-full h-full">
-      <Canvas camera={{ position: [3, 2, 5] }} style={{ width: "100%", height: "100%" }}>
-        <ambientLight intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={2} />
-
-        <AcousticPanelMeshes scale={scale} color={color} tattooIndex={tattooIndex} />
-
-        <OrbitControls enableDamping />
-      </Canvas>
-    </div>
-  );
-}
-
-// UI Component (Slider and Controls)
-function UI({
-  setColor,
-  profiles,
-  active,
-  setActive,
-  activeTattoo,
-  setActiveTattoo,
-  tattooThumbs,
-}: {
-  setColor: (color: string) => void;
-  profiles: Array<Pick<SubProductProfile, "name">>;
-  active: number;
-  setActive: (i: number) => void;
-  activeTattoo: number | null;
-  setActiveTattoo: (i: number | null) => void;
-  tattooThumbs: readonly string[];
-}) {
-  const sliderRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: "left" | "right") => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: dir === "left" ? -120 : 120,
-        behavior: "smooth",
-      });
+  // ── Initialise slots on client only ────────────────────────────────────────
+  useEffect(() => {
+    setIsMounted(true);
+    if (visualizerTextures && visualizerTextures.length > 0) {
+      setSlots(visualizerTextures.map(vt => ({
+        name: vt.name,
+        thumb: vt.image,
+        texSrc: vt.image
+      })));
+    } else {
+      setSlots([]);
     }
-  };
+  }, [visualizerTextures]);
+
+  // ── Build / rebuild the panel mesh ─────────────────────────────────────────
+  const buildPanel = useCallback(async (scene: THREE.Scene, w: number, h: number, d: number, slotList: any[], slotIdx: number) => {
+    if (slotList.length === 0) return;
+    
+    const slot = slotList[slotIdx];
+    if (!slot) return;
+
+    const imgSrc = slot.texSrc || slot.thumb;
+    let baseTex = textureCache.current[imgSrc];
+
+    if (!baseTex) {
+      baseTex = await buildThreeTexture(imgSrc);
+      textureCache.current[imgSrc] = baseTex;
+    }
+
+    const { mesh: oldMesh, geo: oldGeo } = threeRef.current;
+    
+    const newGeo = new THREE.BoxGeometry(w / 100, h / 100, d / 100);
+    
+    function cloneFor(repeatX: number, repeatY: number) {
+      const t = baseTex.clone();
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.repeat.set(repeatX, repeatY);
+      t.needsUpdate = true;
+      return t;
+    }
+
+    const mats = [
+      new THREE.MeshStandardMaterial({ map: cloneFor(Math.max(0.05, d / h), 1), roughness: 0.75, metalness: 0.02 }),
+      new THREE.MeshStandardMaterial({ map: cloneFor(Math.max(0.05, d / h), 1), roughness: 0.75, metalness: 0.02 }),
+      new THREE.MeshStandardMaterial({ map: cloneFor(1, Math.max(0.05, d / w)), roughness: 0.75, metalness: 0.02 }),
+      new THREE.MeshStandardMaterial({ map: cloneFor(1, Math.max(0.05, d / w)), roughness: 0.75, metalness: 0.02 }),
+      new THREE.MeshStandardMaterial({ map: cloneFor(1, 1), roughness: 0.7, metalness: 0.02 }),
+      new THREE.MeshStandardMaterial({ map: cloneFor(1, 1), roughness: 0.7, metalness: 0.02 }),
+    ];
+
+    const newMesh = new THREE.Mesh(newGeo, mats);
+    const edges   = new THREE.EdgesGeometry(newGeo, 15);
+    newMesh.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 })));
+
+    // restore rotation
+    if (oldMesh) { 
+      newMesh.rotation.copy(oldMesh.rotation);
+      scene.remove(oldMesh);
+    }
+    
+    if (oldGeo) oldGeo.dispose();
+    if (oldMesh) {
+      if (Array.isArray(oldMesh.material)) {
+        oldMesh.material.forEach(m => m.dispose());
+      } else {
+        oldMesh.material.dispose();
+      }
+    }
+
+    threeRef.current.geo = newGeo;
+    threeRef.current.mesh = newMesh;
+    scene.add(newMesh);
+  }, []);
+
+  // ── Three.js initialisation ─────────────────────────────────────────────────
+  useEffect(() => {
+    const canvas   = canvasRef.current;
+    if (!canvas) return;
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 2, 2));
+
+    const scene  = new THREE.Scene();
+    // scene.background = new THREE.Color(0x1a1a2e); // Make it transparent to fit parent BG
+
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.01, 100);
+    camera.position.set(1.8, 1.1, 2.2);
+    camera.lookAt(0, 0, 0);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const dl  = new THREE.DirectionalLight(0xffffff, 1.2); dl.position.set(3, 5, 4); scene.add(dl);
+    const dl2 = new THREE.DirectionalLight(0xffeedd, 0.5); dl2.position.set(-3, -2, -2); scene.add(dl2);
+
+    threeRef.current = { renderer, scene, camera, mesh: threeRef.current.mesh, geo: threeRef.current.geo };
+
+    function resize() {
+      if (!canvas || !renderer || !camera) return;
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Interaction state
+    let drag = false, lastX = 0, lastY = 0, rotX = 0.3, rotY = 0.6;
+    
+    const onMouseDown = (e: MouseEvent) => { drag = true; lastX = e.clientX; lastY = e.clientY; };
+    const onMouseUp = () => { drag = false; };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!drag) return;
+      rotY += (e.clientX - lastX) * 0.008;
+      rotX += (e.clientY - lastY) * 0.008;
+      rotX = Math.max(-1.3, Math.min(1.3, rotX));
+      lastX = e.clientX; lastY = e.clientY;
+    };
+
+    const onTouchStart = (e: TouchEvent) => { drag = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; };
+    const onTouchEnd = () => { drag = false; };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!drag) return;
+      rotY += (e.touches[0].clientX - lastX) * 0.008;
+      rotX += (e.touches[0].clientY - lastY) * 0.008;
+      rotX = Math.max(-1.3, Math.min(1.3, rotX));
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (camera) {
+        camera.position.multiplyScalar(1 + e.deltaY * 0.001);
+        e.preventDefault();
+      }
+    };
+
+    canvas.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+
+    // Animation loop
+    function animate() {
+      threeRef.current.animId = requestAnimationFrame(animate);
+      if (!drag) rotY += 0.003;
+      const m = threeRef.current.mesh;
+      if (m) { m.rotation.x = rotX; m.rotation.y = rotY; }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    return () => {
+      if (threeRef.current.animId) cancelAnimationFrame(threeRef.current.animId);
+      window.removeEventListener("resize", resize);
+      canvas.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("wheel", onWheel);
+      renderer.dispose();
+    };
+  }, []);
+
+  // ── Re-build when slot / dims change ───────────────────────────────────────
+  useEffect(() => {
+    const { scene } = threeRef.current;
+    if (!scene) return;
+    buildPanel(scene, dims.w, dims.h, dims.d, slots, activeSlot);
+  }, [activeSlot, dims, slots, buildPanel]);
+
+  const area = ((dims.w * dims.h) / 10000).toFixed(2);
+
+  // ─── Render ─────────────────────────────────────────────────────────────────
+  if (!isMounted) {
+    return (
+      <section className="w-full bg-[#111] px-6 py-16 sm:py-20 lg:py-24 min-h-[600px] flex items-center justify-center">
+        <div className="text-white/20 axiforma font-bold text-2xl animate-pulse">Loading Visualizer...</div>
+      </section>
+    );
+  }
+
+  // If there are no slots defined by the backend, do not render the 3D Viewer
+  if (slots.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="w-full bg-[#111] p-6 rounded-2xl text-white">
-      <h2 className="text-[18px] sm:text-[20px] lg:text-[22px] axiforma font-bold mb-6">Select Profiles</h2>
-
-      {/* SLIDER + BUTTONS */}
-      <div className="flex items-center justify-between mb-6">
-        {/* SLIDER */}
-        <div
-          ref={sliderRef}
-          className="flex gap-3 overflow-x-auto no-scrollbar"
-          style={{ maxWidth: "280px" }}
-        >
-          {profiles.map((p, i) => (
-            <div
-              key={i}
-              onClick={() => setActive(i)}
-              className={`min-w-[56px] h-14 border ${active === i ? "border-orange-500" : "border-gray-600"
-                } flex items-center justify-center cursor-pointer`}
-            >
-              <span className="text-[11px] text-gray-300 px-1 text-center leading-tight">
-                {p.name}
-              </span>
+    <section className="w-full bg-[#111] px-6 py-16 sm:py-20 lg:py-24">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          
+          {/* Left Column: UI Controls */}
+          <div className="lg:col-span-5 flex flex-col gap-8 order-2 lg:order-1">
+            
+            {/* Header */}
+            <div>
+              <h2 className="text-3xl sm:text-4xl axiforma font-bold text-white mb-4">3D Panel Visualizer</h2>
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                Configure your acoustic panel dimensions and apply custom textures to preview how it looks in a 3D environment.
+              </p>
             </div>
-          ))}
-        </div>
 
-        {/* BUTTON GROUP (RIGHT SIDE) */}
-        <div className="flex gap-2 ml-3">
-          <button
-            onClick={() => scroll("left")}
-            className="px-3 py-1 bg-gray-800 rounded text-[14px] sm:text-[15px] inter-font font-[400] hover:bg-gray-700 transition"
-          >
-            ◀
-          </button>
-
-          <button
-            onClick={() => scroll("right")}
-            className="px-3 py-1 bg-gray-800 rounded text-[14px] sm:text-[15px] inter-font font-[400] hover:bg-gray-700 transition"
-          >
-            ▶
-          </button>
-        </div>
-      </div>
-
-      <hr className="border-gray-700 mb-6" />
-
-      {/* FRONT + SELECT */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-[16px] sm:text-[17px] lg:text-[18px] inter-font font-[400]">Front</h3>
-
-        <select className="bg-black border border-gray-600 px-2 rounded w-[150px] h-[40px] text-[14px] sm:text-[15px] inter-font font-[400] text-white">
-          <option>veneered</option>
-        </select>
-      </div>
-
-      {/* COLORS */}
-      <div className="flex gap-4">
-        <div
-          onClick={() => setColor("#c19a6b")}
-          className="w-12 h-12 rounded-full border-2 border-orange-500 cursor-pointer"
-          style={{ background: "#c19a6b" }}
-        ></div>
-
-        <div
-          onClick={() => setColor("#5a3e2b")}
-          className="w-12 h-12 rounded-full cursor-pointer"
-          style={{ background: "#5a3e2b" }}
-        ></div>
-
-        <div
-          onClick={() => setColor("#e6d3b3")}
-          className="w-12 h-12 rounded-full cursor-pointer"
-          style={{ background: "#e6d3b3" }}
-        ></div>
-      </div>
-
-      {/* TATTOO TEXTURES — same row rhythm as colors (flex gap-4) */}
-      <div className="flex gap-4 mt-4" aria-label="Tattoo textures">
-        {tattooThumbs.map((url, i) => (
-          <button
-            key={url}
-            type="button"
-            onClick={() => setActiveTattoo(activeTattoo === i ? null : i)}
-            className={`w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 cursor-pointer transition-[border-color,box-shadow] duration-200 ease-out ${activeTattoo === i ? "border-orange-500 shadow-[0_0_0_1px_rgba(234,142,57,0.35)]" : "border-gray-600"
-              }`}
-          >
-            <Image
-              src={url}
-              alt=""
-              width={48}
-              height={48}
-              unoptimized
-              className="w-full h-full object-cover"
-            />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// Main Component
-export default function Product3DViewer({
-  profilesSection,
-}: {
-  profilesSection?: SubProductProfilesSection | null;
-}) {
-  const [scale, setScale] = useState(1);
-  const [color, setColor] = useState("#c19a6b");
-  const [activeProfile, setActiveProfile] = useState(0);
-  const [activeTattoo, setActiveTattoo] = useState<number | null>(null);
-
-  const profiles: Array<Pick<SubProductProfile, "name" | "size" | "description">> =
-    profilesSection?.profiles?.length
-      ? profilesSection.profiles.map((p) => ({
-        name: p.name,
-        size: p.size,
-        description: p.description,
-      }))
-      : [
-        { name: "1.5/8x8", size: "30 x 30 cm" },
-        { name: "3/8x8", size: "30 x 30 cm" },
-        { name: "3/16x16", size: "30 x 30 cm" },
-        { name: "6/16x16", size: "30 x 30 cm" },
-        { name: "8/16", size: "30 x 30 cm" },
-        { name: "10/16", size: "30 x 30 cm" },
-      ];
-
-  const title = profilesSection?.title ?? "Product Profiles";
-  const description =
-    profilesSection?.description ??
-    "A linear grooved acoustic panel is one of the most commonly used multi-groove panels. Suitable for auditoriums, lecture halls, conference rooms, and public buildings.";
-  const selected = profiles[Math.min(activeProfile, profiles.length - 1)];
-
-  return (
-    <section className="w-full bg-[#3D3D3D] px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[48px] sm:py-[64px] lg:py-[80px]">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 sm:mb-10">
-          <h2 className="text-[28px] sm:text-[32px] lg:text-[35px] axiforma font-bold mb-3 text-white">
-            {title}
-          </h2>
-          <p className="text-[14px] sm:text-[15px] inter-font font-[400] text-gray-300 leading-relaxed max-w-md">
-            {description}
-          </p>
-          {selected?.size && (
-            <div className="mt-4 text-[14px] sm:text-[15px] inter-font font-[400] text-gray-400">
-              📏 {selected.size}
+            {/* Texture Slots */}
+            <div>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Material Finish</p>
+              <div className="flex flex-wrap gap-4">
+                {slots.map((s, i) => (
+                  <div key={i} className="flex flex-col items-center gap-2">
+                    <button
+                      onClick={() => setActiveSlot(i)}
+                      className={`group relative w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                        i === activeSlot ? "border-orange-500 scale-110 shadow-lg shadow-orange-500/20" : "border-white/10 hover:border-white/30"
+                      }`}
+                      title={s.name}
+                    >
+                      <div 
+                        className="w-full h-full bg-cover bg-center transition-transform group-hover:scale-110"
+                        style={{ backgroundImage: `url(${s.thumb})` }}
+                      />
+                      {i === activeSlot && (
+                        <div className="absolute inset-0 bg-orange-500/10 pointer-events-none" />
+                      )}
+                    </button>
+                    <span className={`text-[10px] font-medium truncate max-w-[64px] ${i === activeSlot ? "text-orange-500" : "text-gray-500"}`}>
+                      {s.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-          {selected?.description && (
-            <p className="mt-2 text-[13px] sm:text-[14px] inter-font font-[400] text-gray-300 max-w-xl">
-              {selected.description}
-            </p>
-          )}
-        </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* LEFT SIDE - 3D View */}
-          <div className="w-full h-[400px] sm:h-[450px] lg:h-[500px] bg-transparent relative">
-            <Scene scale={scale} color={color} tattooIndex={activeTattoo} />
+            {/* Dimension Sliders */}
+            <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10">
+              {[
+                { key: "w" as const, label: "Width",  min: 40,  max: 240, unit: "cm" },
+                { key: "h" as const, label: "Height", min: 20,  max: 160, unit: "cm" },
+                { key: "d" as const, label: "Depth",  min: 1,   max: 20,  unit: "cm" },
+              ].map(({ key, label, min, max, unit }) => (
+                <div key={key} className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</label>
+                    <span className="text-lg font-mono text-white leading-none">
+                      {dims[key]} <small className="text-[10px] text-gray-400 align-top uppercase">{unit}</small>
+                    </span>
+                  </div>
+                  <input
+                    type="range" min={min} max={max} step={1} value={dims[key]}
+                    onChange={(e) => setDims((prev) => ({ ...prev, [key]: parseInt(e.target.value) }))}
+                    className="w-full accent-orange-500 bg-white/10 h-1 rounded-full appearance-none cursor-pointer"
+                  />
+                </div>
+              ))}
+            </div>
 
-            {/* ZOOM BUTTONS */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-4">
-              <button
-                onClick={() => setScale((prev) => Math.max(prev - 0.2, 0.2))}
-                className="w-10 h-10 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition text-[18px] sm:text-[20px] inter-font font-bold"
-              >
-                -
-              </button>
-
-              <button
-                onClick={() => setScale((prev) => Math.min(prev + 0.2, 2))}
-                className="w-10 h-10 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition text-[18px] sm:text-[20px] inter-font font-bold"
-              >
-                +
-              </button>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Surface Area</p>
+                <p className="text-2xl font-mono text-white">{area} <span className="text-xs text-gray-500">m²</span></p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Volume</p>
+                <p className="text-2xl font-mono text-white">{((dims.w * dims.h * dims.d) / 1000).toFixed(1)} <span className="text-xs text-gray-500">L</span></p>
+              </div>
             </div>
           </div>
 
-          {/* RIGHT SIDE - UI Controls */}
-          <div className="w-full">
-            <UI
-              setColor={setColor}
-              profiles={profiles}
-              active={activeProfile}
-              setActive={setActiveProfile}
-              activeTattoo={activeTattoo}
-              setActiveTattoo={setActiveTattoo}
-              tattooThumbs={VIEWER_TATTOO_URLS}
-            />
+          {/* Right Column: 3D Canvas */}
+          <div className="lg:col-span-7 order-1 lg:order-2">
+             <div className="relative aspect-square sm:aspect-video lg:aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#0f0f1a] shadow-2xl">
+                <canvas
+                  ref={canvasRef}
+                  className="w-full h-full cursor-grab active:cursor-grabbing"
+                />
+                <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none">
+                   <div className="flex items-center gap-2 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">
+                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                      Live Preview engine
+                   </div>
+                   <p className="text-[10px] text-white/30 uppercase tracking-widest">
+                      Drag to rotate • Scroll to zoom
+                   </p>
+                </div>
+
+                {/* Aesthetic corner accents */}
+                <div className="absolute top-0 left-0 w-24 h-24 border-t border-l border-white/20 rounded-tl-3xl pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-24 h-24 border-b border-r border-white/20 rounded-br-3xl pointer-events-none" />
+             </div>
           </div>
+
         </div>
       </div>
     </section>

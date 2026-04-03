@@ -6,6 +6,9 @@ import Image from "next/image";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
 import { fetchFooterLinks, type FooterLink } from "@/lib/footer-api";
 import SocialIcons from "@/components/shared/SocialIcons";
+import { getPublicApiBaseUrl } from "@/lib/public-api-base";
+
+const API_BASE = getPublicApiBaseUrl();
 
 const CONTENT_KEYS = [
   "footer.about",
@@ -23,10 +26,12 @@ const DEFAULTS: Record<string, string> = {
   "footer.contactAddress2": "",
 };
 
-const FALLBACK_SERVICES: FooterLink[] = [
-  { _id: "1", section: "services", label: "Acoustic Solution", href: "/products/acoustic" },
-  { _id: "2", section: "services", label: "Sound Proofing", href: "/products" },
-  { _id: "3", section: "services", label: "Floor Solution", href: "/products" },
+type ServiceLink = { _id: string; label: string; href?: string };
+
+const FALLBACK_SERVICES: ServiceLink[] = [
+  { _id: "1", label: "Acoustic Solution", href: "/products/acoustic" },
+  { _id: "2", label: "Sound Proofing", href: "/products" },
+  { _id: "3", label: "Floor Solution", href: "/products" },
 ];
 
 const FALLBACK_RESOURCES: FooterLink[] = [
@@ -42,15 +47,32 @@ function val(c: ContentMap, key: string) {
 
 export default function Footer() {
   const [content, setContent] = useState<ContentMap>({});
-  const [services, setServices] = useState(FALLBACK_SERVICES);
-  const [resources, setResources] = useState(FALLBACK_RESOURCES);
+  const [services, setServices] = useState<ServiceLink[]>(FALLBACK_SERVICES);
+  const [resources, setResources] = useState<FooterLink[]>(FALLBACK_RESOURCES);
 
   useEffect(() => {
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
+    
     fetchFooterLinks()
-      .then(({ services: s, resources: r }) => {
-        if (s.length > 0) setServices(s);
-        if (r.length > 0) setResources(r);
+      .then(({ resources: r }) => {
+        if (r && r.length > 0) setResources(r);
+      })
+      .catch(console.error);
+
+    fetch(`${API_BASE}/api/products/categories`)
+      .then((res) => (res.ok ? res.json() : { categories: [] }))
+      .then((data: { categories?: Array<{ slug: string; name: string; order?: number }> }) => {
+        const list = data.categories ?? [];
+        if (list.length > 0) {
+          const sorted = [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          setServices(
+            sorted.map((c) => ({
+              _id: c.slug,
+              label: c.name,
+              href: `/products/${c.slug}`,
+            }))
+          );
+        }
       })
       .catch(console.error);
   }, []);

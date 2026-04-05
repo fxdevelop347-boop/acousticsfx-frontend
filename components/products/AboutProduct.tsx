@@ -52,8 +52,6 @@ export default function AboutProduct({
   const [activeTab, setActiveTab] = useState<string>(tabsFromApi[0]?.title ?? "Advantages");
   const active = tabsFromApi.find((t) => t.title === activeTab) ?? tabsFromApi[0];
   const rows = active?.rows ?? [];
-  const pairs: Array<[string, string?]> = [];
-  for (let i = 0; i < rows.length; i += 2) pairs.push([rows[i] as string, rows[i + 1] as string | undefined]);
 
   return (
     <section className="w-full bg-[#faf7f2] px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[40px] sm:py-[60px] lg:py-[80px]">
@@ -71,41 +69,34 @@ export default function AboutProduct({
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap sm:flex-nowrap border border-[#f0b07a] rounded-md overflow-hidden w-fit mb-8">
-        {tabsFromApi.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.title)}
-            className={`px-4 sm:px-5 lg:px-6 py-2 text-[14px] sm:text-[15px] lg:text-[16px] axiforma font-[400] border-r last:border-r-0 border-[#f0b07a] cursor-pointer
-              ${activeTab === tab.title
-                ? "bg-[#f09a4a] text-white"
-                : "bg-white text-gray-700 hover:bg-[#fff1e5]"
-              }`}
-          >
-            {tab.title}
-          </button>
-        ))}
+      <div className="w-fit max-w-full overflow-x-auto no-scrollbar mb-8 border border-[#f0b07a] rounded-md">
+        <div className="flex min-w-max overflow-hidden">
+          {tabsFromApi.map((tab, index) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.title)}
+              className={`px-4 sm:px-5 lg:px-6 py-2.5 text-[14px] sm:text-[15px] lg:text-[16px] axiforma font-[400] border-r last:border-r-0 border-[#f0b07a] cursor-pointer whitespace-nowrap transition-colors
+                ${activeTab === tab.title
+                  ? "bg-[#f09a4a] text-white"
+                  : "bg-white text-gray-700 hover:bg-[#fff1e5]"
+                }`}
+            >
+              {tab.title}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
       {!!active && (
-        <div className="bg-[#f1f1f1] rounded-lg p-4 sm:p-5 lg:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {pairs.map((row, index) => (
+        <div className="bg-[#f1f1f1] rounded-lg p-4 sm:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+            {rows.map((row, index) => (
               <div
                 key={index}
-                className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4"
+                className="bg-white rounded-lg px-5 py-4 text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] inter-font font-[400] text-gray-700 shadow-sm border border-gray-100 flex items-center justify-start min-h-[60px]"
               >
-                <div className="bg-white rounded-md px-4 py-3 text-[16px] sm:text-[18px] lg:text-[20px] inter-font font-[400] text-gray-700">
-                  {row[0]}
-                </div>
-                {row[1] ? (
-                  <div className="bg-white rounded-md px-4 py-3 text-[16px] sm:text-[18px] lg:text-[20px] inter-font font-[400] text-gray-700">
-                    {row[1]}
-                  </div>
-                ) : (
-                  <div className="hidden sm:block" />
-                )}
+                {row}
               </div>
             ))}
           </div>

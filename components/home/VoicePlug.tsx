@@ -315,7 +315,7 @@ export default function VoicePlug() {
               onClick={togglePlay}
               className="w-14 h-14 shrink-0 flex items-center justify-center rounded-full bg-gray-200 text-black text-lg"
             >
-              {isPlaying ? "❚❚" : "▶"}
+              {isPlaying ? "❚❚" : "▶︎"}
             </button>
 
             <div className="flex-1 min-w-0">

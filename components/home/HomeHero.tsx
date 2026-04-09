@@ -15,7 +15,7 @@ const CONTENT_KEYS = [
   "home.hero.subtitle",
   "home.hero.button1Label",
   "home.hero.button2Label",
-  "home.hero.backgroundImage",
+  "home.hero.backgroundVideo",
   "home.hero.featureBoxes",
 ];
 
@@ -26,7 +26,7 @@ const DEFAULTS: Record<string, string> = {
     "Our solutions are engineered for clarity, comfort, and visual harmony. Whether it's a studio, auditorium, or workspace, we bring together design precision and acoustic mastery to elevate every square foot.",
   "home.hero.button1Label": "Get Quote →",
   "home.hero.button2Label": "Connect With Us →",
-  "home.hero.backgroundImage": "/assets/home/background.png",
+  "home.hero.backgroundVideo": "/assets/home/hero.mp4",
 };
 
 interface FeatureBox {
@@ -47,7 +47,7 @@ const DEFAULT_FEATURE_BOXES: FeatureBox[] = [
   {
     title: "Hard wood Flooring",
     description:
-      "Timeless, elegant, and crafted for durability, our hardwood flooring brings natural warmth and architectural luxury to any interior. Designed for high-end homes, hospitality spaces, offices, and premium commercial environments, Fx Acoustics’ real wooden flooring delivers refined aesthetics with exceptional performance and long-lasting comfort.",
+      "Timeless, elegant, and crafted for durability, our hardwood flooring brings natural warmth and architectural luxury to any interior. Designed for high-end homes, hospitality spaces, offices, and premium commercial environments, Fx Acoustics' real wooden flooring delivers refined aesthetics with exceptional performance and long-lasting comfort.",
     image: "/assets/home/fi_7821525.png",
     accentColor: "orange-400",
   },
@@ -78,33 +78,33 @@ export default function HomeHero() {
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
   }, []);
 
-  const bgImage = val(content, "home.hero.backgroundImage");
+  const bgVideo = val(content, "home.hero.backgroundVideo");
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
-      
-      {/* Background */}
+
+      {/* Background Video */}
       <div className="absolute inset-0">
-        <Image
-          src={bgImage}
-          alt="Hero background"
-          fill
-          className="object-cover"
-          priority
+        <video
+          src={bgVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover"
         />
       </div>
 
       <div className="absolute inset-0 bg-black/60" />
 
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[50px] sm:pt-[130px] lg:pt-[143px] text-center text-white">
-        
+
         {/* Heading */}
         <FadeIn direction="up">
-          <h1 className="max-w-7xl text-[28px] sm:text-[40px] lg:text-[76px] font-bold playfair-display">
+          <h1 className="max-w-7xl text-[28px]  leading-tight sm:text-[40px] lg:text-[76px] font-bold playfair-display">
             {val(content, "home.hero.title")}
           </h1>
 
-          {/* ✅ CENTERED SUBTITLE */}
           <p className="mt-6 max-w-2xl mx-auto text-center text-gray-200">
             {val(content, "home.hero.subtitle")}
           </p>
@@ -127,7 +127,7 @@ export default function HomeHero() {
                   <span
                     className={`absolute left-0 top-0 h-full w-[3px] ${accent.border}`}
                   />
-              
+
                   <Image
                     src={box.image}
                     alt={box.title}
@@ -143,22 +143,21 @@ export default function HomeHero() {
                   </h3>
 
                   <div
-                    className={`text-[14px] font-[400] poppins-font text-left text-gray-300 transition-all duration-300 ${
-                      isExpanded
-                        ? "max-h-[90px] overflow-y-auto pr-1"
-                        : "max-h-[42px] overflow-hidden"
-                    }`}
+                    className={`text-[14px] font-[400] poppins-font text-left text-gray-300 transition-all duration-300 ${isExpanded
+                      ? "max-h-[90px] overflow-y-auto pr-1"
+                      : "max-h-[42px] overflow-hidden"
+                      }`}
                   >
                     {box.description}
                   </div>
-              
+
                   <button
                     onClick={() => setExpanded(isExpanded ? null : index)}
                     className="mt-2 text-[13px] text-orange-400 hover:underline"
                   >
                     {isExpanded ? "Read Less" : "Read More"}
                   </button>
-              
+
                 </StaggerItem>
               );
             })}

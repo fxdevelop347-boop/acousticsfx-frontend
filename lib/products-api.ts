@@ -160,3 +160,8 @@ export function fetchProducts(categorySlug?: string): Promise<{ products: Produc
 export function fetchProductBySlug(productSlug: string): Promise<Product> {
   return request<Product>(`/api/products/slug/${encodeURIComponent(productSlug)}`);
 }
+
+/** True when the product has at least one 3D visualizer texture URL (server- or client-safe). */
+export function hasVisualizerTextures(textures?: VisualizerTexture[] | null): boolean {
+  return Boolean(textures?.some((t) => typeof t.image === "string" && t.image.trim().length > 0));
+}

@@ -1,350 +1,488 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import * as THREE from "three";
 import type { VisualizerTexture, VisualizerDimensions } from "@/lib/products-api";
+import { getVisualizerTextureLoadUrl } from "@/lib/texture-proxy-url";
 
+export { hasVisualizerTextures } from "@/lib/products-api";
 
-// ─── Build Three.js texture from image URL ────────────────────────────────────
-function buildThreeTexture(src: string): Promise<THREE.Texture> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const tex = new THREE.Texture(img);
-      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.needsUpdate = true;
-      resolve(tex);
-    };
-    img.src = src;
+type TextureSlot = {
+  name: string;
+  thumb: string;
+  image: HTMLImageElement;
+};
+
+async function loadTextureSlotFromUrl(name: string, imageUrl: string): Promise<TextureSlot> {
+  const loadUrl = getVisualizerTextureLoadUrl(imageUrl);
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error(`Failed to load image: ${loadUrl}`));
+    img.src = loadUrl;
   });
+  return {
+    name,
+    thumb: loadUrl,
+    image: img,
+  };
 }
 
-interface Product3DViewerProps {
+export interface Product3DViewerProps {
   visualizerTextures?: VisualizerTexture[];
   visualizerDimensions?: VisualizerDimensions;
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-export default function Product3DViewer({ 
-  visualizerTextures, 
-  visualizerDimensions 
+export default function Product3DViewer({
+  visualizerTextures,
+  visualizerDimensions,
 }: Product3DViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const threeRef  = useRef<{
-    renderer?: THREE.WebGLRenderer;
-    scene?: THREE.Scene;
-    camera?: THREE.PerspectiveCamera;
-    mesh?: THREE.Mesh;
-    geo?: THREE.BoxGeometry;
-    animId?: number;
-  }>({});
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const meshRef = useRef<THREE.Mesh | null>(null);
+  const geoRef = useRef<THREE.BoxGeometry | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
-  const [isMounted, setIsMounted] = useState(false);
-  const [slots, setSlots] = useState<any[]>([]);
-  const textureCache = useRef<Record<string, THREE.Texture>>({});
+  const drag = useRef({ active: false, lastX: 0, lastY: 0, rotX: 0.3, rotY: 0.6 });
+  const threeInitializedRef = useRef(false);
+  const buildPanelRef = useRef<() => void>(() => {});
+  const resizeHandlerRef = useRef<(() => void) | null>(null);
 
+  const [clientReady, setClientReady] = useState(false);
+  const [slots, setSlots] = useState<TextureSlot[]>([]);
+  const [texturesLoading, setTexturesLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [activeSlot, setActiveSlot] = useState(0);
   const [dims, setDims] = useState({
-    w: visualizerDimensions?.width || 120,
-    h: visualizerDimensions?.height || 60,
-    d: visualizerDimensions?.depth || 4
+    W: visualizerDimensions?.width ?? 120,
+    H: visualizerDimensions?.height ?? 60,
+    D: visualizerDimensions?.depth ?? 4,
   });
 
-  // ── Initialise slots on client only ────────────────────────────────────────
-  useEffect(() => {
-    setIsMounted(true);
-    if (visualizerTextures && visualizerTextures.length > 0) {
-      setSlots(visualizerTextures.map(vt => ({
-        name: vt.name,
-        thumb: vt.image,
-        texSrc: vt.image
-      })));
-    } else {
-      setSlots([]);
-    }
-  }, [visualizerTextures]);
+  const texturesKey = useMemo(
+    () => JSON.stringify(visualizerTextures ?? []),
+    [visualizerTextures]
+  );
 
-  // ── Build / rebuild the panel mesh ─────────────────────────────────────────
-  const buildPanel = useCallback(async (scene: THREE.Scene, w: number, h: number, d: number, slotList: any[], slotIdx: number) => {
-    if (slotList.length === 0) return;
-    
-    const slot = slotList[slotIdx];
+  const slotsRef = useRef(slots);
+  const activeSlotRef = useRef(activeSlot);
+  const dimsRef = useRef(dims);
+
+  useEffect(() => {
+    slotsRef.current = slots;
+  }, [slots]);
+  useEffect(() => {
+    activeSlotRef.current = activeSlot;
+  }, [activeSlot]);
+  useEffect(() => {
+    dimsRef.current = dims;
+  }, [dims]);
+
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!visualizerDimensions) return;
+    setDims((d) => ({
+      W: visualizerDimensions.width ?? d.W,
+      H: visualizerDimensions.height ?? d.H,
+      D: visualizerDimensions.depth ?? d.D,
+    }));
+  }, [visualizerDimensions?.width, visualizerDimensions?.height, visualizerDimensions?.depth]);
+
+  useEffect(() => {
+    if (!clientReady) return;
+    let cancelled = false;
+    setTexturesLoading(true);
+    setLoadError(false);
+
+    const run = async () => {
+      try {
+        const list = visualizerTextures?.filter((t) => t.image?.trim()) ?? [];
+        if (list.length === 0) {
+          if (!cancelled) setSlots([]);
+          return;
+        }
+        const out: TextureSlot[] = [];
+        for (const vt of list) {
+          if (cancelled) return;
+          try {
+            out.push(await loadTextureSlotFromUrl(vt.name?.trim() || "Finish", vt.image.trim()));
+          } catch (e) {
+            console.warn("Product3DViewer: texture load failed", vt.image, e);
+          }
+        }
+        if (cancelled) return;
+        if (out.length === 0) {
+          setLoadError(true);
+          setSlots([]);
+        } else {
+          setSlots(out);
+          setActiveSlot(0);
+        }
+      } finally {
+        if (!cancelled) setTexturesLoading(false);
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [clientReady, texturesKey]);
+
+  const buildTexture = useCallback((slot: TextureSlot) => {
+    const tex = new THREE.Texture(slot.image);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.needsUpdate = true;
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }, []);
+
+  const buildPanel = useCallback(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    const slot = slotsRef.current[activeSlotRef.current];
     if (!slot) return;
 
-    const imgSrc = slot.texSrc || slot.thumb;
-    let baseTex = textureCache.current[imgSrc];
+    if (meshRef.current) scene.remove(meshRef.current);
+    if (geoRef.current) geoRef.current.dispose();
 
-    if (!baseTex) {
-      baseTex = await buildThreeTexture(imgSrc);
-      textureCache.current[imgSrc] = baseTex;
-    }
+    const { W, H, D } = dimsRef.current;
+    const w = W / 100;
+    const h = H / 100;
+    const d = D / 100;
 
-    const { mesh: oldMesh, geo: oldGeo } = threeRef.current;
-    
-    const newGeo = new THREE.BoxGeometry(w / 100, h / 100, d / 100);
-    
-    function cloneFor(repeatX: number, repeatY: number) {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    geoRef.current = geo;
+
+    const baseTex = buildTexture(slot);
+
+    const makeMat = (repX: number, repY: number, roughness = 0.75) => {
       const t = baseTex.clone();
-      t.wrapS = t.wrapT = THREE.RepeatWrapping;
-      t.repeat.set(repeatX, repeatY);
       t.needsUpdate = true;
-      return t;
-    }
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.repeat.set(repX, repY);
+      return new THREE.MeshStandardMaterial({ map: t, roughness, metalness: 0.02 });
+    };
 
     const mats = [
-      new THREE.MeshStandardMaterial({ map: cloneFor(Math.max(0.05, d / h), 1), roughness: 0.75, metalness: 0.02 }),
-      new THREE.MeshStandardMaterial({ map: cloneFor(Math.max(0.05, d / h), 1), roughness: 0.75, metalness: 0.02 }),
-      new THREE.MeshStandardMaterial({ map: cloneFor(1, Math.max(0.05, d / w)), roughness: 0.75, metalness: 0.02 }),
-      new THREE.MeshStandardMaterial({ map: cloneFor(1, Math.max(0.05, d / w)), roughness: 0.75, metalness: 0.02 }),
-      new THREE.MeshStandardMaterial({ map: cloneFor(1, 1), roughness: 0.7, metalness: 0.02 }),
-      new THREE.MeshStandardMaterial({ map: cloneFor(1, 1), roughness: 0.7, metalness: 0.02 }),
+      makeMat(Math.max(0.1, d / h), 1),
+      makeMat(Math.max(0.1, d / h), 1),
+      makeMat(1, Math.max(0.1, d / w)),
+      makeMat(1, Math.max(0.1, d / w)),
+      makeMat(1, 1, 0.7),
+      makeMat(1, 1, 0.7),
     ];
 
-    const newMesh = new THREE.Mesh(newGeo, mats);
-    const edges   = new THREE.EdgesGeometry(newGeo, 15);
-    newMesh.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 })));
+    const mesh = new THREE.Mesh(geo, mats);
+    scene.add(mesh);
 
-    // restore rotation
-    if (oldMesh) { 
-      newMesh.rotation.copy(oldMesh.rotation);
-      scene.remove(oldMesh);
-    }
-    
-    if (oldGeo) oldGeo.dispose();
-    if (oldMesh) {
-      if (Array.isArray(oldMesh.material)) {
-        oldMesh.material.forEach(m => m.dispose());
-      } else {
-        oldMesh.material.dispose();
-      }
-    }
+    const edges = new THREE.EdgesGeometry(geo, 15);
+    mesh.add(
+      new THREE.LineSegments(
+        edges,
+        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 })
+      )
+    );
 
-    threeRef.current.geo = newGeo;
-    threeRef.current.mesh = newMesh;
-    scene.add(newMesh);
-  }, []);
+    meshRef.current = mesh;
+  }, [buildTexture]);
 
-  // ── Three.js initialisation ─────────────────────────────────────────────────
+  buildPanelRef.current = buildPanel;
+
   useEffect(() => {
-    const canvas   = canvasRef.current;
-    if (!canvas) return;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 2, 2));
+    if (!clientReady) return;
+    if (threeInitializedRef.current) return;
 
-    const scene  = new THREE.Scene();
-    // scene.background = new THREE.Color(0x1a1a2e); // Make it transparent to fit parent BG
+    let cancelled = false;
 
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.01, 100);
-    camera.position.set(1.8, 1.1, 2.2);
-    camera.lookAt(0, 0, 0);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const dl  = new THREE.DirectionalLight(0xffffff, 1.2); dl.position.set(3, 5, 4); scene.add(dl);
-    const dl2 = new THREE.DirectionalLight(0xffeedd, 0.5); dl2.position.set(-3, -2, -2); scene.add(dl2);
-
-    threeRef.current = { renderer, scene, camera, mesh: threeRef.current.mesh, geo: threeRef.current.geo };
-
-    function resize() {
-      if (!canvas || !renderer || !camera) return;
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    resize();
-    window.addEventListener("resize", resize);
-
-    // Interaction state
-    let drag = false, lastX = 0, lastY = 0, rotX = 0.3, rotY = 0.6;
-    
-    const onMouseDown = (e: MouseEvent) => { drag = true; lastX = e.clientX; lastY = e.clientY; };
-    const onMouseUp = () => { drag = false; };
-    const onMouseMove = (e: MouseEvent) => {
-      if (!drag) return;
-      rotY += (e.clientX - lastX) * 0.008;
-      rotX += (e.clientY - lastY) * 0.008;
-      rotX = Math.max(-1.3, Math.min(1.3, rotX));
-      lastX = e.clientX; lastY = e.clientY;
-    };
-
-    const onTouchStart = (e: TouchEvent) => { drag = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; };
-    const onTouchEnd = () => { drag = false; };
-    const onTouchMove = (e: TouchEvent) => {
-      if (!drag) return;
-      rotY += (e.touches[0].clientX - lastX) * 0.008;
-      rotX += (e.touches[0].clientY - lastY) * 0.008;
-      rotX = Math.max(-1.3, Math.min(1.3, rotX));
-      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    };
-
-    const onWheel = (e: WheelEvent) => {
-      if (camera) {
-        camera.position.multiplyScalar(1 + e.deltaY * 0.001);
-        e.preventDefault();
+    const start = () => {
+      if (cancelled || threeInitializedRef.current) return;
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        requestAnimationFrame(start);
+        return;
       }
+
+      threeInitializedRef.current = true;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      rendererRef.current = renderer;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0e0e12);
+      sceneRef.current = scene;
+
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.01, 100);
+      camera.position.set(1.8, 1.1, 2.2);
+      camera.lookAt(0, 0, 0);
+      cameraRef.current = camera;
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+      const dl = new THREE.DirectionalLight(0xffffff, 1.1);
+      dl.position.set(3, 5, 4);
+      scene.add(dl);
+      const dl2 = new THREE.DirectionalLight(0xffeedd, 0.35);
+      dl2.position.set(-3, -2, -2);
+      scene.add(dl2);
+
+      const onResize = () => {
+        const cw = canvas.clientWidth;
+        const ch = canvas.clientHeight;
+        renderer.setSize(cw, ch, false);
+        camera.aspect = cw / ch;
+        camera.updateProjectionMatrix();
+      };
+      resizeHandlerRef.current = onResize;
+      onResize();
+      window.addEventListener("resize", onResize);
+
+      buildPanelRef.current();
+
+      const animate = () => {
+        if (cancelled) return;
+        animFrameRef.current = requestAnimationFrame(animate);
+        const dr = drag.current;
+        if (!dr.active) dr.rotY += 0.003;
+        if (meshRef.current) {
+          meshRef.current.rotation.x = dr.rotX;
+          meshRef.current.rotation.y = dr.rotY;
+        }
+        renderer.render(scene, camera);
+      };
+      animate();
     };
 
-    canvas.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mouseup", onMouseUp);
-    window.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd);
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    canvas.addEventListener("wheel", onWheel, { passive: false });
-
-    // Animation loop
-    function animate() {
-      threeRef.current.animId = requestAnimationFrame(animate);
-      if (!drag) rotY += 0.003;
-      const m = threeRef.current.mesh;
-      if (m) { m.rotation.x = rotX; m.rotation.y = rotY; }
-      renderer.render(scene, camera);
-    }
-    animate();
+    requestAnimationFrame(start);
 
     return () => {
-      if (threeRef.current.animId) cancelAnimationFrame(threeRef.current.animId);
-      window.removeEventListener("resize", resize);
-      canvas.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mouseup", onMouseUp);
-      window.removeEventListener("mousemove", onMouseMove);
-      canvas.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("touchmove", onTouchMove);
-      canvas.removeEventListener("wheel", onWheel);
-      renderer.dispose();
+      cancelled = true;
+      threeInitializedRef.current = false;
+      if (animFrameRef.current != null) cancelAnimationFrame(animFrameRef.current);
+      const onResize = resizeHandlerRef.current;
+      if (onResize) window.removeEventListener("resize", onResize);
+      resizeHandlerRef.current = null;
+      const r = rendererRef.current;
+      if (r) r.dispose();
+      rendererRef.current = null;
+      sceneRef.current = null;
+      cameraRef.current = null;
+      meshRef.current = null;
+      geoRef.current = null;
     };
-  }, []);
+  }, [clientReady]);
 
-  // ── Re-build when slot / dims change ───────────────────────────────────────
   useEffect(() => {
-    const { scene } = threeRef.current;
-    if (!scene) return;
-    buildPanel(scene, dims.w, dims.h, dims.d, slots, activeSlot);
-  }, [activeSlot, dims, slots, buildPanel]);
+    if (!clientReady || slots.length === 0) return;
+    if (!sceneRef.current) return;
+    buildPanelRef.current();
+  }, [clientReady, dims.W, dims.H, dims.D, activeSlot, slots]);
 
-  const area = ((dims.w * dims.h) / 10000).toFixed(2);
+  useEffect(() => {
+    if (!clientReady || slots.length === 0) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  // ─── Render ─────────────────────────────────────────────────────────────────
-  if (!isMounted) {
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const cam = cameraRef.current;
+      if (cam) cam.position.multiplyScalar(1 + e.deltaY * 0.001);
+    };
+
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, [clientReady, slots.length]);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    drag.current.active = true;
+    drag.current.lastX = e.clientX;
+    drag.current.lastY = e.clientY;
+  };
+  const onMouseUp = () => {
+    drag.current.active = false;
+  };
+  const onMouseLeave = () => {
+    drag.current.active = false;
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    const dr = drag.current;
+    if (!dr.active) return;
+    dr.rotY += (e.clientX - dr.lastX) * 0.008;
+    dr.rotX += (e.clientY - dr.lastY) * 0.008;
+    dr.rotX = Math.max(-1.3, Math.min(1.3, dr.rotX));
+    dr.lastX = e.clientX;
+    dr.lastY = e.clientY;
+  };
+  const onTouchStart = (e: React.TouchEvent) => {
+    drag.current.active = true;
+    drag.current.lastX = e.touches[0].clientX;
+    drag.current.lastY = e.touches[0].clientY;
+  };
+  const onTouchEnd = () => {
+    drag.current.active = false;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const dr = drag.current;
+    if (!dr.active) return;
+    dr.rotY += (e.touches[0].clientX - dr.lastX) * 0.008;
+    dr.rotX += (e.touches[0].clientY - dr.lastY) * 0.008;
+    dr.rotX = Math.max(-1.3, Math.min(1.3, dr.rotX));
+    dr.lastX = e.touches[0].clientX;
+    dr.lastY = e.touches[0].clientY;
+  };
+
+  const area = ((dims.W / 100) * (dims.H / 100)).toFixed(2);
+
+  if (!clientReady || texturesLoading) {
     return (
-      <section className="w-full bg-[#111] px-6 py-16 sm:py-20 lg:py-24 min-h-[600px] flex items-center justify-center">
-        <div className="text-white/20 axiforma font-bold text-2xl animate-pulse">Loading Visualizer...</div>
+      <section className="w-full bg-[#faf7f2] px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[48px] sm:py-[64px] lg:py-[80px]">
+        <div className="max-w-6xl mx-auto">
+          <div className="h-8 w-48 rounded-lg bg-gray-200/80 animate-pulse mb-6" />
+          <div className="min-h-[280px] sm:min-h-[360px] rounded-3xl bg-gray-200/60 animate-pulse" />
+        </div>
       </section>
     );
   }
 
-  // If there are no slots defined by the backend, do not render the 3D Viewer
-  if (slots.length === 0) {
+  if (loadError || slots.length === 0) {
     return null;
   }
 
   return (
-    <section className="w-full bg-[#111] px-6 py-16 sm:py-20 lg:py-24">
+    <section className="w-full bg-[#faf7f2] px-[24px] sm:px-[40px] md:px-[60px] lg:px-[100px] py-[48px] sm:py-[64px] lg:py-[80px] text-[#1c1c1c]">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* Left Column: UI Controls */}
-          <div className="lg:col-span-5 flex flex-col gap-8 order-2 lg:order-1">
-            
-            {/* Header */}
-            <div>
-              <h2 className="text-3xl sm:text-4xl axiforma font-bold text-white mb-4">3D Panel Visualizer</h2>
-              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                Configure your acoustic panel dimensions and apply custom textures to preview how it looks in a 3D environment.
-              </p>
-            </div>
+        <div className="mb-8 sm:mb-10">
+          <h2 className="text-[26px] sm:text-[28px] lg:text-[32px] inter-font font-medium mb-2">
+            Interactive 3D preview
+          </h2>
+          <p className="max-w-2xl text-[14px] sm:text-[15px] poppins-font text-gray-600 leading-relaxed">
+            Pick a finish, adjust panel size, and explore the panel in 3D. Drag to rotate, scroll to zoom.
+          </p>
+        </div>
 
-            {/* Texture Slots */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="lg:col-span-5 flex flex-col gap-8 order-2 lg:order-1">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Material Finish</p>
-              <div className="flex flex-wrap gap-4">
-                {slots.map((s, i) => (
-                  <div key={i} className="flex flex-col items-center gap-2">
-                    <button
-                      onClick={() => setActiveSlot(i)}
-                      className={`group relative w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                        i === activeSlot ? "border-orange-500 scale-110 shadow-lg shadow-orange-500/20" : "border-white/10 hover:border-white/30"
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500 mb-3">
+                Material finish
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {slots.map((slot, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveSlot(i)}
+                    title={slot.name}
+                    className={`group relative flex flex-col items-center gap-2 rounded-2xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#c9a227] ${
+                      i === activeSlot
+                        ? "ring-2 ring-[#c9a227] ring-offset-2 ring-offset-[#faf7f2] scale-[1.02]"
+                        : "ring-1 ring-gray-200/80 hover:ring-gray-300"
+                    }`}
+                  >
+                    <span
+                      className="block w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-xl bg-cover bg-center overflow-hidden shadow-sm"
+                      style={{ backgroundImage: `url(${slot.thumb})` }}
+                    />
+                    <span
+                      className={`text-[11px] font-medium max-w-[72px] truncate ${
+                        i === activeSlot ? "text-[#8b6914]" : "text-gray-500"
                       }`}
-                      title={s.name}
                     >
-                      <div 
-                        className="w-full h-full bg-cover bg-center transition-transform group-hover:scale-110"
-                        style={{ backgroundImage: `url(${s.thumb})` }}
-                      />
-                      {i === activeSlot && (
-                        <div className="absolute inset-0 bg-orange-500/10 pointer-events-none" />
-                      )}
-                    </button>
-                    <span className={`text-[10px] font-medium truncate max-w-[64px] ${i === activeSlot ? "text-orange-500" : "text-gray-500"}`}>
-                      {s.name}
+                      {slot.name}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Dimension Sliders */}
-            <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10">
-              {[
-                { key: "w" as const, label: "Width",  min: 40,  max: 240, unit: "cm" },
-                { key: "h" as const, label: "Height", min: 20,  max: 160, unit: "cm" },
-                { key: "d" as const, label: "Depth",  min: 1,   max: 20,  unit: "cm" },
-              ].map(({ key, label, min, max, unit }) => (
-                <div key={key} className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</label>
-                    <span className="text-lg font-mono text-white leading-none">
-                      {dims[key]} <small className="text-[10px] text-gray-400 align-top uppercase">{unit}</small>
+            <div className="rounded-2xl border border-gray-200/80 bg-white/60 backdrop-blur-sm p-5 sm:p-6 space-y-5 shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500 m-0">
+                Panel dimensions
+              </p>
+              {(
+                [
+                  { key: "W" as const, label: "Width", min: 40, max: 240 },
+                  { key: "H" as const, label: "Height", min: 20, max: 160 },
+                  { key: "D" as const, label: "Depth", min: 1, max: 20 },
+                ] as const
+              ).map(({ key, label, min, max }) => (
+                <div key={key} className="space-y-2">
+                  <div className="flex justify-between items-baseline gap-2">
+                    <span className="text-[13px] font-medium text-gray-700">{label}</span>
+                    <span className="text-[15px] tabular-nums font-semibold text-[#1c1c1c]">
+                      {dims[key]}
+                      <span className="text-[11px] font-normal text-gray-500 ml-1">cm</span>
                     </span>
                   </div>
                   <input
-                    type="range" min={min} max={max} step={1} value={dims[key]}
-                    onChange={(e) => setDims((prev) => ({ ...prev, [key]: parseInt(e.target.value) }))}
-                    className="w-full accent-orange-500 bg-white/10 h-1 rounded-full appearance-none cursor-pointer"
+                    type="range"
+                    min={min}
+                    max={max}
+                    step={1}
+                    value={dims[key]}
+                    onChange={(e) =>
+                      setDims((prev) => ({ ...prev, [key]: Number(e.target.value) }))
+                    }
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-gray-200 accent-[#c9a227]"
                   />
                 </div>
               ))}
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Surface Area</p>
-                <p className="text-2xl font-mono text-white">{area} <span className="text-xs text-gray-500">m²</span></p>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Volume</p>
-                <p className="text-2xl font-mono text-white">{((dims.w * dims.h * dims.d) / 1000).toFixed(1)} <span className="text-xs text-gray-500">L</span></p>
-              </div>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {(
+                [
+                  { label: "Width", value: `${dims.W} cm` },
+                  { label: "Height", value: `${dims.H} cm` },
+                  { label: "Depth", value: `${dims.D} cm` },
+                  { label: "Surface area", value: `${area} m²` },
+                ] as const
+              ).map((row) => (
+                <div
+                  key={row.label}
+                  className="rounded-2xl border border-gray-200/80 bg-white/50 px-4 py-3 text-center shadow-sm"
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1 m-0">
+                    {row.label}
+                  </p>
+                  <p className="text-lg sm:text-xl font-semibold tabular-nums text-[#1c1c1c] m-0 inter-font">
+                    {row.value}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Right Column: 3D Canvas */}
           <div className="lg:col-span-7 order-1 lg:order-2">
-             <div className="relative aspect-square sm:aspect-video lg:aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#0f0f1a] shadow-2xl">
-                <canvas
-                  ref={canvasRef}
-                  className="w-full h-full cursor-grab active:cursor-grabbing"
-                />
-                <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none">
-                   <div className="flex items-center gap-2 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">
-                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                      Live Preview engine
-                   </div>
-                   <p className="text-[10px] text-white/30 uppercase tracking-widest">
-                      Drag to rotate • Scroll to zoom
-                   </p>
-                </div>
-
-                {/* Aesthetic corner accents */}
-                <div className="absolute top-0 left-0 w-24 h-24 border-t border-l border-white/20 rounded-tl-3xl pointer-events-none" />
-                <div className="absolute bottom-0 right-0 w-24 h-24 border-b border-r border-white/20 rounded-br-3xl pointer-events-none" />
-             </div>
+            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 bg-linear-to-br from-[#12121a] via-[#0e0e14] to-[#0a0a0f] shadow-xl min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
+              <canvas
+                ref={canvasRef}
+                className="block w-full h-[min(52vh,420px)] cursor-grab active:cursor-grabbing"
+                onMouseDown={onMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseLeave}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              />
+              <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-2">
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/35 m-0">
+                  Live preview
+                </p>
+                <p className="text-[11px] text-white/40 m-0">Drag to rotate · Scroll to zoom</p>
+              </div>
+              <div className="pointer-events-none absolute top-0 left-0 w-20 h-20 border-t border-l border-white/10 rounded-tl-3xl" />
+              <div className="pointer-events-none absolute bottom-0 right-0 w-20 h-20 border-b border-r border-white/10 rounded-br-3xl" />
+            </div>
           </div>
-
         </div>
       </div>
     </section>

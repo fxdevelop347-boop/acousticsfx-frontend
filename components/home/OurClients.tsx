@@ -68,7 +68,7 @@ export default function OurClients() {
 
       {/* OVERLAYS */}
       <div className="absolute inset-0 bg-[#1d4a77]/40" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/60" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/20 to-black/60" />
       <div className="absolute inset-0 bg-white/10" />
 
       {/* CONTENT */}
@@ -104,7 +104,7 @@ export default function OurClients() {
 </div>
 
         {/* ================= MOBILE / TABLET (DOUBLE SLIDER) ================= */}
-        <div className="lg:hidden overflow-hidden space-y-6">
+        <div className="lg:hidden overflow-hidden space-y-6 -mx-6 sm:mx-0">
           {/* ROW 1 (Left → Right) */}
           <div className="overflow-hidden">
             <div className="flex w-max animate-marquee-left gap-6">

@@ -181,10 +181,12 @@ export function CategoryTabs({
   const { categories, activeSlug, setActiveSlug } = useExplorer();
   if (categories.length === 0) return null;
 
-  const align = variant === "center" ? "justify-center" : "justify-start";
+  const align = variant === "center" ? "sm:justify-center" : "sm:justify-start";
 
   return (
-    <div className={`flex flex-wrap gap-3 ${align} ${className}`}>
+    <div
+      className={`flex w-full gap-2 overflow-x-auto pb-2 no-scrollbar sm:flex-wrap sm:overflow-visible sm:pb-0 sm:gap-3 ${align} ${className}`}
+    >
       {categories.map((cat) => {
         const isActive = cat.slug.toLowerCase() === activeSlug.toLowerCase();
         return (
@@ -192,7 +194,7 @@ export function CategoryTabs({
             key={cat.slug}
             type="button"
             onClick={() => setActiveSlug(cat.slug)}
-            className={`px-4 py-2 text-[10px] axiforma font-bold cursor-pointer border transition-colors ${
+            className={`shrink-0 whitespace-nowrap border px-4 py-2 text-[10px] axiforma font-bold cursor-pointer transition-colors sm:text-xs ${
               isActive
                 ? "bg-[#1F6775] border-[#1F6775] text-white"
                 : "bg-white border-gray-300 text-black hover:bg-gray-50"
@@ -229,8 +231,17 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
 
   const paddingClass =
     layout === "home"
-      ? "pl-6 sm:pl-10 lg:pl-[200px]"
+      ? "px-6 sm:px-10 lg:pl-[200px] lg:pr-0"
       : "pl-0 sm:pl-0 lg:pl-0";
+
+  const getScrollStep = useCallback(() => {
+    const container = sliderRef.current;
+    if (!container) return layout === "home" ? 600 : 520;
+    const firstSlide = container.children[0] as HTMLElement | undefined;
+    if (!firstSlide) return layout === "home" ? 600 : 520;
+    const gap = parseFloat(getComputedStyle(container).columnGap || "0");
+    return firstSlide.offsetWidth + gap;
+  }, [layout]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -243,7 +254,7 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
       if (!sliderRef.current) return;
       const container = sliderRef.current;
       const maxScroll = container.scrollWidth - container.clientWidth;
-      const step = layout === "home" ? 600 : 520;
+      const step = getScrollStep();
       if (maxScroll <= 0) return;
       if (container.scrollLeft >= maxScroll - 2) {
         container.scrollTo({ left: 0, behavior: "smooth" });
@@ -252,14 +263,14 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
       }
     }, 3500);
     return () => clearInterval(interval);
-  }, [products.length, layout]);
+  }, [products.length, getScrollStep]);
 
   const scrollLeft = () => {
-    sliderRef.current?.scrollBy({ left: layout === "home" ? -600 : -520, behavior: "smooth" });
+    sliderRef.current?.scrollBy({ left: -getScrollStep(), behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    sliderRef.current?.scrollBy({ left: layout === "home" ? 600 : 520, behavior: "smooth" });
+    sliderRef.current?.scrollBy({ left: getScrollStep(), behavior: "smooth" });
   };
 
   const scrollToIndex = (index: number) => {
@@ -291,8 +302,17 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
     const container = sliderRef.current;
     if (!container || (typeof window !== "undefined" && window.innerWidth >= 1024)) return;
     const scrollLeftVal = container.scrollLeft;
-    const containerWidth = container.offsetWidth;
-    const index = Math.round(scrollLeftVal / Math.max(containerWidth, 1));
+    const children = Array.from(container.children) as HTMLElement[];
+    if (children.length === 0) return;
+    let index = 0;
+    let minDistance = Number.POSITIVE_INFINITY;
+    children.forEach((child, childIndex) => {
+      const distance = Math.abs(child.offsetLeft - scrollLeftVal);
+      if (distance < minDistance) {
+        minDistance = distance;
+        index = childIndex;
+      }
+    });
     setCurrentIndex(index);
   };
 
@@ -305,17 +325,22 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
       ? "lg:min-w-[560px] lg:max-w-[580px]"
       : "lg:min-w-[480px] lg:max-w-[520px]";
 
+  const slideBaseClasses =
+    layout === "home"
+      ? "w-[78vw] max-w-[320px] sm:w-[62vw] sm:max-w-[420px] md:w-[52vw] md:max-w-[500px]"
+      : "min-w-[calc(100vw-48px)] sm:min-w-[calc(100vw-80px)] md:min-w-[calc(100vw-120px)]";
+
   return (
     <div className={`relative ${paddingClass}`}>
       <div
         ref={sliderRef}
         onScroll={handleScroll}
-        className="flex gap-6 sm:gap-8 lg:gap-10 overflow-x-auto scroll-smooth no-scrollbar lg:snap-none snap-x snap-mandatory"
+        className="flex items-start lg:items-stretch gap-6 sm:gap-8 lg:gap-10 overflow-x-auto scroll-smooth no-scrollbar lg:snap-none snap-x snap-mandatory"
       >
         {products.map((product) => (
           <div
             key={product.slug}
-            className={`h-full shrink-0 snap-start min-w-[calc(100vw-48px)] sm:min-w-[calc(100vw-80px)] ${slideLgClasses}`}
+            className={`shrink-0 snap-start ${slideBaseClasses} ${slideLgClasses}`}
           >
             <ProductListingCard
               href={`/products/${activeSlug}/${product.slug}`}
@@ -324,7 +349,8 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
               image={product.image}
               showTrademark={product.showTrademark === true}
               specs={product.specs}
-              className="h-full"
+              compactOnMobile={layout === "home"}
+              className="lg:h-full"
             />
           </div>
         ))}

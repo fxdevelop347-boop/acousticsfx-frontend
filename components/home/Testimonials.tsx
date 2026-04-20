@@ -7,10 +7,10 @@ import Spinner from "@/components/shared/Spinner";
 import { FadeIn } from "@/components/animations";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 
 import "swiper/css";
-import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 export default function Testimonials() {
 
@@ -52,10 +52,10 @@ export default function Testimonials() {
 
         {/* SLIDER */}
         <Swiper
-          modules={[Pagination, Autoplay]}
-          pagination={{
-            el: ".testimonial-pagination",
-            clickable: true,
+          modules={[Navigation, Autoplay]}
+          navigation={{
+            nextEl: ".testimonial-next",
+            prevEl: ".testimonial-prev",
           }}
           autoplay={{
             delay: 5000,
@@ -79,7 +79,16 @@ export default function Testimonials() {
 
           {items.map((item) => (
             <SwiperSlide key={item._id}>
-              <div className="border rounded-2xl p-4 sm:p-7 lg:p-8 bg-white h-full">
+
+              <div className="
+              border
+              rounded-2xl
+              p-4
+              sm:p-7
+              lg:p-8
+              bg-white
+              h-full
+              ">
 
                 {/* LOGO */}
                 {item.companyLogo && (
@@ -115,32 +124,75 @@ export default function Testimonials() {
                 </div>
 
               </div>
+
             </SwiperSlide>
           ))}
 
         </Swiper>
-      </div>
 
-      {/* Dots Pagination */}
-      <div className="mt-6 sm:mt-8 flex justify-center">
-        <div className="testimonial-pagination flex items-center gap-2" />
-      </div>
+        {/* LEFT BUTTON */}
+        <button
+          className="
+  testimonial-prev
+  hidden lg:flex
+  absolute
+  left-0
+  top-1/2
+  -translate-y-1/2
+  w-10
+  h-10
+  bg-gray-300
+  hover:bg-black
+  rounded-md
+  items-center
+  justify-center
+  transition
+  duration-300
+  group
+  z-10
+  "
+        >
+          <Image
+            src="/assets/home/universalvector.svg"
+            alt="prev"
+            width={30}
+            height={10}
+            className="rotate-180 group-hover:invert"
+          />
+        </button>
 
-      <style jsx global>{`
-        .testimonial-pagination .swiper-pagination-bullet {
-          width: 8px;
-          height: 8px;
-          border-radius: 9999px;
-          background: #d1d5db;
-          opacity: 1;
-          transition: all 0.25s ease;
-          margin: 0 4px !important;
-        }
-        .testimonial-pagination .swiper-pagination-bullet-active {
-          width: 28px;
-          background: #1f6775;
-        }
-      `}</style>
+        {/* RIGHT BUTTON */}
+        <button
+          className="
+  testimonial-next
+  hidden lg:flex
+  absolute
+  right-0
+  top-1/2
+  -translate-y-1/2
+  w-10
+  h-10
+  bg-gray-300
+  hover:bg-black
+  rounded-md
+  items-center
+  justify-center
+  transition
+  duration-300
+  group
+  z-10
+  "
+        >
+          <Image
+            src="/assets/home/universalvector.svg"
+            alt="next"
+            width={30}
+            height={10}
+            className="group-hover:invert"
+          />
+        </button>
+
+      </div>
     </section>
   );
 }

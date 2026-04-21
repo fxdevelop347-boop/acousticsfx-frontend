@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import { fetchTestimonials, type Testimonial } from "@/lib/testimonials-api";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import Spinner from "@/components/shared/Spinner";
@@ -8,11 +9,13 @@ import { FadeIn } from "@/components/animations";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
 export default function Testimonials() {
+  const swiperRef = useRef<SwiperType | null>(null);
 
   const { data: testimonials, loading, error } =
     useAsyncData<Testimonial[]>(fetchTestimonials);
@@ -52,6 +55,7 @@ export default function Testimonials() {
 
         {/* SLIDER */}
         <Swiper
+          onSwiper={(swiper) => { swiperRef.current = swiper; }}
           modules={[Navigation, Autoplay]}
           navigation={{
             nextEl: ".testimonial-next",
@@ -130,27 +134,113 @@ export default function Testimonials() {
 
         </Swiper>
 
-        {/* LEFT BUTTON */}
+        {/* MOBILE LEFT BUTTON — visible only on phones (< sm) */}
+        <button
+          onClick={() => swiperRef.current?.slidePrev()}
+          aria-label="Previous testimonial"
+          className="
+            testimonial-prev
+            flex sm:hidden
+            absolute
+            left-[-8px]
+            top-1/2
+            -translate-y-1/2
+            w-9
+            h-9
+            bg-white
+            hover:bg-gray-50
+            active:bg-gray-100
+            border
+            border-gray-200
+            shadow-md
+            rounded-full
+            items-center
+            justify-center
+            transition-all
+            duration-200
+            z-10
+          "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-gray-700 rotate-180"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+
+        {/* MOBILE RIGHT BUTTON — visible only on phones (< sm) */}
+        <button
+          onClick={() => swiperRef.current?.slideNext()}
+          aria-label="Next testimonial"
+          className="
+            testimonial-next
+            flex sm:hidden
+            absolute
+            right-[-8px]
+            top-1/2
+            -translate-y-1/2
+            w-9
+            h-9
+            bg-white
+            hover:bg-gray-50
+            active:bg-gray-100
+            border
+            border-gray-200
+            shadow-md
+            rounded-full
+            items-center
+            justify-center
+            transition-all
+            duration-200
+            z-10
+          "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-gray-700"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+
+        {/* DESKTOP LEFT BUTTON — hidden on mobile, shown on lg+ */}
         <button
           className="
-  testimonial-prev
-  hidden lg:flex
-  absolute
-  left-0
-  top-1/2
-  -translate-y-1/2
-  w-10
-  h-10
-  bg-gray-300
-  hover:bg-black
-  rounded-md
-  items-center
-  justify-center
-  transition
-  duration-300
-  group
-  z-10
-  "
+            testimonial-prev
+            hidden lg:flex
+            absolute
+            left-0
+            top-1/2
+            -translate-y-1/2
+            w-10
+            h-10
+            bg-gray-300
+            hover:bg-black
+            rounded-md
+            items-center
+            justify-center
+            transition
+            duration-300
+            group
+            z-10
+          "
         >
           <Image
             src="/assets/home/universalvector.svg"
@@ -161,27 +251,27 @@ export default function Testimonials() {
           />
         </button>
 
-        {/* RIGHT BUTTON */}
+        {/* DESKTOP RIGHT BUTTON — hidden on mobile, shown on lg+ */}
         <button
           className="
-  testimonial-next
-  hidden lg:flex
-  absolute
-  right-0
-  top-1/2
-  -translate-y-1/2
-  w-10
-  h-10
-  bg-gray-300
-  hover:bg-black
-  rounded-md
-  items-center
-  justify-center
-  transition
-  duration-300
-  group
-  z-10
-  "
+            testimonial-next
+            hidden lg:flex
+            absolute
+            right-0
+            top-1/2
+            -translate-y-1/2
+            w-10
+            h-10
+            bg-gray-300
+            hover:bg-black
+            rounded-md
+            items-center
+            justify-center
+            transition
+            duration-300
+            group
+            z-10
+          "
         >
           <Image
             src="/assets/home/universalvector.svg"

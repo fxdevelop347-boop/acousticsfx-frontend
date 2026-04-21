@@ -31,7 +31,18 @@ export default function Header() {
       .catch(() => setProductCategories([]));
   }, []);
 
-  // Close mobile menu when route changes
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
     setMobileProductsOpen(false);
@@ -158,8 +169,8 @@ export default function Header() {
                 aria-expanded={openResources}
                 className={`flex items-center gap-1 transition py-5 cursor-pointer
                   ${pathname?.startsWith("/resources")
-                    ? "text-blue-600"
-                    : "hover:text-blue-500"
+                    ? "text-orange-500"
+                    : "hover:text-orange-500"
                   }`}
               >
                 Resources
@@ -223,35 +234,68 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* HAMBURGER MENU BUTTON - Mobile & Tablet */}
+        {/* HAMBURGER MENU BUTTON - Mobile & Tablet (only visible when drawer is closed) */}
         <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden z-50 p-2 text-gray-800 hover:text-orange-500 transition cursor-pointer"
-          aria-label="Toggle menu"
+          onClick={() => setMobileMenuOpen(true)}
+          className={`lg:hidden z-[60] p-2 text-gray-800 hover:text-orange-500 transition cursor-pointer ${mobileMenuOpen ? "invisible" : "visible"}`}
+          aria-label="Open menu"
         >
-          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          <Menu size={28} />
         </button>
+      </div>
 
-        {/* MOBILE MENU OVERLAY */}
-        {mobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden cursor-pointer"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-        )}
+      {/* ── MOBILE MENU PORTAL ── rendered outside the header row so it
+          covers the full viewport without any header clipping it          */}
+      <div className="lg:hidden">
 
-        {/* MOBILE MENU */}
+        {/* BACKDROP */}
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className={`
+            fixed inset-0 bg-black/50 z-[45]
+            transition-opacity duration-300
+            ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+          `}
+          aria-hidden="true"
+        />
+
+        {/* DRAWER PANEL — slides in from the right, covers full viewport height */}
         <div
           className={`
-            fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white shadow-2xl z-40 lg:hidden
+            fixed top-0 right-0 h-full w-full sm:w-[320px]
+            bg-white shadow-2xl z-[50]
             transform transition-transform duration-300 ease-in-out
-            ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+            ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}
             overflow-y-auto
           `}
         >
-          <div className="p-6 pt-20">
+          {/* Drawer header row — logo + close button sit inside the white panel */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <Link href="/" onClick={handleLinkClick} className="inline-block">
+              <Image
+                src="/assets/home/Group 34.svg"
+                alt="FX Acoustic Inc"
+                width={120}
+                height={32}
+                className="h-auto w-[110px] sm:w-[130px]"
+                priority
+                decoding="async"
+              />
+            </Link>
+
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 text-gray-500 hover:text-orange-500 transition cursor-pointer"
+              aria-label="Close menu"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Nav items */}
+          <div className="p-5">
             <nav aria-label="Mobile navigation">
-              <ul className="space-y-2">
+              <ul className="space-y-1">
 
                 {/* About */}
                 <li>
@@ -282,7 +326,7 @@ export default function Header() {
                   </button>
 
                   {mobileProductsOpen && (
-                    <ul className="mt-2 ml-4 space-y-1">
+                    <ul className="mt-1 ml-4 space-y-1">
                       {productCategories.length > 0 ? (
                         productCategories.map((cat) => (
                           <li key={cat.slug}>
@@ -317,7 +361,7 @@ export default function Header() {
                     onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
                     aria-expanded={mobileResourcesOpen}
                     className={`w-full flex items-center justify-between px-4 py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-500 transition rounded-lg font-medium cursor-pointer
-                      ${pathname?.startsWith("/resources") ? "text-blue-600 bg-blue-50" : ""}
+                      ${pathname?.startsWith("/resources") ? "text-orange-500 bg-orange-50" : ""}
                     `}
                   >
                     <span>Resources</span>
@@ -328,7 +372,7 @@ export default function Header() {
                   </button>
 
                   {mobileResourcesOpen && (
-                    <ul className="mt-2 ml-4 space-y-1">
+                    <ul className="mt-1 ml-4 space-y-1">
                       {[
                         { name: "Blogs & Articles", link: "/resources/blogs" },
                         { name: "Case Studies", link: "/resources/casestudy" },
@@ -338,7 +382,7 @@ export default function Header() {
                           <Link
                             href={item.link}
                             onClick={handleLinkClick}
-                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition rounded-lg cursor-pointer"
+                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition rounded-lg cursor-pointer"
                           >
                             {item.name}
                           </Link>

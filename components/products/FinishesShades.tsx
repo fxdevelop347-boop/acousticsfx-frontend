@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { SubProductFinishesSection } from "@/lib/products-api";
 
@@ -36,22 +36,39 @@ const finishes = [
     desc: "Warm, elegant finish for sophisticated spaces.",
   },
 ];
+
 export default function FinishesShades({
   finishesSection,
 }: {
   finishesSection?: SubProductFinishesSection | null;
 }) {
   const [index, setIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth < 640);
+      setIndex(0);
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
   const items =
     finishesSection?.items?.length
       ? finishesSection.items.map((f) => ({
-          img: f.image,
-          code: "",
-          name: f.name,
-          desc: f.description ?? "",
-        }))
+        img: f.image,
+        code: "",
+        name: f.name,
+        desc: f.description ?? "",
+      }))
       : finishes;
+
   const title = finishesSection?.title ?? "Finishes & Shades";
+
   const description =
     finishesSection?.description ??
     "Our inspired solutions have helped shape modern acoustic design. Alluring spaces, internationally recognised for their architectural elegance and exceptional sound management live here.";
@@ -61,37 +78,45 @@ export default function FinishesShades({
   };
 
   const next = () => {
-    setIndex((prev) => Math.min(prev + 1, items.length - 4));
+    const maxIndex = isMobile ? items.length - 1 : items.length - 4;
+    setIndex((prev) => Math.min(prev + 1, maxIndex));
   };
 
   return (
     <section className="w-full bg-[#faf7f2] pl-[24px] sm:pl-[40px] md:pl-[60px] lg:pl-[100px] py-[48px] sm:py-[64px] lg:py-[80px]">
-      
+
       <div className="flex flex-col lg:flex-row gap-10 sm:gap-14 lg:gap-20">
-        
+
         {/* Left Content */}
-        <div className="max-w-xs">
+        <div className="max-w-xs pl-[14px] sm:pl-0">
           <h2 className="text-[28px] sm:text-[30px] lg:text-[34px] inter-font font-medium mb-4">
             {title}
           </h2>
+
           <p className="text-[15px] sm:text-[16px] inter-font font-[500] text-gray-600 mb-8">
             {description}
           </p>
         </div>
 
         {/* Slider */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden w-full px-[14px] sm:px-0">
           <div
-            className="flex gap-6 sm:gap-8 transition-transform duration-500"
+            className="flex gap-6 sm:gap-8 transition-transform duration-500 ease-in-out"
             style={{
-              transform: `translateX(-${index * 208}px)`,
+              transform: isMobile
+                ? `translateX(calc(-${index * 100}% - ${index * 24}px))`
+                : `translateX(-${index * 208}px)`,
             }}
           >
             {items.map((item, idx) => (
-              <div key={idx} className="min-w-[200px]">
-                
-                {/* Slide Image */}
-                <div className="w-[200px] h-[200px] rounded-lg overflow-hidden mb-4 relative bg-white">
+              <div
+                key={idx}
+                className={
+                  isMobile ? "min-w-full" : "min-w-[200px]"
+                }
+              >
+                {/* Image */}
+                <div className="w-full sm:w-[200px] h-[200px] rounded-lg overflow-hidden mb-4 relative bg-white">
                   <Image
                     src={item.img}
                     alt={item.name}
@@ -106,9 +131,11 @@ export default function FinishesShades({
                     {item.code}
                   </p>
                 ) : null}
+
                 <p className="text-[22px] sm:text-[24px] inter-font font-[400] mb-1">
                   {item.name}
                 </p>
+
                 <p className="text-[14px] sm:text-[15px] inter-font font-[500] text-gray-500 leading-snug">
                   {item.desc}
                 </p>
@@ -116,7 +143,7 @@ export default function FinishesShades({
             ))}
           </div>
 
-          {/* Navigation Buttons - Centered Below */}
+          {/* Navigation */}
           <div className="flex justify-center gap-6 items-center mt-8">
             <button
               onClick={prev}
@@ -131,9 +158,12 @@ export default function FinishesShades({
                 className="rotate-180"
               />
             </button>
+
             <button
               onClick={next}
-              disabled={index >= items.length - 4}
+              disabled={
+                index >= (isMobile ? items.length - 1 : items.length - 4)
+              }
               className="hover:opacity-70 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Image

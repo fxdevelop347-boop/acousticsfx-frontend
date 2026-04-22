@@ -253,7 +253,7 @@ function PanelViewer({
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(35, w / h, 0.1, 100);
-    camera.position.set(3.5, 3, 3.5);
+    camera.position.set(1.6, 1.2, 1.6);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -384,10 +384,8 @@ function PanelViewer({
     const normalTex = new THREE.CanvasTexture(normalCanvas);
     normalTex.wrapS = THREE.RepeatWrapping;
     normalTex.wrapT = THREE.RepeatWrapping;
-    // Keep holes physically round across non-square panels (e.g. 120x60).
-    const repX = Math.max(0.25, (dimensionsCm.width * 10) / 300);
-    const repY = Math.max(0.25, (dimensionsCm.height * 10) / 300);
-    normalTex.repeat.set(repX, repY);
+    // Use repeat(1,1) so the texture covers the face exactly once — no tile seam lines.
+    normalTex.repeat.set(1, 1);
     if (topMat.normalMap) (topMat.normalMap as THREE.Texture).dispose();
     topMat.normalMap = normalTex;
     topMat.normalScale = new THREE.Vector2(1.5, 1.5);
@@ -415,7 +413,8 @@ function PanelViewer({
           ct.wrapS = THREE.RepeatWrapping;
           ct.wrapT = THREE.RepeatWrapping;
           ct.colorSpace = THREE.SRGBColorSpace;
-          ct.repeat.set(repX, repY);
+          // repeat(1,1) — single coverage, no tile seam lines visible
+          ct.repeat.set(1, 1);
           if (topMat.map) topMat.map.dispose();
           topMat.map = ct;
           topMat.needsUpdate = true;
@@ -427,12 +426,8 @@ function PanelViewer({
             const sideTex = loaded.clone();
             sideTex.wrapS = THREE.RepeatWrapping;
             sideTex.wrapT = THREE.RepeatWrapping;
-            // Side face dimensions: width x depth (x faces) and height x depth (z faces)
-            if (i === 0 || i === 1) {
-              sideTex.repeat.set(repX, Math.max(0.2, (dimensionsCm.depth * 10) / 300));
-            } else {
-              sideTex.repeat.set(repY, Math.max(0.2, (dimensionsCm.depth * 10) / 300));
-            }
+            // Side faces: single repeat along length, small repeat along thin depth
+            sideTex.repeat.set(1, Math.max(0.2, (dimensionsCm.depth * 10) / 300));
             sm.map = sideTex;
             sm.color.set(0xffffff);
             sm.needsUpdate = true;
@@ -453,7 +448,7 @@ function PanelViewer({
   return (
     <div
       ref={mountRef}
-      className="aspect-[643/552] w-full cursor-grab overflow-hidden rounded-lg bg-[#3d3d3d] active:cursor-grabbing"
+      className="aspect-[643/552] w-full max-h-[480px] cursor-grab overflow-hidden rounded-lg bg-[#3d3d3d] active:cursor-grabbing"
     />
   );
 }
@@ -473,7 +468,12 @@ function HoleProfileItem({
   const dotR = 3 + holeFrac * 8;
   const spaceFrac = Math.min(48, Math.max(4, profile.spacing)) / 32;
   const gap = 12 + spaceFrac * 10;
-  const generatedThumb = useMemo(() => buildProfilePreviewDataUrl(profile), [profile]);
+  const [generatedThumb, setGeneratedThumb] = useState<string>("");
+
+  useEffect(() => {
+    setGeneratedThumb(buildProfilePreviewDataUrl(profile));
+  }, [profile]);
+
   const thumb =
     (profile.thumbnail?.trim() ? getVisualizerTextureLoadUrl(profile.thumbnail.trim()) : "") ||
     generatedThumb ||
@@ -773,7 +773,7 @@ export default function Product3DViewer({
 
   return (
     <div className="flex min-h-0 w-full flex-col bg-[#3d3d3d] font-sans antialiased">
-      <div className="px-4 pb-4 pt-6 sm:px-8 sm:pt-10 lg:px-16">
+      <div className="px-4 pb-2 pt-4 sm:px-8 sm:pt-6 lg:px-16">
         <h2 className="m-0 font-['Axiforma:Medium',sans-serif] text-[22px] leading-normal tracking-[-0.5px] text-white sm:text-[28px]">
           {sectionTitle}
         </h2>
@@ -782,7 +782,7 @@ export default function Product3DViewer({
         </p>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 px-4 pb-6 sm:gap-6 sm:px-8 sm:pb-10 lg:flex-row lg:px-16">
+      <div className="flex flex-1 flex-col gap-3 px-4 pb-4 sm:gap-4 sm:px-8 sm:pb-6 lg:flex-row lg:items-center lg:px-16">
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex items-center gap-2 text-white">
             <svg

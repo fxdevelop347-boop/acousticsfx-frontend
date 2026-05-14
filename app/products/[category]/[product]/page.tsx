@@ -80,7 +80,7 @@ export default async function ProductDetailPage({ params }: Props) {
         specs={product.specs}
       />
       <GallerySection galleryImages={product.galleryImages} />
-      {hasVisualizerTextures(product.visualizerTextures) ? (
+      {/* {hasVisualizerTextures(product.visualizerTextures) ? ( */}
         <Product3DViewer
           visualizerTextures={product.visualizerTextures!}
           visualizerDimensions={product.visualizerDimensions}
@@ -88,7 +88,7 @@ export default async function ProductDetailPage({ params }: Props) {
           sectionDescription={product.visualizerDescription || undefined}
           technicalCaption={product.visualizerTechnicalCaption || undefined}
         />
-      ) : null}
+      {/* ) : null} */}
       <SubstratesSection substratesSection={product.substratesSection} />
       <AboutProduct aboutTabs={product.aboutTabs} />
       <CertificationsSection

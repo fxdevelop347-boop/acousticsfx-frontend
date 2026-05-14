@@ -1,7 +1,10 @@
 "use client";
 
 /**
- * 3D acoustic panel preview — textures and perforation profiles come from the API (admin/CMS).
+ * 3D acoustic panel preview.
+ *
+ * Temporary GLB preview mode: the backend texture wrapping path is left in this
+ * file but bypassed while we render the local pannel.glb model.
  */
 
 import {
@@ -14,6 +17,8 @@ import {
 } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type {
   VisualizerTexture,
   VisualizerDimensions,
@@ -24,6 +29,9 @@ import { getVisualizerTextureLoadUrl } from "@/lib/texture-proxy-url";
 export { hasVisualizerTextures } from "@/lib/products-api";
 
 const RES = 1024;
+const PANEL_GLB_URL = "/assets/3d/pannel.glb";
+const DRACO_DECODER_PATH = "/assets/3d/draco/";
+const USE_BACKEND_TEXTURE_VISUALIZER = false;
 
 function generateNormalMap(holeMm: number, spacingMm: number) {
   const canvas = document.createElement("canvas");
@@ -191,6 +199,10 @@ function compositeHolesOnTexture(
   return canvas;
 }
 
+// Keep the legacy backend texture helpers referenced while GLB preview mode is active.
+void generateNormalMap;
+void compositeHolesOnTexture;
+
 /** Procedural profile preview so each profile looks unique by hole/spacing. */
 function buildProfilePreviewDataUrl(profile: VisualizerHoleProfile): string {
   if (typeof document === "undefined") return "";
@@ -222,15 +234,9 @@ function buildProfilePreviewDataUrl(profile: VisualizerHoleProfile): string {
 }
 
 function PanelViewer({
-  imageLoadUrl,
-  holeMm,
-  spacingMm,
   dimensionsCm,
   controlsRef,
 }: {
-  imageLoadUrl: string;
-  holeMm: number;
-  spacingMm: number;
   dimensionsCm: { width: number; height: number; depth: number };
   controlsRef: MutableRefObject<InstanceType<typeof OrbitControls> | null>;
 }) {
@@ -238,9 +244,31 @@ function PanelViewer({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const meshRef = useRef<THREE.Mesh | null>(null);
-  const textureLoaderRef = useRef(new THREE.TextureLoader());
+  const modelRef = useRef<THREE.Group | null>(null);
+  const gltfLoaderRef = useRef(new GLTFLoader());
+  const dracoLoaderRef = useRef<DRACOLoader | null>(null);
   const animFrameRef = useRef<number>(0);
+
+  const disposeModel = useCallback((object: THREE.Object3D | null) => {
+    if (!object) return;
+    object.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (mesh.geometry) {
+        mesh.geometry.dispose();
+      }
+
+      const material = mesh.material;
+      const materials = Array.isArray(material) ? material : material ? [material] : [];
+      materials.forEach((mat) => {
+        Object.values(mat).forEach((value) => {
+          if (value instanceof THREE.Texture) {
+            value.dispose();
+          }
+        });
+        mat.dispose();
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -251,6 +279,12 @@ function PanelViewer({
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x3d3d3d);
     sceneRef.current = scene;
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath(DRACO_DECODER_PATH);
+    dracoLoader.setDecoderConfig({ type: "wasm" });
+    gltfLoaderRef.current.setDRACOLoader(dracoLoader);
+    dracoLoaderRef.current = dracoLoader;
 
     const camera = new THREE.PerspectiveCamera(35, w / h, 0.1, 100);
     camera.position.set(1.6, 1.2, 1.6);
@@ -265,7 +299,8 @@ function PanelViewer({
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    scene.add(new THREE.AmbientLight(0xfff5e8, 0.6));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x2b2b2b, 1));
+    scene.add(new THREE.AmbientLight(0xfff5e8, 0.35));
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
     keyLight.position.set(-4, 8, 4);
     scene.add(keyLight);
@@ -305,17 +340,19 @@ function PanelViewer({
       ro.disconnect();
       controls.dispose();
       controlsRef.current = null;
+      disposeModel(modelRef.current);
+      dracoLoaderRef.current?.dispose();
       renderer.dispose();
       if (container && renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
       }
-      meshRef.current = null;
+      modelRef.current = null;
+      dracoLoaderRef.current = null;
       sceneRef.current = null;
       cameraRef.current = null;
       rendererRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- scene init once
-  }, []);
+  }, [controlsRef, disposeModel]);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -324,126 +361,81 @@ function PanelViewer({
     const controls = controlsRef.current;
     if (!scene || !camera || !renderer || !controls) return;
 
-    if (meshRef.current) {
-      scene.remove(meshRef.current);
-      const g = meshRef.current.geometry;
-      const mats = meshRef.current.material as THREE.MeshStandardMaterial[];
-      mats.forEach((m) => {
-        if (m.map) m.map.dispose();
-        m.dispose();
-      });
-      g.dispose();
-      meshRef.current = null;
+    let cancelled = false;
+
+    if (modelRef.current) {
+      scene.remove(modelRef.current);
+      disposeModel(modelRef.current);
+      modelRef.current = null;
     }
 
-    const W = dimensionsCm.width / 100;
-    const H = dimensionsCm.height / 100;
-    const D = dimensionsCm.depth / 100;
-
-    // Keep panel "flat" like the reference viewer:
-    // width × depth(thickness) × height so +Y face is the main textured face.
-    const geometry = new THREE.BoxGeometry(W, D, H);
-
-    const sideMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.7,
-      metalness: 0.05,
-    });
-    const topMaterial = new THREE.MeshStandardMaterial({
-      roughness: 0.55,
-      metalness: 0.02,
-    });
-    const bottomMaterial = new THREE.MeshStandardMaterial({
-      color: 0x2b2b2b,
-      roughness: 0.9,
-    });
-
-    const mesh = new THREE.Mesh(geometry, [
-      sideMaterial,
-      sideMaterial,
-      topMaterial,
-      bottomMaterial,
-      sideMaterial,
-      sideMaterial,
-    ]);
-    mesh.rotation.y = Math.PI / 6;
-    scene.add(mesh);
-    meshRef.current = mesh;
-
-    const box = new THREE.Box3().setFromObject(mesh);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z, 0.01);
-    controls.minDistance = Math.max(0.15, maxDim * 0.85);
-    controls.maxDistance = Math.max(controls.minDistance + 1, maxDim * 18);
-    controls.update();
-
-    const mats = mesh.material as THREE.MeshStandardMaterial[];
-    const topMat = mats[2];
-
-    const normalCanvas = generateNormalMap(holeMm, spacingMm);
-    const normalTex = new THREE.CanvasTexture(normalCanvas);
-    normalTex.wrapS = THREE.RepeatWrapping;
-    normalTex.wrapT = THREE.RepeatWrapping;
-    // Use repeat(1,1) so the texture covers the face exactly once — no tile seam lines.
-    normalTex.repeat.set(1, 1);
-    if (topMat.normalMap) (topMat.normalMap as THREE.Texture).dispose();
-    topMat.normalMap = normalTex;
-    topMat.normalScale = new THREE.Vector2(1.5, 1.5);
-    topMat.needsUpdate = true;
-
-    let cancelled = false;
-    textureLoaderRef.current.load(
-      imageLoadUrl,
-      (loaded) => {
+    gltfLoaderRef.current.load(
+      PANEL_GLB_URL,
+      (gltf) => {
         if (cancelled) {
-          loaded.dispose();
+          disposeModel(gltf.scene);
           return;
         }
-        loaded.wrapS = THREE.RepeatWrapping;
-        loaded.wrapT = THREE.RepeatWrapping;
-        loaded.colorSpace = THREE.SRGBColorSpace;
 
-        if (topMat) {
-          const composited = compositeHolesOnTexture(
-            loaded.image as HTMLImageElement,
-            holeMm,
-            spacingMm,
-          );
-          const ct = new THREE.CanvasTexture(composited);
-          ct.wrapS = THREE.RepeatWrapping;
-          ct.wrapT = THREE.RepeatWrapping;
-          ct.colorSpace = THREE.SRGBColorSpace;
-          // repeat(1,1) — single coverage, no tile seam lines visible
-          ct.repeat.set(1, 1);
-          if (topMat.map) topMat.map.dispose();
-          topMat.map = ct;
-          topMat.needsUpdate = true;
-        }
-
-        [0, 1, 4, 5].forEach((i) => {
-          const sm = mats[i];
-          if (sm) {
-            const sideTex = loaded.clone();
-            sideTex.wrapS = THREE.RepeatWrapping;
-            sideTex.wrapT = THREE.RepeatWrapping;
-            // Side faces: single repeat along length, small repeat along thin depth
-            sideTex.repeat.set(1, Math.max(0.2, (dimensionsCm.depth * 10) / 300));
-            sm.map = sideTex;
-            sm.color.set(0xffffff);
-            sm.needsUpdate = true;
+        const model = gltf.scene;
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            materials.forEach((material) => {
+              material.side = THREE.DoubleSide;
+              material.needsUpdate = true;
+            });
           }
         });
+
+        const sourceBox = new THREE.Box3().setFromObject(model);
+        const sourceCenter = sourceBox.getCenter(new THREE.Vector3());
+        const sourceSize = sourceBox.getSize(new THREE.Vector3());
+        const sourceMax = Math.max(sourceSize.x, sourceSize.y, sourceSize.z, 0.01);
+        const targetMax = Math.max(
+          dimensionsCm.width / 100,
+          dimensionsCm.height / 100,
+          dimensionsCm.depth / 100,
+          1,
+        );
+
+        model.position.sub(sourceCenter);
+
+        const wrapper = new THREE.Group();
+        wrapper.add(model);
+        wrapper.scale.setScalar(targetMax / sourceMax);
+        wrapper.rotation.set(-Math.PI / 18, -Math.PI / 8, 0);
+        scene.add(wrapper);
+        modelRef.current = wrapper;
+
+        const fittedBox = new THREE.Box3().setFromObject(wrapper);
+        const fittedSize = fittedBox.getSize(new THREE.Vector3());
+        const maxDim = Math.max(fittedSize.x, fittedSize.y, fittedSize.z, 0.01);
+        const distance = (maxDim / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2))) * 1.55;
+        camera.position.set(distance * 0.55, distance * 0.35, distance * 1.35);
+        camera.near = Math.max(0.01, maxDim / 100);
+        camera.far = Math.max(100, maxDim * 100);
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+
+        controls.target.set(0, 0, 0);
+        controls.minDistance = Math.max(0.15, maxDim * 0.45);
+        controls.maxDistance = Math.max(controls.minDistance + 1, maxDim * 8);
+        controls.update();
       },
       undefined,
-      () => {
-        /* ignore load errors — empty state handled upstream */
+      (error) => {
+        console.error("Unable to load pannel.glb", error);
       },
     );
 
     return () => {
       cancelled = true;
     };
-  }, [imageLoadUrl, holeMm, spacingMm, dimensionsCm.width, dimensionsCm.height, dimensionsCm.depth]);
+  }, [controlsRef, dimensionsCm.width, dimensionsCm.height, dimensionsCm.depth, disposeModel]);
 
   return (
     <div
@@ -699,7 +691,7 @@ export default function Product3DViewer({
   visualizerTextures,
   visualizerDimensions,
   sectionTitle = "Product Profiles",
-  sectionDescription = "Configure material and perforation below, then explore the panel in 3D.",
+  sectionDescription = "Explore the panel in 3D.",
   technicalCaption,
 }: Product3DViewerProps) {
   const textures = useMemo(() => normalizeTextures(visualizerTextures ?? []), [visualizerTextures]);
@@ -717,18 +709,6 @@ export default function Product3DViewer({
   );
 
   const sizeLabel = `${dims.width} × ${dims.height} cm`;
-
-  useEffect(() => {
-    setTextureIdx(0);
-  }, [visualizerTextures]);
-
-  useEffect(() => {
-    setHoleIdx(0);
-  }, [textureIdx]);
-
-  useEffect(() => {
-    setTextureIdx((i) => Math.min(i, Math.max(0, textures.length - 1)));
-  }, [textures.length]);
 
   const ti = Math.min(textureIdx, Math.max(0, textures.length - 1));
   const current = textures[ti];
@@ -763,13 +743,8 @@ export default function Product3DViewer({
     }
   }, []);
 
-  const tech =
-    technicalCaption?.trim() ||
-    "Drag to rotate · scroll or +/- to zoom";
-
-  if (textures.length === 0 || !current || !imageLoadUrl) {
-    return null;
-  }
+  const tech = technicalCaption?.trim() || "Drag to rotate · scroll or +/- to zoom";
+  const showBackendControls = USE_BACKEND_TEXTURE_VISUALIZER && textures.length > 0 && current;
 
   return (
     <div className="flex min-h-0 w-full flex-col bg-[#3d3d3d] font-sans antialiased">
@@ -812,45 +787,53 @@ export default function Product3DViewer({
           </div>
 
           <PanelViewer
-            imageLoadUrl={imageLoadUrl}
-            holeMm={holeMm}
-            spacingMm={spacingMm}
             dimensionsCm={dims}
             controlsRef={controlsRef}
           />
 
           <div className="flex items-center justify-between gap-3">
             <ZoomButtons handleZoomIn={handleZoomIn} handleZoomOut={handleZoomOut} />
-            <div className="flex flex-col text-right">
+            {showBackendControls ? (
+              <div className="flex flex-col text-right">
+                <span className="font-['Neue_Haas_Grotesk_Text_Pro:Regular',sans-serif] text-[12px] text-white sm:text-[13px]">
+                  SQUARE CENTRES - {spacingMm}MM
+                </span>
+                <span className="font-['Neue_Haas_Grotesk_Text_Pro:Regular',sans-serif] text-[12px] text-white sm:text-[13px]">
+                  HOLE DIAMETER - {holeMm}mm
+                </span>
+              </div>
+            ) : (
               <span className="font-['Neue_Haas_Grotesk_Text_Pro:Regular',sans-serif] text-[12px] text-white sm:text-[13px]">
-                SQUARE CENTRES - {spacingMm}MM
+                3D PANEL MODEL
               </span>
-              <span className="font-['Neue_Haas_Grotesk_Text_Pro:Regular',sans-serif] text-[12px] text-white sm:text-[13px]">
-                HOLE DIAMETER - {holeMm}mm
-              </span>
-            </div>
+            )}
           </div>
           <p className="m-0 text-right text-[11px] text-white/55 sm:text-[12px]">{tech}</p>
         </div>
 
-        <div className="w-full shrink-0 lg:w-[380px] xl:w-[420px]">
-          <div
-            className="flex max-h-[calc(100vh-120px)] flex-col gap-5 overflow-y-auto rounded-xl bg-[#1c1c1c] p-5 sm:p-7"
-            style={{ scrollbarWidth: "thin" }}
-          >
-            <MaterialSelector
-              textures={textures}
-              selectedIndex={ti}
-              onSelect={setTextureIdx}
-            />
-            <HoleProfileSelector
-              profiles={profiles}
-              selectedIndex={hi}
-              onSelect={setHoleIdx}
-              textureThumb={textureThumb}
-            />
+        {showBackendControls ? (
+          <div className="w-full shrink-0 lg:w-[380px] xl:w-[420px]">
+            <div
+              className="flex max-h-[calc(100vh-120px)] flex-col gap-5 overflow-y-auto rounded-xl bg-[#1c1c1c] p-5 sm:p-7"
+              style={{ scrollbarWidth: "thin" }}
+            >
+              <MaterialSelector
+                textures={textures}
+                selectedIndex={ti}
+                onSelect={(index) => {
+                  setTextureIdx(index);
+                  setHoleIdx(0);
+                }}
+              />
+              <HoleProfileSelector
+                profiles={profiles}
+                selectedIndex={hi}
+                onSelect={setHoleIdx}
+                textureThumb={textureThumb}
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );

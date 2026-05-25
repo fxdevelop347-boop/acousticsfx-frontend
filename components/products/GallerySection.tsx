@@ -14,9 +14,10 @@ const DEFAULT_GALLERY: SubProductGalleryImage[] = [
 
 interface GallerySectionProps {
   galleryImages?: SubProductGalleryImage[] | null;
+  brochureUrl?: string;
 }
 
-export default function GallerySection({ galleryImages }: GallerySectionProps = {}) {
+export default function GallerySection({ galleryImages, brochureUrl }: GallerySectionProps = {}) {
   const images = galleryImages && galleryImages.length > 0 ? galleryImages : DEFAULT_GALLERY;
   const [currentIndex, setCurrentIndex] = useState(0);
   const total = images.length;
@@ -53,19 +54,32 @@ export default function GallerySection({ galleryImages }: GallerySectionProps = 
           Gallery
         </h2>
 
-        <Link
-          href="/contactus"
-          className="flex cursor-pointer items-center gap-2 rounded-full border border-gray-300 px-5 py-2 text-sm transition hover:bg-gray-100"
-        >
-          Get Quote
-          <Image
-            src="/assets/home/universalvector.svg"
-            alt=""
-            width={34}
-            height={14}
-            aria-hidden
-          />
-        </Link>
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:justify-end">
+          <Link
+            href="/contactus"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-gray-300 px-5 py-2 text-sm transition hover:bg-gray-100 sm:w-auto sm:flex-none"
+          >
+            Get Quote
+            <Image
+              src="/assets/home/universalvector.svg"
+              alt=""
+              width={34}
+              height={14}
+              aria-hidden
+            />
+          </Link>
+          {brochureUrl?.trim() ? (
+            <a
+              href={brochureUrl.trim()}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-amber-500/60 bg-white/5 px-5 py-2 text-xs font-medium text-amber-400 transition-colors hover:border-amber-400 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/80 sm:w-auto sm:flex-none sm:text-sm"
+            >
+              Download brochure
+            </a>
+          ) : null}
+        </div>
       </div>
 
       {/* Single-image carousel */}

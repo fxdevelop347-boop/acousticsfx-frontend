@@ -78,8 +78,6 @@ const ACCENT_MAP: Record<string, { border: string; text: string }> = {
   "blue-400": { border: "bg-blue-400", text: "text-blue-400" },
 };
 
-/** Static frame shown until the hero is near the viewport — avoids downloading MP4 on first paint. */
-const HERO_VIDEO_POSTER = "/assets/home/background.png";
 
 function MobileFeatureCarousel({ boxes }: { boxes: FeatureBox[] }) {
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -155,7 +153,7 @@ function val(content: ContentMap, key: string) {
 
 function HeroBackgroundVideo({ src }: { src: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [shouldLoad, setShouldLoad] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const root = containerRef.current;
@@ -163,7 +161,7 @@ function HeroBackgroundVideo({ src }: { src: string }) {
     const io = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          setShouldLoad(true);
+          videoRef.current?.play();
           io.disconnect();
         }
       },
@@ -175,35 +173,22 @@ function HeroBackgroundVideo({ src }: { src: string }) {
 
   return (
     <div ref={containerRef} className="absolute inset-0">
-      {shouldLoad ? (
-        <video
-          key={src}
-          src={src}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          poster={HERO_VIDEO_POSTER}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <Image
-          src={HERO_VIDEO_POSTER}
-          alt="FX Acoustics interior with premium acoustic wall and ceiling treatments"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-      )}
+      <video
+        ref={videoRef}
+        key={src}
+        src={src}
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        className="h-full w-full object-cover"
+      />
     </div>
   );
 }
 
 export default function HomeHero() {
   const [content, setContent] = useState<ContentMap>({});
-  const [expanded, setExpanded] = useState<number | null>(null);
 
   useEffect(() => {
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
@@ -217,7 +202,7 @@ export default function HomeHero() {
       <div className="absolute left-0 right-0 top-0 z-0 h-[70vh] md:inset-0 md:h-auto md:min-h-[88svh] lg:min-h-screen">
         <HeroBackgroundVideo src={bgVideo} />
       </div>
-      <div className="absolute left-0 right-0 top-0 z-1 h-[70vh] bg-black/60 md:inset-0 md:min-h-[88svh] lg:min-h-screen" />
+      <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 z-1 h-full w-full bg-black/60" />
 
       {/* Heading: centered in 70vh on mobile; desktop hero stack unchanged */}
       <div className="relative z-10 flex h-[70vh] flex-col items-center justify-center px-4 pb-6 pt-8 text-center text-white md:h-auto md:min-h-[88svh] lg:min-h-screen md:justify-start md:px-4 md:pb-0 md:pt-[130px] lg:pt-[143px]">
@@ -236,13 +221,12 @@ export default function HomeHero() {
           <StaggerContainer className="mx-auto flex max-w-[1200px] flex-wrap justify-center gap-4 sm:gap-6">
             {DEFAULT_FEATURE_BOXES.map((box, index) => {
               const accent = ACCENT_MAP[box.accentColor];
-              const isExpanded = expanded === index;
 
               return (
                 <StaggerItem
                   key={box.title}
                   direction="up"
-                  className="relative mb-4 h-[200px] w-full bg-black/50 px-4 py-4 sm:mb-8 sm:h-[250px] sm:w-[360px] sm:px-6 sm:py-6"
+                  className="relative w-full bg-black/50 px-4 py-4 sm:w-[360px] sm:px-6 sm:py-5"
                 >
                   <span
                     className={`absolute left-0 top-0 h-full w-[3px] ${accent.border}`}
@@ -251,37 +235,23 @@ export default function HomeHero() {
                   <Image
                     src={box.image}
                     alt={box.title}
-                    width={52}
-                    height={52}
-                    sizes="52px"
+                    width={40}
+                    height={40}
+                    sizes="40px"
                     quality={80}
                     loading="lazy"
-                    className="mb-4"
+                    className="mb-3"
                   />
 
                   <h3
-                    className={`mb-3 text-left text-[14px] font-bold poppins-font ${accent.text}`}
+                    className={`mb-2 text-left text-[13px] font-bold poppins-font ${accent.text}`}
                   >
                     {box.title}
                   </h3>
 
-                  <div
-                    className={`text-left text-[14px] font-normal poppins-font text-gray-300 transition-all duration-300 ${
-                      isExpanded
-                        ? "max-h-[90px] overflow-y-auto pr-1"
-                        : "max-h-[42px] overflow-hidden"
-                    }`}
-                  >
-                    {box.description}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setExpanded(isExpanded ? null : index)}
-                    className="mt-2 text-[13px] text-orange-400 hover:underline"
-                  >
-                    {isExpanded ? "Read Less" : "Read More"}
-                  </button>
+                  <p className="text-left text-[12px] font-normal poppins-font text-gray-300 leading-relaxed line-clamp-3">
+                    {box.mobileDescription}
+                  </p>
                 </StaggerItem>
               );
             })}

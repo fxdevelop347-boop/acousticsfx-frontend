@@ -8,8 +8,7 @@ import FinishesShades from "@/components/products/FinishesShades";
 import GallerySection from "@/components/products/GallerySection";
 import LinearluxHero from "@/components/products/LinearluxHero";
 import ProductSpecification from "@/components/products/ProductSpecification";
-import Product3DViewer from "@/components/products/Product3DViewer";
-import { hasVisualizerTextures } from "@/lib/products-api";
+// import Product3DViewer from "@/components/products/Product3DViewer";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import SubstratesSection from "@/components/products/SubstratesSection";
 import { fetchMergedProduct, fetchRelatedProductsForCategory } from "@/lib/products-data";
@@ -72,30 +71,27 @@ export default async function ProductDetailPage({ params }: Props) {
         showTrademark={product.showTrademark === true}
         description={product.description}
         heroImage={product.heroImage}
-        brochureUrl={product.brochureUrl}
       />
       <ProductSpecification
         sectionTitle={product.specSectionTitle}
         specDescription={product.specDescription}
         specs={product.specs}
       />
-      <GallerySection galleryImages={product.galleryImages} />
-      {/* {hasVisualizerTextures(product.visualizerTextures) ? ( */}
-        <Product3DViewer
-          visualizerTextures={product.visualizerTextures!}
-          visualizerDimensions={product.visualizerDimensions}
-          sectionTitle={product.visualizerTitle || undefined}
-          sectionDescription={product.visualizerDescription || undefined}
-          technicalCaption={product.visualizerTechnicalCaption || undefined}
-        />
-      {/* ) : null} */}
+      <GallerySection galleryImages={product.galleryImages} brochureUrl={product.brochureUrl} />
+      {/* <Product3DViewer
+        visualizerTextures={product.visualizerTextures ?? []}
+        visualizerDimensions={product.visualizerDimensions}
+        sectionTitle={product.visualizerTitle || undefined}
+        sectionDescription={product.visualizerDescription || undefined}
+        technicalCaption={product.visualizerTechnicalCaption || undefined}
+      /> */}
       <SubstratesSection substratesSection={product.substratesSection} />
       <AboutProduct aboutTabs={product.aboutTabs} />
       <CertificationsSection
         certifications={product.certifications}
         sectionTitle={product.certificationsSectionTitle}
         sectionDescription={product.certificationsSectionDescription}
-      />
+      /> 
       <FinishesShades finishesSection={product.finishesSection} />
       <Testimonials />
       <RelatedProducts products={relatedProducts} categorySlug={canonicalCategory ?? category} />

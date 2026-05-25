@@ -6,8 +6,6 @@ interface LinearluxHeroProps {
   showTrademark?: boolean;
   description: string;
   heroImage?: string;
-  /** Public URL of brochure PDF; shows a download button when set */
-  brochureUrl?: string;
 }
 
 export default function LinearluxHero({
@@ -15,7 +13,6 @@ export default function LinearluxHero({
   showTrademark,
   description,
   heroImage,
-  brochureUrl,
 }: LinearluxHeroProps) {
   return (
     <section className="relative w-full min-h-[300px] h-[48vh] max-h-[540px] sm:min-h-[340px] sm:h-[52vh] sm:max-h-[580px] lg:min-h-[400px] lg:h-[min(56vh,640px)] overflow-hidden bg-[#1b1b1b] text-white">
@@ -59,17 +56,6 @@ export default function LinearluxHero({
           </h1>
 
           <p className="product-body-text inter-font font-normal text-gray-300">{description}</p>
-          {brochureUrl?.trim() ? (
-            <a
-              href={brochureUrl.trim()}
-              target="_blank"
-              rel="noopener noreferrer"
-              download
-              className="mt-5 sm:mt-6 inline-flex items-center gap-2 rounded-md border border-amber-500/60 bg-white/5 px-4 py-2.5 text-sm font-medium text-amber-400 transition-colors hover:bg-white/10 hover:border-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/80"
-            >
-              Download brochure
-            </a>
-          ) : null}
         </div>
       </div>
     </section>

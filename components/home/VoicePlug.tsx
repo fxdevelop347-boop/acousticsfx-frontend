@@ -372,7 +372,11 @@ export default function VoicePlug() {
                   ? "FX Acoustic processing on"
                   : "FX Acoustic processing off"
               }
-              className="w-12 h-6 rounded-full relative transition bg-[#1F6775] border border-sky-300/80 shadow-[0_0_10px_rgba(56,189,248,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
+              className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                withAcoustic
+                  ? "bg-[#EA8E39] shadow-[0_0_10px_rgba(234,142,57,0.4)] focus-visible:ring-[#EA8E39]"
+                  : "bg-[#1F6775] shadow-[0_0_10px_rgba(31,103,117,0.4)] focus-visible:ring-[#1F6775]"
+              }`}
             >
               <div
                 className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-[left] duration-200 ${

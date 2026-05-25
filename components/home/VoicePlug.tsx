@@ -314,9 +314,8 @@ export default function VoicePlug() {
             className="mx-auto mt-3 h-0.5 w-10 rounded-full bg-[#1F6775]"
             aria-hidden
           />
-          <p className="mt-4 text-sm sm:text-base text-gray-600 worksans-font leading-relaxed max-w-2xl mx-auto">
-            Precision-Engineered Acoustical Panels, Architectural Interiors,
-            and Exterior Facade Systems.
+          <p className="mt-4 text-sm sm:text-base text-gray-600 worksans-font leading-relaxed whitespace-nowrap">
+            Precision-Engineered Acoustical Panels, Architectural Interiors, and Exterior Facade Systems.
           </p>
           <p className="mt-3 inline-flex items-center justify-center rounded-full border border-[#1F6775]/20 bg-[#eaf4f6]/70 px-3 py-1.5 text-[11px] sm:text-sm font-semibold text-[#1F6775] worksans-font tracking-wide">
             Crafted in India · Trusted Worldwide
@@ -362,7 +361,7 @@ export default function VoicePlug() {
         <div className="flex flex-col items-center mt-5 sm:mt-7">
           <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 sm:gap-x-3">
             <span className="text-xs sm:text-sm text-gray-500">
-              Without FX Acoustic
+              Without FX Acoustics
             </span>
             <button
               type="button"
@@ -373,8 +372,10 @@ export default function VoicePlug() {
                   ? "FX Acoustic processing on"
                   : "FX Acoustic processing off"
               }
-              className={`w-12 h-6 rounded-full relative transition border border-sky-300/80 shadow-[0_0_10px_rgba(56,189,248,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
-                withAcoustic ? "bg-[#1F6775]" : "bg-gray-400"
+              className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                withAcoustic
+                  ? "bg-[#EA8E39] shadow-[0_0_10px_rgba(234,142,57,0.4)] focus-visible:ring-[#EA8E39]"
+                  : "bg-[#1F6775] shadow-[0_0_10px_rgba(31,103,117,0.4)] focus-visible:ring-[#1F6775]"
               }`}
             >
               <div
@@ -384,7 +385,7 @@ export default function VoicePlug() {
               />
             </button>
             <span className="text-xs sm:text-sm font-semibold text-gray-800">
-              With FX Acoustic
+              With FX Acoustics
             </span>
           </div>
         </div>

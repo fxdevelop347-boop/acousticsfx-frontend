@@ -35,58 +35,60 @@ const DEFAULT_CARDS: CardData[] = [
     icon: "/assets/home/quaone.svg",
     title: "Quality",
     description:
-      "Every FX Acoustics creation begins with a pursuit of perfection. Our acoustical panels, soundproofing systems, and architectural façades are crafted with meticulous precision, using premium materials that promise enduring performance and timeless elegance. Quality isn’t an aspect—it is our identity.",
+      "Crafted with premium materials and precision engineering, our acoustical panels deliver superior sound absorption, durability, and a refined architectural finish.",
   },
   {
     icon: "/assets/home/quatwo.svg",
     title: "Service",
     description:
-      "We believe exceptional spaces are built on exceptional support. From acoustic consultation to manufacturing and installation, our service experience is seamless, attentive, and deeply personalized. We guide you at every step, ensuring your project unfolds effortlessly with absolute precision.",
+      "End-to-end acoustic services — from design consultation to seamless installation, with precise execution and tailored solutions for commercial and architectural spaces.",
   },
   {
     icon: "/assets/home/quathr.svg",
     title: "Innovation",
     description:
-      "Innovation fuels our artistry. Through advanced acoustic engineering, state-of-the-art manufacturing, and globally inspired design, we create solutions that elevate environments—enhancing clarity, comfort, and visual harmony. Each product is a fusion of technology and refined craftsmanship.",
+      "Advanced acoustic technology meets modern design to create high-performance, aesthetically refined panels tailored for evolving architectural needs.",
   },
   {
     icon: "/assets/home/quafour.svg",
     title: "Commitment",
     description:
-      "Our commitment extends beyond delivery—it lives in every detail we stand behind. We honor every project with integrity, consistency, and an unwavering dedication to excellence, ensuring that each space benefits from long-lasting acoustic and architectural value.",
+      "Reliable, high-quality acoustic solutions with precision and consistency — timely execution, durable performance, and client-focused service for every project.",
   },
   {
     icon: "/assets/home/quafive.svg",
     title: "Trustability",
     description:
-      "Trust is earned through honesty and flawless execution. Over the years, architects, designers, corporates, and institutions have chosen us for our transparency, reliability, and manufacturing consistency. With FX Acoustics, what you envision is exactly what you receive—crafted with care and delivered with certainty.",
+      "Built through consistent quality, certified manufacturing, and reliable project delivery — proven performance and long-term client confidence across every project.",
   },
   {
     icon: "/assets/home/quasix.svg",
     title: "Bespoke",
     description:
-      "Luxury lies in customization. Our bespoke acoustical panels and tailor-made façade systems are designed to reflect your individual vision, architecture, and sensory experience. From texture to tone, every element is shaped with intention—creating spaces that sound exquisite and look extraordinary.",
+      "Custom acoustical panels crafted to your design vision — tailored finishes, precise engineering, and seamless integration for premium architectural spaces.",
   },
 ];
 
 function ChooseUsCard({ card }: { card: CardData }) {
   return (
-    <HoverScale className="group rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm bg-white h-full">
-      <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-[#eaf4f6] transition-all duration-300 group-hover:bg-[#3090A3] mb-3 sm:mb-4">
+    <HoverScale className="group rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-sm bg-white h-full flex flex-col gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eaf4f6] transition-all duration-300 group-hover:bg-[#3090A3]">
         <Image
           src={card.icon}
           alt={card.title}
-          width={32}
-          height={30}
-          className="size-6 sm:size-8 transition-all duration-300 group-hover:brightness-0 group-hover:invert"
+          width={28}
+          height={28}
+          className="size-[22px] transition-all duration-300 group-hover:brightness-0 group-hover:invert"
         />
       </div>
-      <h3 className="mb-1.5 sm:mb-2 font-bold text-lg text-[#1F6775] leading-snug sm:text-[22px] lg:text-[25px] inter-font">
-        {card.title}
-      </h3>
-      <p className="text-sm font-normal leading-[1.55] text-gray-600 inter-font sm:text-base sm:leading-relaxed lg:text-[18px]">
-        {card.description}
-      </p>
+      <div>
+        <h3 className="mb-1 font-bold text-[17px] text-[#1F6775] leading-snug sm:text-[19px] inter-font">
+          {card.title}
+        </h3>
+        <p className="text-[13px] font-normal leading-relaxed text-gray-500 inter-font sm:text-sm">
+          {card.description}
+        </p>
+      </div>
     </HoverScale>
   );
 }

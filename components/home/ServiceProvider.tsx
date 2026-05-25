@@ -42,7 +42,7 @@ export default function ServiceProvider() {
     " Designers of Silence",
     " Consultants",
     " Facades Design to execution",
-    " project Managers",
+    " Project Managers",
   ];
 
   // Fetch CMS Content

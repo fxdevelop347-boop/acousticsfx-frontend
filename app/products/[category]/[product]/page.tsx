@@ -8,10 +8,11 @@ import FinishesShades from "@/components/products/FinishesShades";
 import GallerySection from "@/components/products/GallerySection";
 import LinearluxHero from "@/components/products/LinearluxHero";
 import ProductSpecification from "@/components/products/ProductSpecification";
-// import Product3DViewer from "@/components/products/Product3DViewer";
+import Product3DViewer from "@/components/products/Product3DViewer";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import SubstratesSection from "@/components/products/SubstratesSection";
 import { fetchMergedProduct, fetchRelatedProductsForCategory } from "@/lib/products-data";
+import { hasVisualizerItems } from "@/lib/products-api";
 import { SITE_URL } from "@/lib/site-url";
 import { SEO_KEYWORDS_PRODUCT_DETAIL } from "@/lib/seo-keywords";
 
@@ -78,13 +79,13 @@ export default async function ProductDetailPage({ params }: Props) {
         specs={product.specs}
       />
       <GallerySection galleryImages={product.galleryImages} brochureUrl={product.brochureUrl} />
-      {/* <Product3DViewer
-        visualizerTextures={product.visualizerTextures ?? []}
-        visualizerDimensions={product.visualizerDimensions}
-        sectionTitle={product.visualizerTitle || undefined}
-        sectionDescription={product.visualizerDescription || undefined}
-        technicalCaption={product.visualizerTechnicalCaption || undefined}
-      /> */}
+      {hasVisualizerItems(product.visualizerItems) ? (
+        <Product3DViewer
+          visualizerItems={product.visualizerItems ?? []}
+          sectionTitle={product.visualizerTitle || undefined}
+          sectionDescription={product.visualizerDescription || undefined}
+        />
+      ) : null}
       <SubstratesSection substratesSection={product.substratesSection} />
       <AboutProduct aboutTabs={product.aboutTabs} />
       <CertificationsSection

@@ -10,25 +10,35 @@ export interface SubProductSpec {
   value: string;
 }
 
-/** Perforation pattern (mm) nested under each uploaded texture. */
+/** Perforation pattern (mm) — legacy, used only when migrating old products. */
 export interface VisualizerHoleProfile {
   name: string;
   hole: number;
   spacing: number;
   thumbnail?: string;
+  glb?: string;
 }
 
-/** Admin-uploaded surface texture with its own hole profiles. */
+/** Legacy nested texture format — migrated to visualizerItems on read. */
 export interface VisualizerTexture {
   name: string;
   image: string;
   profiles: VisualizerHoleProfile[];
 }
 
-export interface VisualizerDimensions {
-  width: number;
-  height: number;
-  depth: number;
+/** Image + label within one 3D visualizer item. */
+export interface VisualizerItemProfile {
+  name: string;
+  image: string;
+}
+
+/** One 3D visualizer entry — thumbnail + GLB model. */
+export interface VisualizerItem {
+  name: string;
+  thumbnail: string;
+  glb: string;
+  description?: string;
+  profiles?: VisualizerItemProfile[];
 }
 
 export interface SubProductGallerySlide {
@@ -118,11 +128,9 @@ export interface Product {
   certificationsSectionDescription?: string;
   certifications?: SubProductCertification[];
   finishesSection?: SubProductFinishesSection;
-  visualizerTextures?: VisualizerTexture[];
-  visualizerDimensions?: VisualizerDimensions;
   visualizerTitle?: string;
   visualizerDescription?: string;
-  visualizerTechnicalCaption?: string;
+  visualizerItems?: VisualizerItem[];
 }
 
 export interface ProductCategory {
@@ -130,6 +138,9 @@ export interface ProductCategory {
   name: string;
   description?: string;
   image?: string;
+  heroImage?: string;
+  heroHeading?: string;
+  heroDescription?: string;
   order?: number;
   tagline?: string;
   metaTitle?: string;
@@ -176,23 +187,17 @@ export function fetchProductBySlug(productSlug: string): Promise<Product> {
   return request<Product>(`/api/products/slug/${encodeURIComponent(productSlug)}`);
 }
 
-/** True when the product has at least one texture with image and a valid hole profile. */
-export function hasVisualizerTextures(textures?: VisualizerTexture[] | null): boolean {
+/** True when the product has at least one complete visualizer item. */
+export function hasVisualizerItems(items?: VisualizerItem[] | null): boolean {
   return Boolean(
-    textures?.some(
-      (t) =>
-        typeof t.image === "string" &&
-        t.image.trim().length > 0 &&
-        Array.isArray(t.profiles) &&
-        t.profiles.some(
-          (p) =>
-            typeof p.name === "string" &&
-            p.name.trim().length > 0 &&
-            typeof p.hole === "number" &&
-            p.hole > 0 &&
-            typeof p.spacing === "number" &&
-            p.spacing > 0
-        )
-    )
+    items?.some(
+      (i) =>
+        typeof i.name === "string" &&
+        i.name.trim().length > 0 &&
+        typeof i.thumbnail === "string" &&
+        i.thumbnail.trim().length > 0 &&
+        typeof i.glb === "string" &&
+        i.glb.trim().length > 0,
+    ),
   );
 }

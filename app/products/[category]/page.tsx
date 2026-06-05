@@ -123,6 +123,9 @@ export default async function CategoryPage({ params }: Props) {
             href: `/products/${data.category.slug}`,
           },
         ]}
+        heroImage={data.category.heroImage}
+        heroHeading={data.category.heroHeading}
+        heroDescription={data.category.heroDescription}
       />
       <AwardsSection />
       <AcousticSolutions categorySlug={data.category.slug} showMasterCategoryTabs={false} />

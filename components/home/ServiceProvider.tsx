@@ -41,7 +41,6 @@ export default function ServiceProvider() {
     " Manufacturers",
     " Designers of Silence",
     " Consultants",
-    " Facades Design to execution",
     " Project Managers",
   ];
 
@@ -87,14 +86,25 @@ export default function ServiceProvider() {
 
         {/* Left Side: Image */}
         <SlideIn direction="left" className="w-full lg:w-1/2">
-          <Image
-            src={image}
-            alt="Library"
-            width={800}
-            height={500}
-            className="w-full h-auto object-cover"
-            priority
-          />
+          {image.startsWith("http://") || image.startsWith("https://") ? (
+            // eslint-disable-next-line @next/next/no-img-element -- CMS URLs may be any host
+            <img
+              src={image}
+              alt="Library"
+              width={800}
+              height={500}
+              className="w-full h-auto object-cover"
+            />
+          ) : (
+            <Image
+              src={image}
+              alt="Library"
+              width={800}
+              height={500}
+              className="w-full h-auto object-cover"
+              priority
+            />
+          )}
         </SlideIn>
 
         {/* Right Side: Content */}

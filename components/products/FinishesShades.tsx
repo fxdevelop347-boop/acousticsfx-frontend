@@ -57,15 +57,17 @@ export default function FinishesShades({
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
-  const items =
-    finishesSection?.items?.length
-      ? finishesSection.items.map((f) => ({
-        img: f.image,
+  const cmsItems =
+    finishesSection?.items
+      ?.map((f) => ({
+        img: f.image?.trim() ?? "",
         code: "",
-        name: f.name,
-        desc: f.description ?? "",
+        name: f.name?.trim() ?? "",
+        desc: f.description?.trim() ?? "",
       }))
-      : finishes;
+      .filter((f) => f.name && f.img) ?? [];
+
+  const items = cmsItems.length > 0 ? cmsItems : finishes;
 
   const title = finishesSection?.title ?? "Finishes & Shades";
 
@@ -117,12 +119,18 @@ export default function FinishesShades({
               >
                 {/* Image */}
                 <div className="w-full sm:w-[200px] h-[200px] rounded-lg overflow-hidden mb-4 relative bg-white">
-                  <Image
-                    src={item.img}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                  />
+                  {item.img ? (
+                    <Image
+                      src={item.img}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex size-full items-center justify-center bg-gray-100 text-sm text-gray-400">
+                      No image
+                    </div>
+                  )}
                 </div>
 
                 {/* Text */}

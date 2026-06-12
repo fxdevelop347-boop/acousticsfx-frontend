@@ -13,5 +13,5 @@ export function getPublicApiBaseUrl(): string {
   if (process.env.NODE_ENV === "development") {
     return "http://localhost:8080";
   }
-  return "https://api.themoonlit.in";
+  return "https://skyblue-parrot-526216.hostingersite.com";
 }

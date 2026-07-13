@@ -71,7 +71,7 @@ export default function Header() {
 
         {/* CENTER : DESKTOP NAV */}
         <nav aria-label="Main navigation" className="flex-1 hidden lg:flex justify-center">
-          <ul className="flex items-center gap-8 xl:gap-[55px] text-sm font-medium text-gray-800">
+          <ul className="flex items-center gap-8 xl:gap-[55px] text-sm font-medium text-gray-800 worksans-font">
 
             <li>
               <Link href="/about" className="hover:text-orange-500 transition cursor-pointer">
@@ -226,12 +226,12 @@ export default function Header() {
 
         {/* RIGHT : CTA - Desktop */}
         <div className="hidden lg:flex flex-shrink-0">
-          <Link
-            href="/contactus"
-            className="bg-[#EA8E39] text-white px-4 py-3 text-sm font-[400] hover:bg-orange-600 transition rounded cursor-pointer"
+          <a
+            href="mailto:sales@acousticsfx.com"
+            className="bg-[#EA8E39] text-white worksans-font px-4 py-3 text-sm font-medium hover:bg-orange-600 transition rounded cursor-pointer"
           >
             Get Quote
-          </Link>
+          </a>
         </div>
 
         {/* HAMBURGER MENU BUTTON - Mobile & Tablet (only visible when drawer is closed) */}
@@ -295,7 +295,7 @@ export default function Header() {
           {/* Nav items */}
           <div className="p-5">
             <nav aria-label="Mobile navigation">
-              <ul className="space-y-1">
+              <ul className="space-y-1 worksans-font">
 
                 {/* About */}
                 <li>
@@ -405,13 +405,13 @@ export default function Header() {
 
                 {/* Get Quote Button - Mobile */}
                 <li className="pt-4">
-                  <Link
-                    href="/contactus"
+                  <a
+                    href="mailto:sales@acousticsfx.com"
                     onClick={handleLinkClick}
                     className="block w-full bg-[#EA8E39] text-white text-center px-4 py-3 rounded-lg font-medium hover:bg-orange-600 transition cursor-pointer"
                   >
                     Get Quote
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </nav>

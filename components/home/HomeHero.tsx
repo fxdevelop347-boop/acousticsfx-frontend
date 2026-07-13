@@ -27,7 +27,7 @@ const DEFAULTS: Record<string, string> = {
   "home.hero.title":
     "We take pride in building stylish and featured acoustic solution.",
   "home.hero.subtitle":
-    "Our solutions are engineered for clarity, comfort, and visual harmony. Whether it's a studio, auditorium, or workspace, we bring together design precision and acoustic mastery to elevate every square foot.",
+    "Our solutions are engineered for clarity, comfort, and visual harmony. Whether it's a studio, auditorium or workspace, we bring together design precision and acoustic mastery to elevate every square foot.",
   "home.hero.button1Label": "Get Quote →",
   "home.hero.button2Label": "Connect With Us →",
   "home.hero.backgroundVideo": "/assets/home/hero.mp4",
@@ -46,27 +46,27 @@ const DEFAULT_FEATURE_BOXES: FeatureBox[] = [
   {
     title: "Acoustic Solution",
     description:
-      "Premium acoustical solutions crafted to enhance clarity, reduce echo, and elevate the ambience of any space. Ideal for offices, hotels, residences, studios, auditoriums, and wellness environments, our panels blend design with performance to create interiors that sound as refined as they look.",
+      "Premium acoustical solutions crafted to enhance clarity, reduce echo and elevate the ambience of any space. Ideal for offices, hotels, residences, studios, auditoriums and wellness environments, our panels blend design with performance to create interiors that sound as refined as they look.",
     mobileDescription:
-      "Premium panels for clarity and less echo—offices, hotels, studios, and homes. Design-led acoustics that look as refined as they sound.",
+      "Premium panels for clarity and less echo—offices, hotels, studios and homes. Design-led acoustics that look as refined as they sound.",
     image: "/assets/home/fi_11062015.png",
     accentColor: "yellow-400",
   },
   {
     title: "Hard wood Flooring",
     description:
-      "Timeless, elegant, and crafted for durability, our hardwood flooring brings natural warmth and architectural luxury to any interior. Designed for high-end homes, hospitality spaces, offices, and premium commercial environments, Fx Acoustics' real wooden flooring delivers refined aesthetics with exceptional performance and long-lasting comfort.",
+      "Timeless, elegant and crafted for durability, our hardwood flooring brings natural warmth and architectural luxury to any interior. Designed for high-end homes, hospitality spaces, offices and premium commercial environments, Fx Acoustics' real wooden flooring delivers refined aesthetics with exceptional performance and long-lasting comfort.",
     mobileDescription:
-      "Natural wood warmth and durability for high-end homes, hospitality, and premium commercial spaces—lasting comfort with refined aesthetics.",
+      "Natural wood warmth and durability for high-end homes, hospitality and premium commercial spaces—lasting comfort with refined aesthetics.",
     image: "/assets/home/fi_7821525.png",
     accentColor: "orange-400",
   },
   {
     title: "Soundproofing",
     description:
-      "Advanced sound-isolation systems engineered to block external noise and ensure complete privacy. Perfect for homes, corporate cabins, studios, hospitality spaces, healthcare rooms, and industrial zones, our solutions deliver silence, comfort, and absolute acoustic control.",
+      "Advanced sound-isolation systems engineered to block external noise and ensure complete privacy. Perfect for homes, corporate cabins, studios, hospitality spaces, healthcare rooms and industrial zones, our solutions deliver silence, comfort and absolute acoustic control.",
     mobileDescription:
-      "Isolation systems that block outside noise and add privacy—homes, offices, studios, healthcare, and quiet zones.",
+      "Isolation systems that block outside noise and add privacy—homes, offices, studios, healthcare and quiet zones.",
     image: "/assets/home/fi_17991697.png",
     accentColor: "blue-400",
   },
@@ -181,7 +181,7 @@ function HeroBackgroundVideo({ src }: { src: string }) {
         muted
         playsInline
         preload="metadata"
-        className="h-full w-full object-cover"
+        className="h-full w-full object-cover brightness-125 contrast-105"
       />
     </div>
   );
@@ -202,7 +202,7 @@ export default function HomeHero() {
       <div className="absolute left-0 right-0 top-0 z-0 h-[70vh] md:inset-0 md:h-auto md:min-h-[88svh] lg:min-h-screen">
         <HeroBackgroundVideo src={bgVideo} />
       </div>
-      <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 z-1 h-full w-full bg-black/60" />
+      <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 z-1 h-full w-full bg-black/40" />
 
       {/* Heading: centered in 70vh on mobile; desktop hero stack unchanged */}
       <div className="relative z-10 flex h-[70vh] flex-col items-center justify-center px-4 pb-6 pt-8 text-center text-white md:h-auto md:min-h-[88svh] lg:min-h-screen md:justify-start md:px-4 md:pb-0 md:pt-[130px] lg:pt-[143px]">

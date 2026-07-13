@@ -62,7 +62,7 @@ export default function AboutContent() {
         {/* Right Images */}
         <SlideIn direction="right" className="relative flex justify-center lg:justify-end min-h-0">
           {/* Big Image */}
-          <div className="relative z-10 lg:left-[-200px] w-[min(100%,280px)] sm:w-[420px] lg:w-[525px] h-[380px] sm:h-[480px] lg:h-[566px]">
+          <div className="relative z-10 w-[min(100%,280px)] sm:w-[420px] lg:w-[525px] h-[380px] sm:h-[480px] lg:h-[566px]">
             <Image
               src={val(content, "about.content.storyImage1")}
               alt="Auditorium with acoustic panels installed"

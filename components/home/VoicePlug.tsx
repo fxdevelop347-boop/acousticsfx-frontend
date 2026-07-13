@@ -266,15 +266,15 @@ export default function VoicePlug() {
     wavesurfer.playPause();
   };
 
-  const toggleAcoustic = async () => {
+  const setAcoustic = async (newState: boolean) => {
     if (!wavesurfer) return;
     if (loadingRef.current) return;
+    if (newState === withAcoustic) return;
     loadingRef.current = true;
 
     const cur = wavesurfer.getCurrentTime();
     const wasPlaying = wavesurfer.isPlaying();
 
-    const newState = !withAcoustic;
     setWithAcoustic(newState);
 
     const newAudio = newState
@@ -360,12 +360,21 @@ export default function VoicePlug() {
 
         <div className="flex flex-col items-center mt-5 sm:mt-7">
           <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 sm:gap-x-3">
-            <span className="text-xs sm:text-sm text-gray-500">
-              Without FX Acoustics
-            </span>
             <button
               type="button"
-              onClick={toggleAcoustic}
+              onClick={() => setAcoustic(false)}
+              aria-pressed={!withAcoustic}
+              className={`text-xs sm:text-sm transition-colors duration-200 cursor-pointer focus:outline-none ${
+                !withAcoustic
+                  ? "font-semibold text-[#1F6775]"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Without FX Acoustics
+            </button>
+            <button
+              type="button"
+              onClick={() => setAcoustic(!withAcoustic)}
               aria-pressed={withAcoustic}
               aria-label={
                 withAcoustic
@@ -384,9 +393,18 @@ export default function VoicePlug() {
                 }`}
               />
             </button>
-            <span className="text-xs sm:text-sm font-semibold text-gray-800">
+            <button
+              type="button"
+              onClick={() => setAcoustic(true)}
+              aria-pressed={withAcoustic}
+              className={`text-xs sm:text-sm transition-colors duration-200 cursor-pointer focus:outline-none ${
+                withAcoustic
+                  ? "font-semibold text-[#EA8E39]"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
               With FX Acoustics
-            </span>
+            </button>
           </div>
         </div>
       </div>

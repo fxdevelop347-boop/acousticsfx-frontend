@@ -39,8 +39,8 @@ export default function ServiceProvider() {
 
   const words = [
     " Manufacturers",
-    " Designers of Silence",
     " Consultants",
+    " Designers of Silence",
     " Project Managers",
   ];
 

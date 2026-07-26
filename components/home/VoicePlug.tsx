@@ -314,7 +314,7 @@ export default function VoicePlug() {
             className="mx-auto mt-3 h-0.5 w-10 rounded-full bg-[#1F6775]"
             aria-hidden
           />
-          <p className="mt-4 text-sm sm:text-base text-gray-600 worksans-font leading-relaxed whitespace-nowrap">
+          <p className="mt-4 text-sm sm:text-base text-gray-600 worksans-font leading-relaxed text-balance lg:whitespace-nowrap">
             Precision-Engineered Acoustical Panels, Architectural Interiors, and Exterior Facade Systems.
           </p>
           <p className="mt-3 inline-flex items-center justify-center rounded-full border border-[#1F6775]/20 bg-[#eaf4f6]/70 px-3 py-1.5 text-[11px] sm:text-sm font-semibold text-[#1F6775] worksans-font tracking-wide">

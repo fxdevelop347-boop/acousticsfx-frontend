@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 
 export default function AcousticWhyChooseUs() {
   return (

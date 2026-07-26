@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api/client";

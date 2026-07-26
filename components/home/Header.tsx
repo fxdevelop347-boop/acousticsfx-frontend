@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { getPublicApiBaseUrl } from "@/lib/public-api-base";
@@ -308,22 +308,33 @@ export default function Header() {
                   </Link>
                 </li>
 
-                {/* Our Products - Mobile Accordion */}
+                {/* Our Products - Mobile Accordion (label navigates, chevron toggles) */}
                 <li>
-                  <button
-                    type="button"
-                    onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
-                    aria-expanded={mobileProductsOpen}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-500 transition rounded-lg font-medium cursor-pointer
-                      ${pathname?.startsWith("/products") ? "text-orange-500 bg-orange-50" : ""}
+                  <div
+                    className={`flex items-center rounded-lg font-medium transition
+                      ${pathname?.startsWith("/products") ? "text-orange-500 bg-orange-50" : "text-gray-800"}
                     `}
                   >
-                    <span>Our Products</span>
-                    <ChevronDown
-                      size={20}
-                      className={`transition-transform ${mobileProductsOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
+                    <Link
+                      href="/products"
+                      onClick={handleLinkClick}
+                      className="flex-1 px-4 py-3 hover:text-orange-500 transition cursor-pointer"
+                    >
+                      Our Products
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
+                      aria-expanded={mobileProductsOpen}
+                      aria-label="Toggle product categories"
+                      className="px-3 py-3 hover:text-orange-500 transition cursor-pointer"
+                    >
+                      <ChevronDown
+                        size={20}
+                        className={`transition-transform ${mobileProductsOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  </div>
 
                   {mobileProductsOpen && (
                     <ul className="mt-1 ml-4 space-y-1">
@@ -354,22 +365,33 @@ export default function Header() {
                   )}
                 </li>
 
-                {/* Resources - Mobile Accordion */}
+                {/* Resources - Mobile Accordion (label navigates, chevron toggles) */}
                 <li>
-                  <button
-                    type="button"
-                    onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
-                    aria-expanded={mobileResourcesOpen}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-gray-800 hover:bg-orange-50 hover:text-orange-500 transition rounded-lg font-medium cursor-pointer
-                      ${pathname?.startsWith("/resources") ? "text-orange-500 bg-orange-50" : ""}
+                  <div
+                    className={`flex items-center rounded-lg font-medium transition
+                      ${pathname?.startsWith("/resources") ? "text-orange-500 bg-orange-50" : "text-gray-800"}
                     `}
                   >
-                    <span>Resources</span>
-                    <ChevronDown
-                      size={20}
-                      className={`transition-transform ${mobileResourcesOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
+                    <Link
+                      href="/resources"
+                      onClick={handleLinkClick}
+                      className="flex-1 px-4 py-3 hover:text-orange-500 transition cursor-pointer"
+                    >
+                      Resources
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
+                      aria-expanded={mobileResourcesOpen}
+                      aria-label="Toggle resources"
+                      className="px-3 py-3 hover:text-orange-500 transition cursor-pointer"
+                    >
+                      <ChevronDown
+                        size={20}
+                        className={`transition-transform ${mobileResourcesOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  </div>
 
                   {mobileResourcesOpen && (
                     <ul className="mt-1 ml-4 space-y-1">

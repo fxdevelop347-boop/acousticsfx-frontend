@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getFaqs, type FaqItem } from "@/lib/api/faqs-api";

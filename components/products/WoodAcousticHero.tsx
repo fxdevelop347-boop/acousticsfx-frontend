@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/Breadcrumb";
 
 type WoodAcousticHeroProps = {

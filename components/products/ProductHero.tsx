@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import SocialIcons from "@/components/shared/SocialIcons";
 import { FadeIn } from "@/components/animations";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/Breadcrumb";

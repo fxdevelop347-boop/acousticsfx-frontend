@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
@@ -151,17 +151,37 @@ function val(content: ContentMap, key: string) {
   return content[key]?.value ?? DEFAULTS[key] ?? "";
 }
 
+const HERO_POSTER = "/assets/home/hero-poster.jpg";
+
+/** Skip the heavy hero video on data-saver mode or slow (2G/3G) connections. */
+function prefersLightHero(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const conn = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  if (!conn) return false;
+  if (conn.saveData) return true;
+  return ["slow-2g", "2g", "3g"].includes(conn.effectiveType ?? "");
+}
+
 function HeroBackgroundVideo({ src }: { src: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Start with no video source; only attach it when we decide to load (fast connection + in view).
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const root = containerRef.current;
     if (!root) return;
+    // Low-bandwidth / data-saver users keep the lightweight poster only.
+    if (prefersLightHero()) return;
+
     const io = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          videoRef.current?.play();
+          setVideoSrc(src);
           io.disconnect();
         }
       },
@@ -169,20 +189,31 @@ function HeroBackgroundVideo({ src }: { src: string }) {
     );
     io.observe(root);
     return () => io.disconnect();
-  }, []);
+  }, [src]);
+
+  useEffect(() => {
+    if (videoSrc) videoRef.current?.play().catch(() => {});
+  }, [videoSrc]);
 
   return (
-    <div ref={containerRef} className="absolute inset-0">
-      <video
-        ref={videoRef}
-        key={src}
-        src={src}
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        className="h-full w-full object-cover brightness-125 contrast-105"
-      />
+    <div
+      ref={containerRef}
+      className="absolute inset-0 bg-cover bg-center"
+      style={{ backgroundImage: `url(${HERO_POSTER})` }}
+    >
+      {videoSrc && (
+        <video
+          ref={videoRef}
+          key={videoSrc}
+          src={videoSrc}
+          poster={HERO_POSTER}
+          loop
+          muted
+          playsInline
+          preload="none"
+          className="h-full w-full object-cover brightness-125 contrast-105"
+        />
+      )}
     </div>
   );
 }

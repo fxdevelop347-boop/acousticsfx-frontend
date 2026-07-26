@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { toast } from "sonner";
 import { subscribeNewsletter } from "@/lib/newsletter-api";
 import { FadeIn, SlideIn } from "@/components/animations";

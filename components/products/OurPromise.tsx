@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 export default function OurPromise() {

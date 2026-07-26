@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import type { SubProductSubstratesSection } from "@/lib/products-api";
 
 const substrates = [

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { useRef } from "react";
 import { fetchTestimonials, type Testimonial } from "@/lib/testimonials-api";
 import { useAsyncData } from "@/hooks/useAsyncData";

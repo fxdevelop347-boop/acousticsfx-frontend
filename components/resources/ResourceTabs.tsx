@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 

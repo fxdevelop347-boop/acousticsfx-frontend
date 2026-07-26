@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { useEffect, useState } from "react";
 import { fetchClients, type ClientLogo } from "@/lib/clients-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";

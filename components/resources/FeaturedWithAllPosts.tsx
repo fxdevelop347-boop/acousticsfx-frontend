@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { useAsyncData } from "@/hooks/useAsyncData";

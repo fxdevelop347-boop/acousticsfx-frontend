@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import {
   createContext,
   useCallback,
@@ -328,7 +328,7 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
   const slideBaseClasses =
     layout === "home"
       ? "w-[78vw] max-w-[320px] sm:w-[62vw] sm:max-w-[420px] md:w-[52vw] md:max-w-[500px]"
-      : "min-w-[calc(100vw-48px)] sm:min-w-[calc(100vw-80px)] md:min-w-[calc(100vw-120px)]";
+      : "w-[85vw] max-w-[360px] sm:w-[62vw] sm:max-w-[440px] md:w-[48vw] md:max-w-[480px]";
 
   return (
     <div className={`relative ${paddingClass}`}>
@@ -349,7 +349,7 @@ export function CategoryProductCarousel({ layout = "home" }: { layout?: Carousel
               image={product.image}
               showTrademark={product.showTrademark === true}
               specs={product.specs}
-              compactOnMobile={layout === "home"}
+              compactOnMobile
               className="lg:h-full"
             />
           </div>

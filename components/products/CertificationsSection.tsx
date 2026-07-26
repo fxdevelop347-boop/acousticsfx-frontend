@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import type { SubProductCertification } from "@/lib/products-api";
 
 export default function CertificationsSection({

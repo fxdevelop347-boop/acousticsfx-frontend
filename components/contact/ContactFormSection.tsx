@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import {
   submitContactForm,
   CONTACT_SUBJECTS,

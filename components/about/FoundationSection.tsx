@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 

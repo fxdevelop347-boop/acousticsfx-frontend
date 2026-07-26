@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 
 interface BlogDetailHeroProps {
   blogTitle?: string;

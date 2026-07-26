@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
 import { fetchFooterLinks, type FooterLink } from "@/lib/footer-api";
 import SocialIcons from "@/components/shared/SocialIcons";

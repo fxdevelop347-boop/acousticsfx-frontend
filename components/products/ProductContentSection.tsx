@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import TrademarkTitle from "@/components/shared/TrademarkTitle";
 
 interface ProductContentSectionProps {

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import { fetchCaseStudies, type CaseStudy } from "@/lib/case-studies-api";
 import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";

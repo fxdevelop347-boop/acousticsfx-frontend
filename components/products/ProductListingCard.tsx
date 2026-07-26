@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import TrademarkTitle from "@/components/shared/TrademarkTitle";
 

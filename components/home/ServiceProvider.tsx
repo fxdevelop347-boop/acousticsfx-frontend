@@ -81,7 +81,7 @@ export default function ServiceProvider() {
   const ctaLink = val(content, "home.services.ctaLink");
 
   return (
-    <section className="px-4 sm:px-10 lg:px-[100px] py-10 sm:py-16 lg:py-[100px]">
+    <section className="px-4 sm:px-10 lg:px-[100px] py-8 sm:py-12 lg:py-16">
       <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-10">
 
         {/* Left Side: Image */}
@@ -93,7 +93,7 @@ export default function ServiceProvider() {
               alt="Library"
               width={800}
               height={500}
-              className="w-full h-auto object-cover"
+              className="w-full h-auto max-h-[380px] object-cover rounded-lg shadow-md"
             />
           ) : (
             <Image
@@ -101,7 +101,7 @@ export default function ServiceProvider() {
               alt="Library"
               width={800}
               height={500}
-              className="w-full h-auto object-cover"
+              className="w-full h-auto max-h-[380px] object-cover rounded-lg shadow-md"
               priority
             />
           )}
@@ -113,7 +113,7 @@ export default function ServiceProvider() {
             {subtitle}
           </p>
 
-          <h2 className="text-[1.0625rem] sm:text-[34px] lg:text-[40px] worksans-font text-black font-bold mb-3 sm:mb-4 leading-snug sm:leading-[46px] lg:leading-[55px]">
+          <h2 className="text-[1.0625rem] sm:text-[28px] lg:text-[34px] worksans-font text-black font-bold mb-3 sm:mb-4 leading-snug sm:leading-[38px] lg:leading-[44px]">
             We are{" "}
             <span ref={textRef} className="text-[#EA8E39]">
               Manufacturers

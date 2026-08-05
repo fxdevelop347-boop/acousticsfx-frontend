@@ -4,7 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
 import { FadeIn, ScaleOnScroll } from "@/components/animations";
 
-const CONTENT_KEYS = ["about.innovation.image", "about.innovation.video"];
+const CONTENT_KEYS = [
+  "about.innovation.title1",
+  "about.innovation.title2",
+  "about.innovation.body",
+  "about.innovation.image",
+  "about.innovation.video",
+];
+
+const DEFAULTS: Record<string, string> = {
+  "about.innovation.title1": "Our Story That Drives",
+  "about.innovation.title2": "INNOVATION",
+  "about.innovation.body":
+    "From a bold vision to an industry-leading brand, FX Acoustics has pioneered acoustic solutions that blend craftsmanship with cutting-edge technology \u2014 transforming how spaces sound and feel.",
+};
+
+function val(c: ContentMap, key: string) {
+  return c[key]?.value ?? DEFAULTS[key] ?? "";
+}
+
 /** Legacy seed path — file does not exist; prefer YouTube thumbnail when a video URL is set. */
 const LEGACY_BROKEN_POSTER = "/innovation-video.jpg";
 
@@ -87,33 +105,31 @@ export default function StoryInnovation() {
   const showPoster = Boolean(posterSrc);
 
   return (
-    <section className="px-4 sm:px-[40px] lg:px-[100px] pt-10 pb-10 sm:pt-[80px] sm:pb-[80px] lg:pt-[100px] lg:pb-[100px] bg-[#F5F5F5]">
+    <section className="px-4 sm:px-[40px] lg:px-[100px] py-8 sm:py-12 lg:py-16 bg-[#F5F5F5]">
       {/* ================= Top Content ================= */}
       <FadeIn
         direction="up"
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-14 lg:gap-20 items-start mb-8 sm:mb-14 lg:mb-16"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-16 items-start mb-6 sm:mb-10 lg:mb-12"
       >
         {/* Left Heading */}
         <div>
-          <h2 className="text-[1.375rem] sm:text-[44px] lg:text-[60px] lato font-bold leading-tight sm:leading-[40px]">
-            Our Story That Drives
+          <h2 className="text-[1.25rem] sm:text-[32px] lg:text-[40px] lato font-bold leading-tight sm:leading-[36px]">
+            {val(content, "about.innovation.title1")}
           </h2>
-          <h2 className="text-[2.25rem] sm:text-[72px] lg:text-[100px] font-bold lato text-[#ea8e39] mt-1 sm:mt-2 leading-none tracking-tight">
-            INNOVATION
+          <h2 className="text-[2rem] sm:text-[48px] lg:text-[64px] font-bold lato text-[#ea8e39] mt-1 leading-none tracking-tight">
+            {val(content, "about.innovation.title2")}
           </h2>
         </div>
 
         {/* Right Text */}
-        <p className="text-gray-600 leading-relaxed lato font-normal text-sm sm:text-[18px] lg:text-[20px] max-w-xl">
-          From a bold vision to an industry-leading brand, FX Acoustics has
-          pioneered acoustic solutions that blend craftsmanship with cutting-edge
-          technology &mdash; transforming how spaces sound and feel.
+        <p className="text-gray-600 leading-relaxed lato font-normal text-xs sm:text-[16px] lg:text-[18px] max-w-xl">
+          {val(content, "about.innovation.body")}
         </p>
       </FadeIn>
 
       {/* ================= Image / Video Section ================= */}
-      <ScaleOnScroll className="relative w-full overflow-hidden rounded-lg mt-4 sm:mt-6">
-        <div className="relative w-full h-[220px] sm:h-[400px] lg:h-[520px] bg-neutral-800">
+      <ScaleOnScroll className="relative w-full overflow-hidden rounded-xl mt-3 sm:mt-4">
+        <div className="relative w-full h-[200px] sm:h-[320px] lg:h-[380px] bg-neutral-800">
           {showPoster ? (
             // eslint-disable-next-line @next/next/no-img-element -- CMS + YouTube thumbnails
             <img

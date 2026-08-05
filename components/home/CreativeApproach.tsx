@@ -32,8 +32,8 @@ export default function CreativeApproach() {
   };
 
   return (
-    <section className="relative w-full px-4 sm:px-8 lg:px-[12.5vw] py-8 sm:py-12 lg:py-[6.25vw] bg-[#F5F5F5] overflow-hidden">
-      <div className="relative flex flex-col lg:flex-row items-center max-w-[1600px] xl:max-w-none mx-auto">
+    <section className="relative w-full px-4 sm:px-8 lg:px-[10vw] py-6 sm:py-8 lg:py-10 bg-[#F5F5F5] overflow-hidden">
+      <div className="relative flex flex-col lg:flex-row items-center max-w-[1400px] mx-auto">
 
         {/* LEFT CONTENT CARD */}
         <FadeIn
@@ -41,64 +41,64 @@ export default function CreativeApproach() {
           duration={0.7}
           className="
             relative z-30 bg-[#FFF3E8]
-            p-4 sm:p-6 lg:p-10
-            shadow-lg
+            p-4 sm:p-6 lg:p-8
+            shadow-md
             w-full
-            max-w-[650px]
+            max-w-[550px]
           "
         >
-          <p className="text-xs sm:text-sm mb-1.5 sm:mb-2">#FXacoustic solutions</p>
+          <p className="text-xs sm:text-xs mb-1">#FXacoustic solutions</p>
 
-          <h2 className="text-lg sm:text-2xl font-semibold mb-4 sm:mb-6 leading-snug">
+          <h2 className="text-base sm:text-xl font-semibold mb-3 sm:mb-4 leading-snug">
             Creative Approach
           </h2>
 
           {/* ACCORDION ITEM 1 */}
-          <div className="border-t border-gray-300 py-3 sm:py-4">
+          <div className="border-t border-gray-300 py-2.5 sm:py-3">
             <button
               onClick={() => toggleAccordion(0)}
-              className="flex w-full justify-between items-center text-sm sm:text-base font-medium cursor-pointer gap-2"
+              className="flex w-full justify-between items-center text-xs sm:text-sm font-medium cursor-pointer gap-2"
             >
               <span>Story & Concept</span>
-              <span className="text-lg sm:text-xl shrink-0">{openIndex === 0 ? "−" : "+"}</span>
+              <span className="text-base shrink-0">{openIndex === 0 ? "−" : "+"}</span>
             </button>
 
             {openIndex === 0 && (
-              <p className="text-xs sm:text-sm text-gray-600 mt-2 sm:mt-3 leading-relaxed">
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
                 Every project at FX Acoustics Inc. begins with a deep understanding of space, purpose, and emotion. We craft each concept from the ground up—shaping acoustical ideas, architectural intent, and material character into a cohesive vision. This foundation allows us to design solutions that not only perform exceptionally but also enhance the aesthetic harmony of any interior or façade.
               </p>
             )}
           </div>
 
           {/* ACCORDION ITEM 2 */}
-          <div className="border-t border-gray-300 py-3 sm:py-4">
+          <div className="border-t border-gray-300 py-2.5 sm:py-3">
             <button
               onClick={() => toggleAccordion(1)}
-              className="flex w-full justify-between items-center text-sm sm:text-base font-medium cursor-pointer gap-2"
+              className="flex w-full justify-between items-center text-xs sm:text-sm font-medium cursor-pointer gap-2"
             >
               <span>Design and Testing</span>
-              <span className="text-lg sm:text-xl shrink-0">{openIndex === 1 ? "−" : "+"}</span>
+              <span className="text-base shrink-0">{openIndex === 1 ? "−" : "+"}</span>
             </button>
 
             {openIndex === 1 && (
-              <p className="text-xs sm:text-sm text-gray-600 mt-2 sm:mt-3 leading-relaxed">
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
                 Our design philosophy blends engineering precision with artistic craftsmanship. Each panel and system undergoes rigorous acoustic modeling, structural testing, and material refinement. Through advanced CNC manufacturing and international-standard acoustic evaluations, we ensure every detail meets the highest level of performance and durability.
               </p>
             )}
           </div>
 
           {/* ACCORDION ITEM 3 */}
-          <div className="border-t border-b border-gray-300 py-3 sm:py-4">
+          <div className="border-t border-b border-gray-300 py-2.5 sm:py-3">
             <button
               onClick={() => toggleAccordion(2)}
-              className="flex w-full justify-between items-center text-sm sm:text-base font-medium cursor-pointer gap-2"
+              className="flex w-full justify-between items-center text-xs sm:text-sm font-medium cursor-pointer gap-2"
             >
               <span>Revision and Rendering</span>
-              <span className="text-lg sm:text-xl shrink-0">{openIndex === 2 ? "−" : "+"}</span>
+              <span className="text-base shrink-0">{openIndex === 2 ? "−" : "+"}</span>
             </button>
 
             {openIndex === 2 && (
-              <p className="text-xs sm:text-sm text-gray-600 mt-2 sm:mt-3 leading-relaxed">
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
                 Before production begins, we perfect every design through meticulous revisions and lifelike renderings. This process allows architects, designers, and clients to visualize textures, finishes, lighting interactions, and acoustic outcomes—ensuring absolute clarity and alignment before execution.
               </p>
             )}
@@ -106,7 +106,7 @@ export default function CreativeApproach() {
 
           <a
             href="/about"
-            className="inline-block mt-4 sm:mt-6 bg-orange-500 text-white px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm cursor-pointer no-underline hover:opacity-90 transition"
+            className="inline-block mt-3 sm:mt-4 bg-orange-500 text-white px-4 py-2 text-xs cursor-pointer no-underline hover:opacity-90 transition rounded-sm"
           >
             Learn More
           </a>
@@ -116,9 +116,9 @@ export default function CreativeApproach() {
         <div
           className="
             relative flex-1 min-w-0 w-full
-            mt-6 sm:mt-10 lg:mt-0
+            mt-6 sm:mt-8 lg:mt-0
             flex flex-col lg:block items-center
-            lg:[height:clamp(700px,56.25vw,900px)]
+            lg:[height:clamp(420px,36vw,520px)]
           "
         >
           {/* SMALL IMAGE */}
@@ -127,16 +127,16 @@ export default function CreativeApproach() {
               relative lg:absolute
               right-0 lg:top-1/2 lg:-translate-y-1/2
               z-0 hidden sm:block
-              mb-6 lg:mb-0
-              lg:[width:clamp(350px,31.25vw,500px)]
-              lg:[height:clamp(525px,46.875vw,750px)]
+              mb-4 lg:mb-0
+              lg:[width:clamp(240px,22vw,340px)]
+              lg:[height:clamp(320px,30vw,440px)]
             "
           >
             <Image
               src={val(content, "home.creative.secondaryImage")}
               alt="Interior"
               fill
-              className="object-cover grayscale"
+              className="object-cover grayscale rounded-lg"
             />
           </BlurIn>
 
@@ -144,19 +144,19 @@ export default function CreativeApproach() {
           <ScaleOnScroll
             className="
               relative lg:absolute z-10
-              h-[240px] w-full sm:h-[300px]
+              h-[200px] w-full sm:h-[260px]
               lg:top-1/2 lg:-translate-y-1/2
               right-0 sm:right-auto
-              lg:right-[clamp(180px,16.25vw,260px)]
-              lg:w-[clamp(320px,80vw,667px)]
-              lg:h-[clamp(420px,90vw,835px)]
+              lg:right-[clamp(140px,12vw,200px)]
+              lg:w-[clamp(280px,32vw,480px)]
+              lg:h-[clamp(340px,38vw,480px)]
             "
           >
             <Image
               src={val(content, "home.creative.mainImage")}
               alt="Creative Space"
               fill
-              className="object-cover"
+              className="object-cover rounded-lg shadow-md"
             />
           </ScaleOnScroll>
         </div>

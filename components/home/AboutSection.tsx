@@ -42,8 +42,7 @@ export default function AboutSection() {
 
   return (
     <section
-      className="relative w-full overflow-hidden 
-      py-10 sm:py-14 lg:py-0 lg:min-h-screen"
+      className="relative w-full overflow-hidden py-8 sm:py-10 lg:py-12"
     >
 
       {/* ================= Background Image ================= */}
@@ -61,7 +60,7 @@ export default function AboutSection() {
       <div className="absolute inset-0 bg-[#1F6775] opacity-80" />
 
       {/* ================= Content ================= */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:min-h-screen">
+      <div className="relative z-10 flex flex-col lg:flex-row items-center">
         {/* LEFT CONTENT */}
         <FadeIn
           direction="up"
@@ -71,13 +70,13 @@ export default function AboutSection() {
           text-left text-white"
         >
           <div>
-            <p className="text-[13px] sm:text-[15px] lg:text-[16px] mb-2 sm:mb-3 font-bold work-sans">
+            <p className="text-[12px] sm:text-[14px] mb-1.5 sm:mb-2 font-bold work-sans uppercase tracking-wider">
               {val(content, "home.about.label")}
             </p>
 
             <h2
-              className="text-[1.375rem] sm:text-[32px] lg:text-[38px] 
-              font-bold mb-4 sm:mb-5 lg:mb-6 leading-snug sm:leading-tight axiforma"
+              className="text-base sm:text-2xl lg:text-[26px] 
+              font-bold mb-3 sm:mb-4 lg:mb-5 leading-snug sm:leading-tight axiforma"
             >
               {val(content, "home.about.heading")}
             </h2>

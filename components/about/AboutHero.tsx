@@ -10,6 +10,10 @@ const CONTENT_KEYS = [
   "about.hero.heading",
   "about.hero.subtitle",
   "about.hero.backgroundImage",
+  "about.hero.cta1Label",
+  "about.hero.cta1Link",
+  "about.hero.cta2Label",
+  "about.hero.cta2Link",
 ];
 
 const DEFAULTS: Record<string, string> = {
@@ -18,6 +22,10 @@ const DEFAULTS: Record<string, string> = {
     "Empowering tomorrow\u2019s spaces with acoustic solutions that blend precision, elegance, and performance.",
   "about.hero.backgroundImage":
     "/assets/about/empty-flat-interrior-with-elements-decoration 1 (1).png",
+  "about.hero.cta1Label": "Get Quote \u2192",
+  "about.hero.cta1Link": "/contactus",
+  "about.hero.cta2Label": "Connect With Us \u2192",
+  "about.hero.cta2Link": "/contactus",
 };
 
 function val(c: ContentMap, key: string) {
@@ -34,7 +42,7 @@ export default function AboutHero() {
   const bgImage = val(content, "about.hero.backgroundImage");
 
   return (
-    <section className="relative w-full min-h-[52vh] sm:min-h-[72vh] lg:min-h-[80vh]">
+    <section className="relative w-full min-h-[300px] sm:min-h-[360px] lg:min-h-[420px] flex items-center justify-center">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -55,37 +63,38 @@ export default function AboutHero() {
         duration={0.7}
         className="
           relative z-10
-          px-4 sm:px-[40px] lg:px-[100px]
-          py-10 sm:py-[80px] lg:py-[100px]
+          px-4 sm:px-8 lg:px-16
+          py-6 sm:py-10 lg:py-12
           flex flex-col
           items-center justify-center
           text-white text-center
+          w-full
         "
       >
         {/* Heading */}
-        <h1 className="text-[1.625rem] sm:text-[56px] md:text-[72px] lg:text-[90px] font-bold leading-tight max-w-9xl playfair-display">
+        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[44px] font-bold leading-tight max-w-4xl playfair-display">
           {val(content, "about.hero.heading")}
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-4 sm:mt-6 text-sm sm:text-[18px] md:text-[20px] lg:text-[24px] poppins-font font-normal max-w-2xl text-white/90 leading-relaxed">
+        <p className="mt-2.5 sm:mt-4 text-xs sm:text-sm md:text-base poppins-font font-normal max-w-xl text-white/90 leading-relaxed">
           {val(content, "about.hero.subtitle")}
         </p>
 
         {/* Buttons */}
-        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full max-w-sm sm:max-w-none">
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2.5 sm:gap-3.5 justify-center w-full max-w-xs sm:max-w-none">
           <Link
-            href="/contactus"
-            className="border border-white px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-[18px] poppins-font font-normal hover:bg-white hover:text-black transition cursor-pointer text-center"
+            href={val(content, "about.hero.cta1Link")}
+            className="border border-white px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm poppins-font font-medium hover:bg-white hover:text-black transition cursor-pointer text-center rounded-sm"
           >
-            Get Quote &rarr;
+            {val(content, "about.hero.cta1Label")}
           </Link>
 
           <Link
-            href="/contactus"
-            className="bg-orange-500 px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-[18px] poppins-font font-normal hover:bg-orange-600 transition cursor-pointer inline-block text-center"
+            href={val(content, "about.hero.cta2Link")}
+            className="bg-orange-500 px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm poppins-font font-medium hover:bg-orange-600 transition cursor-pointer inline-block text-center rounded-sm"
           >
-            Connect With Us &rarr;
+            {val(content, "about.hero.cta2Label")}
           </Link>
         </div>
       </FadeIn>

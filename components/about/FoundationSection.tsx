@@ -6,14 +6,40 @@ import { fetchContent, type ContentMap } from "@/lib/content-api";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 
 const CONTENT_KEYS = [
+  "about.foundation.heading",
+  "about.foundation.subtitle",
+  "about.foundation.card1Title",
+  "about.foundation.card1Desc",
   "about.foundation.image1",
+  "about.foundation.card2Title",
+  "about.foundation.card2Desc",
   "about.foundation.image2",
+  "about.foundation.card3Title",
+  "about.foundation.card3Desc",
   "about.foundation.image3",
 ];
 
-const DEFAULT_IMAGE_1 = "/assets/about/Image (4).png";
-const DEFAULT_IMAGE_2 = "/assets/about/bgfoundation.png";
-const DEFAULT_IMAGE_3 = "/assets/about/6d475af8e833a39bf05332dcf051bd2d05e4d822.png";
+const DEFAULTS: Record<string, string> = {
+  "about.foundation.heading": "Our Foundation of Trust & Innovation",
+  "about.foundation.subtitle":
+    "At FX Acoustics, our values bridge vision with purpose, shaping spaces that resonate beyond sound. Integrity, Innovation, Collaboration, and Customer-Centricity guide every solution we craft with care.",
+  "about.foundation.card1Title": "Our Mission",
+  "about.foundation.card1Desc":
+    "Our mission at FX Acoustics is to blend functionality with aesthetics to create superior acoustic products that enhance the auditory and visual experience of any space. We are dedicated to delivering exceptional craftsmanship, personalized service, and sustainable solutions that exceed expectations.",
+  "about.foundation.image1": "/assets/about/Image (4).png",
+  "about.foundation.card2Title": "Our Vision",
+  "about.foundation.card2Desc":
+    "At FX Acoustics, we envision becoming the foremost provider of innovative and decorative acoustic solutions \u2014 transforming spaces into environments that are both aesthetically striking and acoustically perfected.",
+  "about.foundation.image2": "/assets/about/bgfoundation.png",
+  "about.foundation.card3Title": "Our Values",
+  "about.foundation.card3Desc":
+    "At FX Acoustics, our values bridge vision and purpose. Integrity builds trust, Innovation drives future-ready solutions, and Collaboration empowers us to co-create with architects and clients. We remain Customer-Centric, placing aspirations at the heart of every design decision.",
+  "about.foundation.image3": "/assets/about/6d475af8e833a39bf05332dcf051bd2d05e4d822.png",
+};
+
+function val(c: ContentMap, key: string) {
+  return c[key]?.value ?? DEFAULTS[key] ?? "";
+}
 
 export default function FoundationSection() {
   const [content, setContent] = useState<ContentMap>({});
@@ -22,53 +48,39 @@ export default function FoundationSection() {
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
   }, []);
 
-  const foundationImage1 =
-    content["about.foundation.image1"]?.value ?? DEFAULT_IMAGE_1;
-
-  const foundationImage2 =
-    content["about.foundation.image2"]?.value ?? DEFAULT_IMAGE_2;
-
-  const foundationImage3 =
-    content["about.foundation.image3"]?.value ?? DEFAULT_IMAGE_3;
-
   const cards = [
     {
       number: "01",
-      title: "Our Mission",
-      description:
-        "Our mission at FX Acoustics is to blend functionality with aesthetics to create superior acoustic products that enhance the auditory and visual experience of any space. We are dedicated to delivering exceptional craftsmanship, personalized service, and sustainable solutions that exceed expectations.",
-      image: foundationImage1,
+      title: val(content, "about.foundation.card1Title"),
+      description: val(content, "about.foundation.card1Desc"),
+      image: val(content, "about.foundation.image1"),
     },
     {
       number: "02",
-      title: "Our Vision",
-      description:
-        "At FX Acoustics, we envision becoming the foremost provider of innovative and decorative acoustic solutions — transforming spaces into environments that are both aesthetically striking and acoustically perfected.",
-      image: foundationImage2,
+      title: val(content, "about.foundation.card2Title"),
+      description: val(content, "about.foundation.card2Desc"),
+      image: val(content, "about.foundation.image2"),
     },
     {
       number: "03",
-      title: "Our Values",
-      description:
-        "At FX Acoustics, our values bridge vision and purpose. Integrity builds trust, Innovation drives future-ready solutions, and Collaboration empowers us to co-create with architects and clients. We remain Customer-Centric, placing aspirations at the heart of every design decision.",
-      image: foundationImage3,
+      title: val(content, "about.foundation.card3Title"),
+      description: val(content, "about.foundation.card3Desc"),
+      image: val(content, "about.foundation.image3"),
     },
   ];
 
   return (
-    <section className="px-4 sm:px-[40px] lg:px-[100px] py-10 sm:py-[80px] lg:py-[100px] bg-[#F5F5F5]">
+    <section className="px-4 sm:px-[40px] lg:px-[100px] py-8 sm:py-12 lg:py-16 bg-[#F5F5F5]">
       <FadeIn
         direction="up"
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-14 lg:gap-20 mb-8 sm:mb-16 lg:mb-20 items-start"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-16 mb-6 sm:mb-12 lg:mb-14 items-start"
       >
-        <h2 className="text-xl sm:text-[34px] lg:text-4xl font-semibold text-[#111] leading-snug sm:leading-tight">
-          Our Foundation of Trust &amp; Innovation
+        <h2 className="text-lg sm:text-[28px] lg:text-[32px] font-semibold text-[#111] leading-snug sm:leading-tight">
+          {val(content, "about.foundation.heading")}
         </h2>
 
         <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-xl">
-          At FX Acoustics, our values bridge vision with purpose, shaping spaces
-          that resonate beyond sound. Integrity, Innovation, Collaboration, and
-          Customer-Centricity guide every solution we craft with care.
+          {val(content, "about.foundation.subtitle")}
         </p>
       </FadeIn>
 

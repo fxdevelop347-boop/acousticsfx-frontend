@@ -228,27 +228,27 @@ export default function HomeHero() {
   const bgVideo = val(content, "home.hero.backgroundVideo");
 
   return (
-    <section className="relative flex w-full flex-col overflow-hidden md:min-h-[88svh] lg:min-h-screen">
-      {/* Background video: 70vh on mobile (clear view), full-bleed on md+ */}
-      <div className="absolute left-0 right-0 top-0 z-0 h-[70vh] md:inset-0 md:h-auto md:min-h-[88svh] lg:min-h-screen">
+    <section className="relative flex w-full flex-col overflow-hidden md:min-h-[58vh] lg:min-h-[64vh]">
+      {/* Background video: 55vh on mobile (clear view), full-bleed on md+ */}
+      <div className="absolute left-0 right-0 top-0 z-0 h-[55vh] md:inset-0 md:h-auto md:min-h-[58vh] lg:min-h-[64vh]">
         <HeroBackgroundVideo src={bgVideo} />
       </div>
       <div className="absolute inset-0 top-0 left-0 right-0 bottom-0 z-1 h-full w-full bg-black/40" />
 
-      {/* Heading: centered in 70vh on mobile; desktop hero stack unchanged */}
-      <div className="relative z-10 flex h-[70vh] flex-col items-center justify-center px-4 pb-6 pt-8 text-center text-white md:h-auto md:min-h-[88svh] lg:min-h-screen md:justify-start md:px-4 md:pb-0 md:pt-[130px] lg:pt-[143px]">
+      {/* Heading: centered in mobile; desktop top-aligned with refined padding */}
+      <div className="relative z-10 flex h-[55vh] flex-col items-center justify-center px-4 pb-4 pt-4 text-center text-white md:h-auto md:min-h-[58vh] lg:min-h-[64vh] md:justify-start md:px-4 md:pb-8 md:pt-[60px] lg:pt-[72px]">
         <FadeIn direction="up">
-          <h1 className="max-w-7xl text-[1.375rem] leading-tight sm:text-[40px] lg:text-[76px] font-bold playfair-display">
+          <h1 className="max-w-5xl text-xl leading-tight sm:text-[30px] lg:text-[44px] font-bold playfair-display">
             {val(content, "home.hero.title")}
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-center text-sm text-gray-200 leading-relaxed sm:mt-6 sm:text-base">
+          <p className="mx-auto mt-2 max-w-xl text-center text-xs text-gray-200 leading-relaxed sm:mt-3 sm:text-xs">
             {val(content, "home.hero.subtitle")}
           </p>
         </FadeIn>
 
-        {/* Desktop / tablet: feature cards on the video (unchanged behaviour) */}
-        <FadeIn className="mt-8 hidden w-full sm:mt-16 md:block">
+        {/* Desktop / tablet: feature cards on the video */}
+        <FadeIn className="mt-4 hidden w-full sm:mt-6 md:block">
           <StaggerContainer className="mx-auto flex max-w-[1200px] flex-wrap justify-center gap-4 sm:gap-6">
             {DEFAULT_FEATURE_BOXES.map((box, index) => {
               const accent = ACCENT_MAP[box.accentColor];

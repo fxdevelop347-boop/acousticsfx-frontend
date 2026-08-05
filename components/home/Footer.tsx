@@ -66,7 +66,7 @@ export default function Footer() {
         if (list.length > 0) {
           const sorted = [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
           setServices(
-            sorted.map((c) => ({
+            sorted.slice(0, 5).map((c) => ({
               _id: c.slug,
               label: c.name,
               href: `/products/${c.slug}`,
@@ -105,7 +105,7 @@ export default function Footer() {
               Our Services
             </h4>
             <ul className="space-y-2 sm:space-y-3 text-sm sm:text-[18px] inter-font font-medium text-gray-700 text-left">
-              {services.map((s) =>
+              {services.slice(0, 5).map((s) =>
                 s.href ? (
                   <li key={s._id}><Link href={s.href} className="hover:underline text-gray-700">{s.label}</Link></li>
                 ) : (

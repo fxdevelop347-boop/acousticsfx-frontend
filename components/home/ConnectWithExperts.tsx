@@ -41,9 +41,10 @@ export default function ConnectWithExperts() {
         name: contactName,
         email: contactEmail,
         phone: contactPhone || undefined,
-        company: contactCompany || undefined,
         subject: "General Inquiry",
-        message: contactMessage,
+        message: contactCompany
+          ? `[Company: ${contactCompany}] ${contactMessage}`
+          : contactMessage,
       });
       toast.success("Message sent! We'll get back to you shortly.");
       setContactName("");

@@ -1,162 +1,38 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import CaseStudySection from "@/components/resources/CaseStudySection";
-import CaseStudyCard from "@/components/resources/CaseStudyCard";
-import Spinner from "@/components/shared/Spinner";
 import Testimonials from "@/components/home/Testimonials";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
-import { StaggerContainer, StaggerItem } from "@/components/animations";
-import { fetchCaseStudyList, type CaseStudy } from "@/lib/case-studies-api";
-
-const ALL = "All";
 
 export default function CaseStudyListClient() {
-  const [studies, setStudies] = useState<CaseStudy[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeIndustry, setActiveIndustry] = useState<string>(ALL);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    fetchCaseStudyList()
-      .then((data) => {
-        if (cancelled) return;
-        setStudies(data);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        console.error("Failed to fetch case studies:", err);
-        setError("We couldn't load the case studies just now. Please try again.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Derived from the loaded records rather than fetched separately: the chips must
-  // never offer an industry that has nothing behind it on this page.
-  const industries = useMemo(() => {
-    const seen = new Set<string>();
-    for (const study of studies) {
-      if (study.industry?.trim()) seen.add(study.industry.trim());
-    }
-    return Array.from(seen).sort((a, b) => a.localeCompare(b));
-  }, [studies]);
-
-  // The API sorts featured first, so the first record is the one to highlight.
-  const featured = studies.find((s) => s.isFeatured) ?? studies[0];
-
-  // Everything below the featured band, before filtering. The grid section is
-  // gated on this so that filtering to an empty result keeps the chips on screen.
-  const rest = useMemo(
-    () => (featured ? studies.filter((s) => s.slug !== featured.slug) : studies),
-    [studies, featured]
-  );
-
-  const visible = useMemo(
-    () =>
-      activeIndustry === ALL
-        ? rest
-        : rest.filter((s) => s.industry === activeIndustry),
-    [rest, activeIndustry]
-  );
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center gap-3 py-24">
-        <Spinner size="sm" />
-        <span className="text-sm text-gray-500">Loading case studies…</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <p className="text-gray-600">{error}</p>
-      </div>
-    );
-  }
-
-  if (studies.length === 0) {
-    return (
-      <>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
-          <p className="text-gray-600">
-            Our case studies are being prepared. Check back shortly.
-          </p>
-        </div>
-        <ConnectWithExperts />
-      </>
-    );
-  }
-
   return (
     <>
-      {featured && (
-        <CaseStudySection
-          study={featured}
-          bgColor="white"
-          eyebrow="Featured case study"
-        />
-      )}
+      <CaseStudySection
+        image="/assets/product/product-hero.png"
+        bgColor="white"
+        reverse={false}
+        imageAlt="Large open office interior with FX Acoustics wood acoustic ceiling and wall panels"
+      />
 
-      {rest.length > 0 && (
-        <section className="w-full py-12 sm:py-16 bg-[#FAFAFA]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <h2 className="text-[24px] sm:text-[28px] lg:text-[32px] axiforma font-bold text-gray-900 mb-6">
-              More projects
-            </h2>
+      <CaseStudySection
+        image="/assets/product/product-card-1.png"
+        bgColor="light-blue"
+        reverse={true}
+        showIntroHeader={false}
+        imageAlt="Conference and collaboration space with fabric-wrapped acoustic wall panels"
+        cardTitle="Collaboration Zones & Meeting Suites"
+        cardDescription="Targeted acoustic treatment for open-plan collaboration areas—balancing speech intelligibility and privacy using fabric panels, ceiling baffles, and calibrated absorption."
+      />
 
-            {industries.length > 1 && (
-              <div
-                className="flex flex-wrap gap-2 mb-8"
-                role="group"
-                aria-label="Filter case studies by industry"
-              >
-                {[ALL, ...industries].map((industry) => {
-                  const active = activeIndustry === industry;
-                  return (
-                    <button
-                      key={industry}
-                      type="button"
-                      onClick={() => setActiveIndustry(industry)}
-                      aria-pressed={active}
-                      className={`px-4 py-1.5 text-sm rounded-full border transition cursor-pointer ${
-                        active
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                      }`}
-                    >
-                      {industry}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {visible.length > 0 ? (
-              <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                {visible.map((study) => (
-                  <StaggerItem key={study.slug}>
-                    <CaseStudyCard study={study} />
-                  </StaggerItem>
-                ))}
-              </StaggerContainer>
-            ) : (
-              <p className="text-gray-500 py-10 text-center">
-                No case studies in this category yet.
-              </p>
-            )}
-          </div>
-        </section>
-      )}
+      <CaseStudySection
+        image="/assets/product/product-card-6.png"
+        bgColor="white"
+        reverse={false}
+        showIntroHeader={false}
+        imageAlt="Hospitality lounge seating area with decorative acoustic wall finishes"
+        cardTitle="Hospitality & Guest Experience"
+        cardDescription="Premium finishes with performance-grade acoustic control for restaurants and hotel public areas—reducing crowd noise while preserving warm, inviting interiors."
+      />
 
       <Testimonials />
       <ConnectWithExperts />

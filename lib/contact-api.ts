@@ -19,7 +19,6 @@ export interface ContactFormData {
   name: string;
   email: string;
   phone?: string;
-  company?: string;
   subject: ContactSubject;
   message: string;
 }
@@ -32,7 +31,6 @@ export async function submitContactForm(data: ContactFormData): Promise<void> {
       name: data.name.trim(),
       email: data.email.trim(),
       phone: data.phone?.trim() || undefined,
-      company: data.company?.trim() || undefined,
       subject: data.subject,
       message: data.message.trim() || '',
     }),

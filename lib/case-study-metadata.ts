@@ -9,17 +9,24 @@ export async function buildCaseStudySlugMetadata(slug: string): Promise<Metadata
   try {
     const res = await api.get<{
       success: boolean;
-      caseStudy: { title: string; description?: string; image?: string };
+      caseStudy: {
+        title: string;
+        description?: string;
+        image?: string;
+        metaDescription?: string;
+      };
     }>(`/api/resources/case-studies/slug/${encodeURIComponent(slug)}`);
 
     if (!res.success || !res.caseStudy) {
       return { title: "Case Study", alternates: { canonical } };
     }
 
-    const { title, description, image } = res.caseStudy;
+    const { title, description, image, metaDescription } = res.caseStudy;
+    // Author-written meta copy wins; the card teaser is the fallback.
+    const source = metaDescription?.trim() || description?.trim();
     const desc =
-      description && description.trim().length > 0
-        ? description.replace(/\s+/g, " ").trim().slice(0, 160)
+      source && source.length > 0
+        ? source.replace(/\s+/g, " ").slice(0, 160)
         : `${title} — FX Acoustics acoustic project case study in India.`.slice(
             0,
             160

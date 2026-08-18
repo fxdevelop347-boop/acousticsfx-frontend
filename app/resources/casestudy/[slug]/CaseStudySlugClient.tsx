@@ -9,6 +9,7 @@ import CaseStudyCard, {
   CASE_STUDY_PLACEHOLDER,
 } from "@/components/resources/CaseStudyCard";
 import { FadeIn } from "@/components/animations";
+import GalleryLightbox from "@/components/resources/GalleryLightbox";
 import { fetchCaseStudyList, type CaseStudy } from "@/lib/case-studies-api";
 
 interface CaseStudySlugPageProps {
@@ -17,25 +18,40 @@ interface CaseStudySlugPageProps {
   slug: string;
 }
 
-/** Long-form text block. Paragraph breaks in the admin textarea become paragraphs. */
+const HTML_TAG_RE = /<\/?[a-z][^>]*>/i;
+
+const STORY_TEXT_CLASS =
+  "text-[16px] sm:text-[17px] inter-font text-gray-600 leading-relaxed";
+
+/**
+ * Long-form section of the write-up. Content authored in the admin rich text
+ * editor arrives as HTML — already sanitized server-side on save — and carries
+ * its own headings and bullet lists. Records written before that editor existed
+ * are plain text, so blank lines still become paragraphs for them.
+ */
 function StoryBlock({ title, body }: { title: string; body: string }) {
-  const paragraphs = body.split(/\n\s*\n/).filter((p) => p.trim());
+  const isHtml = HTML_TAG_RE.test(body);
+  const paragraphs = isHtml ? [] : body.split(/\n\s*\n/).filter((p) => p.trim());
 
   return (
     <FadeIn direction="up" className="mb-10 sm:mb-12">
       <h2 className="text-[22px] sm:text-[26px] axiforma font-bold text-gray-900 mb-3">
         {title}
       </h2>
-      <div className="space-y-4">
-        {paragraphs.map((paragraph, i) => (
-          <p
-            key={i}
-            className="text-[16px] sm:text-[17px] inter-font text-gray-600 leading-relaxed whitespace-pre-line"
-          >
-            {paragraph.trim()}
-          </p>
-        ))}
-      </div>
+      {isHtml ? (
+        <div
+          className={`cs-rich ${STORY_TEXT_CLASS}`}
+          dangerouslySetInnerHTML={{ __html: body }}
+        />
+      ) : (
+        <div className="space-y-4">
+          {paragraphs.map((paragraph, i) => (
+            <p key={i} className={`${STORY_TEXT_CLASS} whitespace-pre-line`}>
+              {paragraph.trim()}
+            </p>
+          ))}
+        </div>
+      )}
     </FadeIn>
   );
 }
@@ -216,30 +232,13 @@ export default function CaseStudySlugClient({
       {gallery.length > 0 && (
         <section className="w-full bg-[#FAFAFA] py-12 sm:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <h2 className="text-[22px] sm:text-[26px] axiforma font-bold text-gray-900 mb-6">
+            <h2 className="text-[22px] sm:text-[26px] axiforma font-bold text-gray-900 mb-2">
               Project gallery
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {gallery.map((img, i) => (
-                <figure key={i} className="m-0">
-                  <div className="relative w-full h-[220px] sm:h-[240px] rounded-xl overflow-hidden bg-gray-200">
-                    <Image
-                      src={img.url}
-                      fill
-                      alt={img.caption || `${caseStudy.title} — project photo ${i + 1}`}
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      unoptimized={img.url?.startsWith("http")}
-                    />
-                  </div>
-                  {img.caption && (
-                    <figcaption className="mt-2 text-sm text-gray-500">
-                      {img.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
-            </div>
+            <p className="text-sm text-gray-500 mb-6 inter-font">
+              Tap any photo to view it full size.
+            </p>
+            <GalleryLightbox images={gallery} title={caseStudy.title} />
           </div>
         </section>
       )}

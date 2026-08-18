@@ -117,11 +117,14 @@ export default function CaseStudies() {
                   />
                 </div>
 
-                {/* TEXT */}
-                <h3 className="font-semibold text-base sm:text-lg mb-1">
+                {/* TEXT — clamped because `description` is the full summary the
+                    admin wrote, which can run to many paragraphs. Unclamped it
+                    stretches the slide, and Splide sizes every slide to the
+                    tallest one. */}
+                <h3 className="font-semibold text-base sm:text-lg mb-1 line-clamp-2">
                   {item.title}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 line-clamp-3">
                   {item.description}
                 </p>
               </>

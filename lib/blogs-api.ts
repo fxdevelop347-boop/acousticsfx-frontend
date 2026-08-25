@@ -34,6 +34,19 @@ export interface Blog extends BlogSummary {
   views?: number;
 }
 
+/**
+ * Editors pasting from Word or Google Docs produce bodies where every gap between
+ * words is a `&nbsp;` rather than a space — the published posts contain 982 of them
+ * and no ordinary spaces at all. A non-breaking space offers the browser no wrap
+ * opportunity, so a paragraph becomes one 7,000-character "word" that refuses to
+ * shrink and overflows whatever column it sits in. Collapsing them to real spaces
+ * restores normal wrapping. Runs are preserved as a single space, since the
+ * original intent was always an ordinary word gap.
+ */
+export function normalizeBodyHtml(html: string): string {
+  return html.replace(/(&nbsp;|\u00a0)+/g, " ");
+}
+
 interface BlogsResponse {
   success: boolean;
   blogs: BlogSummary[];
@@ -66,5 +79,9 @@ export async function fetchBlogBySlug(slug: string): Promise<Blog | null> {
   const data = await api.get<{ success: boolean; blog: Blog }>(
     `/api/blogs/slug/${encodeURIComponent(slug)}`
   );
-  return data.success && data.blog ? data.blog : null;
+  if (!data.success || !data.blog) return null;
+  const blog = data.blog;
+  return typeof blog.content === "string"
+    ? { ...blog, content: normalizeBodyHtml(blog.content) }
+    : blog;
 }

@@ -82,9 +82,9 @@ export default function BlogDetailLayout({ blog }: BlogDetailLayoutProps) {
 
   return (
     <div className="w-full py-6 sm:py-8 lg:py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6 sm:gap-8 lg:gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 grid grid-cols-1 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-6 sm:gap-8 lg:gap-10">
         {/* LEFT COLUMN - ALL TEXT CONTENT */}
-        <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+        <div className="min-w-0 space-y-4 sm:space-y-5 lg:space-y-6">
           {/* TAG */}
           {blog.tags && blog.tags.length > 0 ? (
             <span className="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-md inline-block">
@@ -141,7 +141,7 @@ export default function BlogDetailLayout({ blog }: BlogDetailLayoutProps) {
               // Body HTML is sanitized server-side on write (sanitizeArticleHtml),
               // so it is rendered as the author wrote it — images included.
               <div
-                className="prose max-w-none prose-headings:mt-4 sm:prose-headings:mt-5 lg:prose-headings:mt-6 prose-headings:mb-3 sm:prose-headings:mb-4 prose-p:mb-3 sm:prose-p:mb-4 prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:w-full prose-img:my-4 sm:prose-img:my-5 lg:prose-img:my-6 prose-a:text-blue-600 prose-a:underline prose-strong:font-bold prose-em:italic inter-font text-base sm:text-lg lg:text-[18px] font-[400] leading-relaxed text-gray-700"
+                className="prose prose-headings:mt-4 sm:prose-headings:mt-5 lg:prose-headings:mt-6 prose-headings:mb-3 sm:prose-headings:mb-4 prose-p:mb-3 sm:prose-p:mb-4 prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:w-full prose-img:my-4 sm:prose-img:my-5 lg:prose-img:my-6 prose-a:text-blue-600 prose-a:underline prose-strong:font-bold prose-em:italic inter-font text-base sm:text-lg lg:text-[18px] font-[400] leading-relaxed text-gray-700 max-w-full break-words [overflow-wrap:anywhere]"
                 dangerouslySetInnerHTML={{ __html: blog.content }}
               />
             ) : (
@@ -171,7 +171,7 @@ export default function BlogDetailLayout({ blog }: BlogDetailLayoutProps) {
         </div>
 
         {/* RIGHT COLUMN - RECENT BLOGS */}
-        <div className="space-y-5 sm:space-y-6 lg:space-y-8">
+        <div className="min-w-0 space-y-5 sm:space-y-6 lg:space-y-8">
           <button className="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-md cursor-pointer">
             Recent Blogs
           </button>

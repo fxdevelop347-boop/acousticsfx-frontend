@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "@/components/shared/SmartImage";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchLatestBlogs, type BlogSummary } from "@/lib/blogs-api";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
@@ -116,16 +117,22 @@ export default function LatestBlogs() {
           </h2>
         </div>
 
-        <button type="button" className="border px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm h-fit w-fit">
+        <Link
+          href="/resources/blogs"
+          className="border px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm h-fit w-fit"
+        >
           {val(content, "home.latestBlogs.ctaLabel")}
-        </button>
+        </Link>
 
       </div>
 
       {/* MOBILE CAROUSEL */}
       <div className="lg:hidden">
 
-        <div className="relative rounded-2xl overflow-hidden h-[min(52svh,320px)] sm:h-[420px]">
+        <Link
+          href={`/resources/blogs/${activeBlog.slug}`}
+          className="relative block rounded-2xl overflow-hidden h-[min(52svh,320px)] sm:h-[420px]"
+        >
 
           <Image
             src={activeBlog.image}
@@ -153,7 +160,7 @@ export default function LatestBlogs() {
           <span className="absolute top-4 right-4 bg-white text-xs px-3 py-1 rounded-full">
             {activeBlog.tag}
           </span>
-        </div>
+        </Link>
 
         <div className="hidden sm:flex justify-center gap-4 mt-4 sm:mt-6">
           <button
@@ -188,7 +195,10 @@ export default function LatestBlogs() {
       <div className="hidden lg:grid grid-cols-2 gap-8">
 
         {/* BIG BLOG */}
-        <div className="relative rounded-2xl overflow-hidden h-[420px]">
+        <Link
+          href={`/resources/blogs/${activeBlog.slug}`}
+          className="relative block rounded-2xl overflow-hidden h-[420px]"
+        >
           <Image
             src={activeBlog.image}
             alt={activeBlog.title}
@@ -215,19 +225,15 @@ export default function LatestBlogs() {
           <span className="absolute top-4 right-4 bg-white text-xs px-3 py-1 rounded-full">
             {activeBlog.tag}
           </span>
-        </div>
+        </Link>
 
         {/* RIGHT BLOGS */}
         <div className="grid grid-cols-2 gap-6">
           {sideBlogs.map((blog) => (
-            <div
+            <Link
               key={blog.id}
-              className="cursor-pointer"
-              onClick={() =>
-                setActiveIndex(
-                  blogs.findIndex((b) => b.id === blog.id)
-                )
-              }
+              href={`/resources/blogs/${blog.slug}`}
+              className="block cursor-pointer"
             >
               <div className="relative h-[160px] rounded-xl overflow-hidden mb-3">
                 <Image
@@ -253,7 +259,7 @@ export default function LatestBlogs() {
               <p className="text-sm text-gray-600">
                 {blog.desc}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
 

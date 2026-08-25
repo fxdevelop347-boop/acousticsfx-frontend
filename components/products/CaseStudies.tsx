@@ -3,26 +3,18 @@ import Link from "next/link";
 import { fetchCaseStudies, type CaseStudy } from "@/lib/case-studies-api";
 import { FadeIn, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
-const FALLBACK = [
-  { slug: "1", image: "/assets/product/case-study-1.jpg", title: "The Power of Symmetry in Architectural Design" },
-  { slug: "2", image: "/assets/product/product-card-6.png", title: "Smart Homes & AI: The Future of Residential Design" },
-  { slug: "3", image: "/assets/product/product-card-1.png", title: "The Role of Texture & Materials in Architecture" },
-];
-
 export default async function CaseStudies() {
-  let studies: Array<Pick<CaseStudy, "slug" | "image" | "title">>;
-  // Fallback slugs are placeholders with no case study behind them, so their
-  // cards must not link anywhere.
-  let isLive = true;
+  let studies: Array<Pick<CaseStudy, "slug" | "image" | "title">> = [];
 
   try {
-    const data = await fetchCaseStudies();
-    isLive = data.length > 0;
-    studies = isLive ? data.slice(0, 3) : FALLBACK;
+    studies = (await fetchCaseStudies()).slice(0, 3);
   } catch {
-    studies = FALLBACK;
-    isLive = false;
+    studies = [];
   }
+
+  // Nothing published means the section is omitted entirely rather than filled
+  // with sample projects that link nowhere.
+  if (studies.length === 0) return null;
 
   return (
     <section className="w-full bg-[#FAFAFA]">
@@ -104,16 +96,12 @@ export default async function CaseStudies() {
               <StaggerItem key={item.slug} direction="up">
 
                 <HoverScale>
-                  {isLive ? (
-                    <Link
-                      href={`/resources/casestudy/${item.slug}`}
-                      className="block cursor-pointer"
-                    >
-                      {card}
-                    </Link>
-                  ) : (
-                    <div>{card}</div>
-                  )}
+                  <Link
+                    href={`/resources/casestudy/${item.slug}`}
+                    className="block cursor-pointer"
+                  >
+                    {card}
+                  </Link>
                 </HoverScale>
 
               </StaggerItem>

@@ -359,3 +359,27 @@ input[type="reset"]:not(:disabled),
 .cs-rich .ql-align-right {
   text-align: right;
 }
+
+/* Empty-state waveform. Bars breathe at slightly different rates so the row reads
+   as an open mic waiting for input rather than as a progress indicator. */
+@keyframes cs-wave {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.cs-wave-bar {
+  transform-origin: center;
+  animation: cs-wave 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-wave-bar {
+    animation: none;
+    transform: scaleY(0.8);
+  }
+}

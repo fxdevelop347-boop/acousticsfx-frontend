@@ -11,12 +11,17 @@ const FALLBACK = [
 
 export default async function CaseStudies() {
   let studies: Array<Pick<CaseStudy, "slug" | "image" | "title">>;
+  // Fallback slugs are placeholders with no case study behind them, so their
+  // cards must not link anywhere.
+  let isLive = true;
 
   try {
     const data = await fetchCaseStudies();
-    studies = data.length > 0 ? data.slice(0, 3) : FALLBACK;
+    isLive = data.length > 0;
+    studies = isLive ? data.slice(0, 3) : FALLBACK;
   } catch {
     studies = FALLBACK;
+    isLive = false;
   }
 
   return (
@@ -60,47 +65,60 @@ export default async function CaseStudies() {
         {/* Cards */}
         <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-14">
 
-          {studies.map((item) => (
-            <StaggerItem key={item.slug} direction="up">
+          {studies.map((item) => {
+            const card = (
+              <>
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  width={500}
+                  height={400}
+                  className="w-full h-[260px] sm:h-[300px] lg:h-[320px] object-cover"
+                />
 
-              <HoverScale>
-                <div>
+                <h3 className="mt-6 text-[22px] sm:text-[23px] lg:text-[25px] font-semibold text-gray-900">
+                  {item.title}
+                </h3>
 
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    width={500}
-                    height={400}
-                    className="w-full h-[260px] sm:h-[300px] lg:h-[320px] object-cover"
-                  />
+                <div className="mt-4 flex items-center gap-3 text-[#EA8E39] text-[18px] sm:text-[20px] font-medium manrope group">
 
-                  <h3 className="mt-6 text-[22px] sm:text-[23px] lg:text-[25px] font-semibold text-gray-900">
-                    {item.title}
-                  </h3>
+                  <span>Read More</span>
 
-                  <div className="mt-4 flex items-center gap-3 text-[#EA8E39] text-[18px] sm:text-[20px] font-medium manrope cursor-pointer group">
+                  <span className="w-7 h-7 border border-orange-400 rounded-full flex items-center justify-center">
 
-                    <span>Read More</span>
+                    <Image
+                      src="/assets/contacts/Vector.svg"
+                      alt=""
+                      width={14}
+                      height={14}
+                      className="rotate-[0deg] transition-transform duration-300 group-hover:rotate-45"
+                    />
 
-                    <span className="w-7 h-7 border border-orange-400 rounded-full flex items-center justify-center">
-
-                      <Image
-                        src="/assets/contacts/Vector.svg"
-                        alt="arrow"
-                        width={14}
-                        height={14}
-                        className="rotate-[0deg] transition-transform duration-300 group-hover:rotate-45"
-                      />
-
-                    </span>
-
-                  </div>
+                  </span>
 
                 </div>
-              </HoverScale>
+              </>
+            );
 
-            </StaggerItem>
-          ))}
+            return (
+              <StaggerItem key={item.slug} direction="up">
+
+                <HoverScale>
+                  {isLive ? (
+                    <Link
+                      href={`/resources/casestudy/${item.slug}`}
+                      className="block cursor-pointer"
+                    >
+                      {card}
+                    </Link>
+                  ) : (
+                    <div>{card}</div>
+                  )}
+                </HoverScale>
+
+              </StaggerItem>
+            );
+          })}
 
         </StaggerContainer>
 

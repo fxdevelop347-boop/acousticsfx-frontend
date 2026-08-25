@@ -28,39 +28,6 @@ interface BlogCard {
   image: string;
 }
 
-const FALLBACK_BLOGS: BlogCard[] = [
-  {
-    id: "1",
-    slug: "the-power-of-restraint-in-architecture",
-    tag: "Insights",
-    date: "May 30, 2025",
-    title: "The Power of Restraint in Architecture",
-    desc:
-      "A look at how simplicity can sharpen communication, increase impact, and build longer-lasting brands.",
-    image: "/assets/home/Container2.png",
-  },
-  {
-    id: "2",
-    slug: "architecting-for-calm-ux-beyond-the-screen",
-    tag: "Digital Architect",
-    date: "May 23, 2025",
-    title: "Architecting for Calm: UX Beyond the Screen",
-    desc:
-      "An exploration of how subtle interaction, whitespace, and visual pacing shape user emotion.",
-    image: "/assets/home/Container.png",
-  },
-  {
-    id: "3",
-    slug: "building-a-timeless-identity",
-    tag: "Strategy",
-    date: "May 16, 2025",
-    title: "Building a Timeless Identity",
-    desc:
-      "A guide to creating brands that transcend trends, focusing on core values instead.",
-    image: "/assets/home/Container3.png",
-  },
-];
-
 function toBlogCard(b: BlogSummary): BlogCard {
   const d = b.publishedAt || b.createdAt;
 
@@ -86,7 +53,8 @@ function val(content: ContentMap, key: string) {
 }
 
 export default function LatestBlogs() {
-  const [blogs, setBlogs] = useState<BlogCard[]>(FALLBACK_BLOGS);
+  const [blogs, setBlogs] = useState<BlogCard[]>([]);
+  const [resolved, setResolved] = useState(false);
   const [content, setContent] = useState<ContentMap>({});
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -95,20 +63,22 @@ export default function LatestBlogs() {
 
     fetchLatestBlogs(3)
       .then((data) => {
-        if (data.length > 0) {
-          setBlogs(data.map(toBlogCard));
-          setActiveIndex(0);
-        }
+        setBlogs(data.map(toBlogCard));
+        setActiveIndex(0);
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setResolved(true));
   }, []);
 
   const activeBlog = blogs[activeIndex];
 
-  const sideBlogs = [
-    blogs[(activeIndex + 1) % blogs.length],
-    blogs[(activeIndex + 2) % blogs.length],
-  ];
+  // Guarded below by the empty check; on an empty list these would be `% 0`.
+  const sideBlogs = blogs.length
+    ? [
+        blogs[(activeIndex + 1) % blogs.length],
+        blogs[(activeIndex + 2) % blogs.length],
+      ]
+    : [];
 
   const next = () =>
     setActiveIndex((prev) => (prev + 1) % blogs.length);
@@ -126,6 +96,9 @@ export default function LatestBlogs() {
     }, 6000);
     return () => clearInterval(id);
   }, [blogs.length]);
+
+  // Nothing published means no section, rather than a carousel of invented posts.
+  if (!resolved || blogs.length === 0) return null;
 
   return (
     <section className="px-4 sm:px-6 lg:px-[100px] py-8 sm:py-[100px] bg-white">

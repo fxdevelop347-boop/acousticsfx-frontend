@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 /**
- * Shown where case study cards would be when there are none to show, or when the
- * list fails to load. The waveform is the site's own visual language (see
- * VoicePlug) rather than a stock empty-folder glyph: bars sitting quiet read as
- * a room with nothing recorded in it yet.
+ * Shown where resource cards (case studies, blog posts) would be when there are
+ * none to show, or when the list fails to load. The waveform is the site's own
+ * visual language (see VoicePlug) rather than a stock empty-folder glyph: bars
+ * sitting quiet read as a room with nothing recorded in it yet.
  */
 
 /** Resting heights in px. Asymmetric, so the row reads as a signal, not a chart. */
@@ -13,18 +13,18 @@ const BARS = [10, 18, 30, 46, 64, 44, 26, 16, 9];
 /** The two bars at the peak carry the accent; the rest stay quiet around them. */
 const ACCENT_INDEXES = new Set([3, 4, 5]);
 
-interface CaseStudiesEmptyStateProps {
+interface ResourceEmptyStateProps {
   title: string;
   message: string;
   /** Error copy shouldn't invite the reader to keep browsing as if nothing happened. */
   tone?: "empty" | "error";
 }
 
-export default function CaseStudiesEmptyState({
+export default function ResourceEmptyState({
   title,
   message,
   tone = "empty",
-}: CaseStudiesEmptyStateProps) {
+}: ResourceEmptyStateProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
       <div className="mx-auto max-w-xl rounded-2xl border border-gray-100 bg-white shadow-sm px-6 sm:px-10 py-12 sm:py-14 text-center">

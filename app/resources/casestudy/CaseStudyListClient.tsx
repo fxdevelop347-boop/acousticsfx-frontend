@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import CaseStudySection from "@/components/resources/CaseStudySection";
 import CaseStudyCard from "@/components/resources/CaseStudyCard";
-import CaseStudiesEmptyState from "@/components/resources/CaseStudiesEmptyState";
+import ResourceEmptyState from "@/components/resources/ResourceEmptyState";
 import Spinner from "@/components/shared/Spinner";
 import Testimonials from "@/components/home/Testimonials";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
@@ -80,7 +80,7 @@ export default function CaseStudyListClient() {
   if (error) {
     return (
       <>
-        <CaseStudiesEmptyState
+        <ResourceEmptyState
           tone="error"
           title="We couldn't load the case studies"
           message="Something went wrong on our side. Refresh the page to try again, or contact us and we'll send the projects over directly."
@@ -93,7 +93,7 @@ export default function CaseStudyListClient() {
   if (studies.length === 0) {
     return (
       <>
-        <CaseStudiesEmptyState
+        <ResourceEmptyState
           title="Case studies are on the way"
           message="We're documenting our recent acoustic installations. In the meantime, explore the panels and systems behind them, or tell us about your space."
         />

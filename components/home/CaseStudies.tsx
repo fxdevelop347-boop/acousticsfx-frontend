@@ -37,11 +37,19 @@ export default function CaseStudies() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const splideRef = useRef<any>(null);
   const [studies, setStudies] = useState<CaseStudy[]>(FALLBACK_STUDIES);
+  // Fallback slugs are placeholders with no case study behind them, so their
+  // cards must not link anywhere.
+  const [isLive, setIsLive] = useState(false);
   const [content, setContent] = useState<ContentMap>({});
 
   useEffect(() => {
     fetchCaseStudies()
-      .then((data) => { if (data.length > 0) setStudies(data); })
+      .then((data) => {
+        if (data.length > 0) {
+          setStudies(data);
+          setIsLive(true);
+        }
+      })
       .catch(console.error);
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
   }, []);
@@ -96,33 +104,53 @@ export default function CaseStudies() {
           }}
           ref={splideRef}
         >
-          {studies.map((item) => (
-            <SplideSlide key={item.slug}>
-              <StaggerContainer>
-                <StaggerItem direction="up">
-                  <HoverScale className="max-w-[420px]">
-                    {/* IMAGE */}
-                    <div className="relative h-[180px] sm:h-[240px] lg:h-[260px] w-full mb-3 sm:mb-4">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+          {studies.map((item) => {
+            const card = (
+              <>
+                {/* IMAGE */}
+                <div className="relative h-[180px] sm:h-[240px] lg:h-[260px] w-full mb-3 sm:mb-4 overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
-                    {/* TEXT */}
-                    <h3 className="font-semibold text-base sm:text-lg mb-1">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {item.description}
-                    </p>
-                  </HoverScale>
-                </StaggerItem>
-              </StaggerContainer>
-            </SplideSlide>
-          ))}
+                {/* TEXT — clamped because `description` is the full summary the
+                    admin wrote, which can run to many paragraphs. Unclamped it
+                    stretches the slide, and Splide sizes every slide to the
+                    tallest one. */}
+                <h3 className="font-semibold text-base sm:text-lg mb-1 line-clamp-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-600 line-clamp-3">
+                  {item.description}
+                </p>
+              </>
+            );
+
+            return (
+              <SplideSlide key={item.slug}>
+                <StaggerContainer>
+                  <StaggerItem direction="up">
+                    <HoverScale className="max-w-[420px]">
+                      {isLive ? (
+                        <Link
+                          href={`/resources/casestudy/${item.slug}`}
+                          className="block cursor-pointer"
+                        >
+                          {card}
+                        </Link>
+                      ) : (
+                        <div>{card}</div>
+                      )}
+                    </HoverScale>
+                  </StaggerItem>
+                </StaggerContainer>
+              </SplideSlide>
+            );
+          })}
         </Splide>
 
         {/* CUSTOM IMAGE ARROWS */}

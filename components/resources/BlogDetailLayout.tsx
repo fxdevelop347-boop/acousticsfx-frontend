@@ -2,84 +2,38 @@
 import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { api } from "@/lib/api/client";
-import Spinner from "@/components/shared/Spinner";
 import NewsletterSubscribe from "./NewsletterSubscribe";
+import {
+  fetchRecentBlogs,
+  type Blog,
+  type BlogContentBlock,
+  type BlogSummary,
+} from "@/lib/blogs-api";
 
 // Placeholder image as data URI
 const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e5e7eb' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
 
-// Content block types
-interface ContentBlock {
-  type: 'paragraph' | 'image' | 'heading';
-  content: string;
-  caption?: string;
-  order: number;
-}
-
-interface Blog {
-  _id: string;
-  title: string;
-  slug: string;
-  heroImage: string;
-  authorName: string;
-  authorEmail?: string;
-  authorImage?: string;
-  content: string | ContentBlock[]; // Can be HTML string or legacy ContentBlock array
-  excerpt?: string;
-  tags?: string[];
-  publishedAt?: string;
-  createdAt?: string;
-  views?: number;
-}
-
 interface BlogDetailLayoutProps {
-  slug: string;
+  /** The post to render. The page above fetches it once and passes it down. */
+  blog: Blog;
 }
 
-export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
-  const [blog, setBlog] = useState<Blog | null>(null);
-  const [recentBlogs, setRecentBlogs] = useState<Blog[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function BlogDetailLayout({ blog }: BlogDetailLayoutProps) {
+  const slug = blog.slug;
+  const [recentBlogs, setRecentBlogs] = useState<BlogSummary[]>([]);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (slug) {
-      fetchBlog();
-      fetchRecentBlogs();
-    }
+    let cancelled = false;
+    fetchRecentBlogs(slug)
+      .then((blogs) => {
+        if (!cancelled) setRecentBlogs(blogs);
+      })
+      .catch((err) => console.error("Failed to fetch recent blogs:", err));
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
-
-  const fetchBlog = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await api.get<{ success: boolean; blog: Blog }>(`/api/blogs/slug/${slug}`);
-      if (response.success && response.blog) {
-        setBlog(response.blog);
-      }
-    } catch (err) {
-      console.error("Failed to fetch blog:", err);
-      setError("Blog not found");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchRecentBlogs = async () => {
-    try {
-      // Use optimized recent blogs endpoint with limit and exclude current blog
-      const response = await api.get<{ success: boolean; blogs: Blog[] }>(
-        `/api/blogs?recent=true&limit=5&excludeSlug=${encodeURIComponent(slug)}`
-      );
-      if (response.success && response.blogs) {
-        setRecentBlogs(response.blogs);
-      }
-    } catch (err) {
-      console.error("Failed to fetch recent blogs:", err);
-    }
-  };
 
   const handleImageError = (key: string) => {
     setImgErrors(prev => ({ ...prev, [key]: true }));
@@ -94,7 +48,7 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
     });
   };
 
-  const renderContentBlock = (block: ContentBlock, index: number) => {
+  const renderContentBlock = (block: BlogContentBlock, index: number) => {
     switch (block.type) {
       case 'heading':
         return (
@@ -103,24 +57,11 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
           </h2>
         );
       case 'image':
-        // Replace with product images - cycle through available product images
-        const productImages = [
-          "/assets/product/product-card-1.png",
-          "/assets/product/product-card-2.png",
-          "/assets/product/product-card-3.png",
-          "/assets/product/product-card-4.png",
-          "/assets/product/product-card-5.png",
-          "/assets/product/product-card-6.png",
-          "/assets/product/product-feature-1.png",
-          "/assets/product/product-feature-2.png",
-          "/assets/product/product-feature-3.png",
-          "/assets/product/product-feature-4.png",
-        ];
-        const imageIndex = index % productImages.length;
         return (
           <div key={index} className="my-4 sm:my-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={productImages[imageIndex]}
+              src={block.content || PLACEHOLDER_IMAGE}
               alt={block.caption || "Blog image"}
               className="rounded-lg sm:rounded-xl w-full max-h-[250px] sm:max-h-[350px] lg:max-h-[400px] object-cover"
             />
@@ -138,34 +79,6 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
         );
     }
   };
-
-  if (loading) {
-    return (
-      <div className="w-full py-6 sm:py-8 lg:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6">
-          <div className="flex items-center justify-center gap-3 py-12 sm:py-16 lg:py-20">
-            <Spinner size="sm" />
-            <span className="text-sm text-gray-500">Loading blog…</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !blog) {
-    return (
-      <div className="w-full py-6 sm:py-8 lg:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6">
-          <div className="flex flex-col items-center justify-center py-12 sm:py-16 lg:py-20">
-            <div className="text-gray-500 mb-4 text-sm sm:text-base">{error || "Blog not found"}</div>
-            <Link href="/resources" className="text-blue-600 hover:underline text-sm sm:text-base cursor-pointer">
-              ← Back to Resources
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full py-6 sm:py-8 lg:py-10">
@@ -192,7 +105,7 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
           <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4 flex-wrap">
             {blog.authorImage ? (
               <img
-                src={imgErrors['author'] ? PLACEHOLDER_IMAGE : "/assets/product/product-card-3.png"}
+                src={imgErrors['author'] ? PLACEHOLDER_IMAGE : blog.authorImage}
                 width={32}
                 height={32}
                 alt={blog.authorName}
@@ -225,41 +138,14 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
           {/* TEXT CONTENT */}
           <div className="mt-4 sm:mt-5 lg:mt-6 space-y-4 sm:space-y-5 lg:space-y-6 text-gray-700 leading-relaxed">
             {typeof blog.content === 'string' ? (
-              // Render HTML content directly - replace all images with product images
+              // Body HTML is sanitized server-side on write (sanitizeArticleHtml),
+              // so it is rendered as the author wrote it — images included.
               <div
                 className="prose max-w-none prose-headings:mt-4 sm:prose-headings:mt-5 lg:prose-headings:mt-6 prose-headings:mb-3 sm:prose-headings:mb-4 prose-p:mb-3 sm:prose-p:mb-4 prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:w-full prose-img:my-4 sm:prose-img:my-5 lg:prose-img:my-6 prose-a:text-blue-600 prose-a:underline prose-strong:font-bold prose-em:italic inter-font text-base sm:text-lg lg:text-[18px] font-[400] leading-relaxed text-gray-700"
-                dangerouslySetInnerHTML={{
-                  __html: (() => {
-                    const productImages = [
-                      "/assets/product/product-card-1.png",
-                      "/assets/product/product-card-2.png",
-                      "/assets/product/product-card-3.png",
-                      "/assets/product/product-card-4.png",
-                      "/assets/product/product-card-5.png",
-                      "/assets/product/product-card-6.png",
-                      "/assets/product/product-feature-1.png",
-                      "/assets/product/product-feature-2.png",
-                      "/assets/product/product-feature-3.png",
-                      "/assets/product/product-feature-4.png",
-                    ];
-                    let imageCounter = 0;
-                    return blog.content.replace(
-                      /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
-                      (match, src) => {
-                        // Replace all images (except data URIs) with product images
-                        if (src && !src.startsWith('data:')) {
-                          const replacementImage = productImages[imageCounter % productImages.length];
-                          imageCounter++;
-                          return match.replace(src, replacementImage);
-                        }
-                        return match;
-                      }
-                    );
-                  })()
-                }}
+                dangerouslySetInnerHTML={{ __html: blog.content }}
               />
             ) : (
-              // Render legacy ContentBlock array - images already replaced in renderContentBlock
+              // Legacy ContentBlock array, kept for posts written before the HTML editor.
               blog.content
                 .sort((a, b) => (a.order || 0) - (b.order || 0))
                 .map((block, idx) => renderContentBlock(block, idx))
@@ -300,7 +186,7 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
                 className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm block hover:shadow-md transition cursor-pointer"
               >
                 <img
-                  src={imgErrors[`recent-${recentBlog._id}`] ? PLACEHOLDER_IMAGE : "/assets/product/product-card-1.png"}
+                  src={imgErrors[`recent-${recentBlog._id}`] ? PLACEHOLDER_IMAGE : recentBlog.heroImage}
                   width={400}
                   height={250}
                   alt={recentBlog.title}
@@ -322,16 +208,16 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
                 <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 flex-wrap">
                   {recentBlog.authorImage ? (
                     <img
-                      src={imgErrors[`recent-author-${recentBlog._id}`] ? PLACEHOLDER_IMAGE : "/assets/product/product-card-4.png"}
+                      src={imgErrors[`recent-author-${recentBlog._id}`] ? PLACEHOLDER_IMAGE : recentBlog.authorImage}
                       width={26}
                       height={26}
-                      alt={recentBlog.authorName}
+                      alt={recentBlog.authorName ?? ""}
                       className="rounded-full w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] object-cover"
                       onError={() => handleImageError(`recent-author-${recentBlog._id}`)}
                     />
                   ) : (
                     <div className="w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rounded-full bg-gray-200 flex items-center justify-center text-[10px] sm:text-xs text-gray-600">
-                      {recentBlog.authorName.charAt(0).toUpperCase()}
+                      {recentBlog.authorName?.charAt(0)?.toUpperCase() ?? "?"}
                     </div>
                   )}
                   <p className="text-[11px] sm:text-xs inter-font font-[500] text-gray-700">{recentBlog.authorName}</p>
@@ -374,7 +260,7 @@ export default function BlogDetailLayout({ slug }: BlogDetailLayoutProps) {
                 >
                   <div className="relative">
                     <Image
-                      src={imgErrors[`insight-${insightBlog._id}`] ? PLACEHOLDER_IMAGE : "/assets/product/product-card-2.png"}
+                      src={imgErrors[`insight-${insightBlog._id}`] ? PLACEHOLDER_IMAGE : insightBlog.heroImage}
                       alt={insightBlog.title}
                       width={400}
                       height={300}

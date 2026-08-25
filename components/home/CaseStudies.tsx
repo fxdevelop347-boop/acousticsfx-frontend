@@ -22,13 +22,6 @@ const DEFAULTS: Record<string, string> = {
   "home.caseStudies.ctaLabel": "VIEW ALL CASESTUDIES →",
 };
 
-const FALLBACK_STUDIES = [
-  { slug: "1", image: "/assets/home/image 5.png", title: "Architecture", description: "The interior of the apartments." },
-  { slug: "2", image: "/assets/home/Image.png", title: "Acoustic Design", description: "Custom acoustic panels for offices." },
-  { slug: "3", image: "/assets/home/image 6.png", title: "Workspace", description: "Modern workspace noise solutions." },
-  { slug: "4", image: "/assets/home/image 5.png", title: "Auditorium", description: "Sound clarity for large auditoriums." },
-];
-
 function val(c: ContentMap, key: string) {
   return c[key]?.value ?? DEFAULTS[key] ?? "";
 }
@@ -36,23 +29,24 @@ function val(c: ContentMap, key: string) {
 export default function CaseStudies() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const splideRef = useRef<any>(null);
-  const [studies, setStudies] = useState<CaseStudy[]>(FALLBACK_STUDIES);
-  // Fallback slugs are placeholders with no case study behind them, so their
-  // cards must not link anywhere.
-  const [isLive, setIsLive] = useState(false);
+  const [studies, setStudies] = useState<CaseStudy[]>([]);
+  // Until the fetch settles there is nothing truthful to show, so the section
+  // stays out of the page rather than flashing placeholder cards.
+  const [resolved, setResolved] = useState(false);
   const [content, setContent] = useState<ContentMap>({});
 
   useEffect(() => {
     fetchCaseStudies()
-      .then((data) => {
-        if (data.length > 0) {
-          setStudies(data);
-          setIsLive(true);
-        }
-      })
-      .catch(console.error);
+      .then(setStudies)
+      .catch(console.error)
+      .finally(() => setResolved(true));
     fetchContent(CONTENT_KEYS).then(setContent).catch(console.error);
   }, []);
+
+  // No published case studies means no case studies section. An empty band under
+  // a "case studies that inspire us" heading is worse than the section's absence,
+  // and inventing sample projects would put fiction on the homepage.
+  if (!resolved || studies.length === 0) return null;
 
   const heading = val(content, "home.caseStudies.heading");
 
@@ -135,16 +129,12 @@ export default function CaseStudies() {
                 <StaggerContainer>
                   <StaggerItem direction="up">
                     <HoverScale className="max-w-[420px]">
-                      {isLive ? (
-                        <Link
-                          href={`/resources/casestudy/${item.slug}`}
-                          className="block cursor-pointer"
-                        >
-                          {card}
-                        </Link>
-                      ) : (
-                        <div>{card}</div>
-                      )}
+                      <Link
+                        href={`/resources/casestudy/${item.slug}`}
+                        className="block cursor-pointer"
+                      >
+                        {card}
+                      </Link>
                     </HoverScale>
                   </StaggerItem>
                 </StaggerContainer>

@@ -3,54 +3,47 @@
 import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { api } from "@/lib/api/client";
 import Spinner from "@/components/shared/Spinner";
 import Testimonials from "@/components/home/Testimonials";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
+import ResourceEmptyState from "@/components/resources/ResourceEmptyState";
+import { fetchBlogs, type BlogSummary } from "@/lib/blogs-api";
 import { slugify } from "@/lib/utils";
 
 const PLACEHOLDER_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e5e7eb' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
 
-interface Blog {
-  _id: string;
-  title: string;
-  slug: string;
-  heroImage: string;
-  authorName: string;
-  authorImage?: string;
-  excerpt?: string;
-  tags?: string[];
-  publishedAt?: string;
-  createdAt?: string;
-}
-
 export default function BlogsListPage() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogs, setBlogs] = useState<BlogSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [imgErrors, setImgErrors] = useState<Record<number, { post: boolean; author: boolean }>>({});
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get<{ success: boolean; blogs: Blog[] }>("/api/blogs");
-        if (response.success && response.blogs) {
-          setBlogs(response.blogs);
-          const initial: Record<number, { post: boolean; author: boolean }> = {};
-          response.blogs.forEach((_, i) => {
-            initial[i] = { post: false, author: false };
-          });
-          setImgErrors(initial);
-        }
-      } catch (error) {
+    let cancelled = false;
+
+    fetchBlogs()
+      .then((data) => {
+        if (cancelled) return;
+        setBlogs(data);
+        const initial: Record<number, { post: boolean; author: boolean }> = {};
+        data.forEach((_, i) => {
+          initial[i] = { post: false, author: false };
+        });
+        setImgErrors(initial);
+      })
+      .catch((error) => {
+        if (cancelled) return;
         console.error("Failed to fetch blogs:", error);
-        setBlogs([]);
-      } finally {
-        setLoading(false);
-      }
+        setFailed(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
     };
-    fetchBlogs();
   }, []);
 
   const handleImageError = (postIdx: number, type: "post" | "author") => {
@@ -89,8 +82,17 @@ export default function BlogsListPage() {
               <Spinner size="sm" />
               <span className="text-sm text-gray-500">Loading blogs…</span>
             </div>
+          ) : failed ? (
+            <ResourceEmptyState
+              tone="error"
+              title="We couldn't load the articles"
+              message="Something went wrong on our side. Refresh the page to try again, or contact us and we'll send them over directly."
+            />
           ) : blogs.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">No blog posts available.</div>
+            <ResourceEmptyState
+              title="Articles are on the way"
+              message="We're writing up what we've learned from recent acoustic projects. In the meantime, explore our products or talk to the team."
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {blogs.map((blog, idx) => {
@@ -129,7 +131,7 @@ export default function BlogsListPage() {
                           src={imgErrors[idx]?.author ? PLACEHOLDER_IMAGE : blog.authorImage}
                           width={28}
                           height={28}
-                          alt={blog.authorName}
+                          alt={blog.authorName ?? ""}
                           className="rounded-full object-cover"
                           onError={() => handleImageError(idx, "author")}
                         />

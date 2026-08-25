@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import CaseStudySection from "@/components/resources/CaseStudySection";
 import CaseStudyCard from "@/components/resources/CaseStudyCard";
+import ResourceEmptyState from "@/components/resources/ResourceEmptyState";
 import Spinner from "@/components/shared/Spinner";
 import Testimonials from "@/components/home/Testimonials";
 import ConnectWithExperts from "@/components/home/ConnectWithExperts";
@@ -78,20 +79,24 @@ export default function CaseStudyListClient() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <p className="text-gray-600">{error}</p>
-      </div>
+      <>
+        <ResourceEmptyState
+          tone="error"
+          title="We couldn't load the case studies"
+          message="Something went wrong on our side. Refresh the page to try again, or contact us and we'll send the projects over directly."
+        />
+        <ConnectWithExperts />
+      </>
     );
   }
 
   if (studies.length === 0) {
     return (
       <>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
-          <p className="text-gray-600">
-            Our case studies are being prepared. Check back shortly.
-          </p>
-        </div>
+        <ResourceEmptyState
+          title="Case studies are on the way"
+          message="We're documenting our recent acoustic installations. In the meantime, explore the panels and systems behind them, or tell us about your space."
+        />
         <ConnectWithExperts />
       </>
     );
@@ -150,9 +155,18 @@ export default function CaseStudyListClient() {
                 ))}
               </StaggerContainer>
             ) : (
-              <p className="text-gray-500 py-10 text-center">
-                No case studies in this category yet.
-              </p>
+              <div className="py-12 text-center">
+                <p className="text-gray-600 mb-3">
+                  No case studies in this category yet.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveIndustry(ALL)}
+                  className="text-sm font-medium text-[#EA8E39] hover:underline cursor-pointer"
+                >
+                  Show all case studies
+                </button>
+              </div>
             )}
           </div>
         </section>

@@ -21,7 +21,7 @@ const CONTENT_KEYS = [
 const DEFAULTS: Record<string, string> = {
   "footer.about": "Premium acoustic solutions blending cutting-edge sound control with elegant design",
   "footer.copyright": `© Copyright ${new Date().getFullYear()} FX Acoustics Inc. — All Rights Reserved.`,
-  "footer.contactEmail": "info@fxacoustics.com",
+  "footer.contactEmail": "info@acousticsfx.com",
   "footer.contactAddress1": "",
   "footer.contactAddress2": "",
 };
@@ -29,7 +29,7 @@ const DEFAULTS: Record<string, string> = {
 type ServiceLink = { _id: string; label: string; href?: string };
 
 const FALLBACK_SERVICES: ServiceLink[] = [
-  { _id: "1", label: "Acoustic Solution", href: "/products/acoustic" },
+  { _id: "1", label: "Acoustic Solution", href: "/products/acoustics" },
   { _id: "2", label: "Sound Proofing", href: "/products" },
   { _id: "3", label: "Floor Solution", href: "/products" },
 ];
@@ -138,9 +138,17 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 sm:space-y-3 text-sm sm:text-[18px] inter-font font-medium text-gray-700 text-left">
               <li>
-                <a href={`mailto:${val(content, "footer.contactEmail")}`} className="hover:underline text-gray-700">
-                  {val(content, "footer.contactEmail")}
-                </a>
+                {val(content, "footer.contactEmail")
+                  .split(/\s*[/,]\s*/)
+                  .filter(Boolean)
+                  .map((email, i) => (
+                    <span key={email}>
+                      {i > 0 && " / "}
+                      <a href={`mailto:${email}`} className="hover:underline text-gray-700">
+                        {email}
+                      </a>
+                    </span>
+                  ))}
               </li>
               <li>{val(content, "footer.contactAddress1")}</li>
               <li>{val(content, "footer.contactAddress2")}</li>

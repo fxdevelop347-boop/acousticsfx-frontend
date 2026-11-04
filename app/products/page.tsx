@@ -15,7 +15,7 @@ import { SEO_KEYWORDS_PRODUCTS } from "@/lib/seo-keywords";
 
 export const metadata: Metadata = {
   title:
-    "Acoustic Panels, Soundproofing & Flooring Products | FX Acoustics",
+    "Acoustic Panels, Soundproofing & Flooring Products",
   description:
     "Browse FX Acoustics products—wood and fabric acoustic panels, baffles, clouds, soundproofing systems, and hardwood flooring—with NRC-rated performance for Indian commercial and residential spaces.",
   keywords: SEO_KEYWORDS_PRODUCTS,

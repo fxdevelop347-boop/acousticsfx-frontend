@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "@/components/shared/SmartImage";
 import Link from "next/link";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { safeHref } from "@/lib/utils";
 import { FadeIn } from "@/components/animations";
 
 const CONTENT_KEYS = [
@@ -84,14 +85,14 @@ export default function AboutHero() {
         {/* Buttons */}
         <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2.5 sm:gap-3.5 justify-center w-full max-w-xs sm:max-w-none">
           <Link
-            href={val(content, "about.hero.cta1Link")}
+            href={safeHref(val(content, "about.hero.cta1Link"), DEFAULTS["about.hero.cta1Link"])}
             className="border border-white px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm poppins-font font-medium hover:bg-white hover:text-black transition cursor-pointer text-center rounded-sm"
           >
             {val(content, "about.hero.cta1Label")}
           </Link>
 
           <Link
-            href={val(content, "about.hero.cta2Link")}
+            href={safeHref(val(content, "about.hero.cta2Link"), DEFAULTS["about.hero.cta2Link"])}
             className="bg-orange-500 px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm poppins-font font-medium hover:bg-orange-600 transition cursor-pointer inline-block text-center rounded-sm"
           >
             {val(content, "about.hero.cta2Label")}

@@ -5,6 +5,16 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "react-icons"],
   },
+  /** The category slug is "acoustics"; the old "acoustic" URL was in the sitemap and rendered Not Found. */
+  async redirects() {
+    return [
+      {
+        source: "/products/acoustic/:path*",
+        destination: "/products/acoustics/:path*",
+        permanent: true,
+      },
+    ];
+  },
   /** Cache public assets (paths are not hashed; use SWR so updates propagate without stale-forever risk). */
   async headers() {
     return [

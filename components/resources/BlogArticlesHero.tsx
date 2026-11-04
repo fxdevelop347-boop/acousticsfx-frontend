@@ -17,11 +17,7 @@ export default function BlogArticlesHero({ blogTitle, isDetailPage = false, hero
     const [, setSwiper] = useState<SwiperType | null>(null);
     const HeroHeadingTag: "h1" | "p" = isDetailPage ? "p" : "h1";
 
-    const slides = [
-        { bg: "/resources/rebg.png" },
-        { bg: "/resources/rebg.png" },
-        { bg: "/resources/rebg.png" }
-    ];
+    const slides = [0, 1, 2];
 
     // If it's a detail page with hero image, show single image without heading
     if (isDetailPage && heroImage) {
@@ -46,15 +42,12 @@ export default function BlogArticlesHero({ blogTitle, isDetailPage = false, hero
                 onSwiper={setSwiper}
                 className="w-full h-full"
             >
-                {slides.map((slide, index) => (
+                {slides.map((index) => (
                     <SwiperSlide key={index}>
                         <div
                             className="w-full h-full relative"
                             style={{
-                                backgroundImage: `url('${slide.bg}')`,
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                                backgroundRepeat: "no-repeat"
+                                backgroundColor: "#1f2528"
                             }}
                         >
                             {/* HERO SECTION */}

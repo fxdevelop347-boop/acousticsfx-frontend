@@ -3,6 +3,7 @@
 import Image from "@/components/shared/SmartImage";
 import { useEffect, useRef, useState } from "react";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { safeHref } from "@/lib/utils";
 import { FadeIn, SlideIn } from "@/components/animations";
 import gsap from "gsap";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
@@ -78,7 +79,7 @@ export default function ServiceProvider() {
   const subtitle = val(content, "home.services.subtitle");
   const description = val(content, "home.services.description");
   const ctaText = val(content, "home.services.ctaText");
-  const ctaLink = val(content, "home.services.ctaLink");
+  const ctaLink = safeHref(val(content, "home.services.ctaLink"), DEFAULTS["home.services.ctaLink"]);
 
   return (
     <section className="px-4 sm:px-10 lg:px-[100px] py-8 sm:py-12 lg:py-16">

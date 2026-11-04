@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "@/components/shared/SmartImage";
 import { fetchContent, type ContentMap } from "@/lib/content-api";
+import { safeHref } from "@/lib/utils";
 import { FadeIn, SlideIn } from "@/components/animations";
 
 const CONTENT_KEYS = [
@@ -89,7 +90,7 @@ export default function AboutSection() {
             </p>
 
             <a
-              href={val(content, "home.about.ctaLink")}
+              href={safeHref(val(content, "home.about.ctaLink"), DEFAULTS["home.about.ctaLink"])}
               className="inline-block bg-orange-500 px-5 py-2.5 sm:px-6 sm:py-3 text-white text-xs sm:text-[15px] cursor-pointer no-underline hover:opacity-90 transition"
             >
               {val(content, "home.about.ctaLabel")}

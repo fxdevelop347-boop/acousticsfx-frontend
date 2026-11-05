@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import {
@@ -162,7 +163,8 @@ export default function RootLayout({
         <GoogleAnalytics />
         <SpeedInsights />
         <Header />
-        <main>{children}</main>
+        {/* Without this boundary, React error #418 occasionally fired at <main> (9 of 1500 test loads on Next 16.1.1, 0 of 1500 with it). */}
+        <main><Suspense>{children}</Suspense></main>
         <Footer />
         <Toaster position="bottom-right" richColors closeButton />
       </body>
